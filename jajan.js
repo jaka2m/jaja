@@ -1,3 +1,124 @@
+// Class
+class Document {
+  constructor(request) {
+    this.request = request;
+    this.title = "";
+    this.infos = [];
+    this.prxCards = [];
+    this.pages = [];
+  }
+
+  setTitle(title) {
+    this.title = title;
+  }
+
+  addInfo(info) {
+    this.infos.push(info);
+  }
+
+  registerPrxs(prx, prxs) {
+    const prxCard = `
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+      <div class="p-4">
+        <h2 class="text-xl font-bold">${prx.prxIP}</h2>
+        <p class="text-gray-600">${prx.org}</p>
+        <div class="mt-2">
+          <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">
+            ${getFlagEmoji(prx.country)} ${prx.country}
+          </span>
+        </div>
+        <div class="mt-4">
+          ${prxs
+            .map(
+              (p) => `
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-gray-700">${p.split("#")[1]}</span>
+              <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onclick="copyToClipboard('${p}')"
+              >
+                Copy
+              </button>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+    `;
+    this.prxCards.push(prxCard);
+  }
+
+  addPageButton(text, link, disabled = false) {
+    this.pages.push({
+      text,
+      link,
+      disabled,
+    });
+  }
+
+  build() {
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Nautica</title>
+        <link
+          href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+          rel="stylesheet"
+        />
+        <script>
+          function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(
+              function () {
+                alert("Copied to clipboard!");
+              },
+              function (err) {
+                alert("Failed to copy: " + err);
+              }
+            );
+          }
+        </script>
+      </head>
+      <body class="bg-gray-100">
+        <div class="container mx-auto p-4">
+          <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">
+              ${this.title}
+            </h1>
+            <p class="text-gray-600">
+              ${this.infos.join(" | ")}
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${this.prxCards.join("")}
+          </div>
+          <div class="flex justify-center mt-8">
+            ${this.pages
+              .map(
+                (page) => `
+              <a
+                href="${page.link}"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+                  page.disabled ? "opacity-50 cursor-not-allowed" : ""
+                }"
+              >
+                ${page.text}
+              </a>
+            `
+              )
+              .join("")}
+          </div>
+        </div>
+      </body>
+    </html>
+    `;
+  }
+}
+
 import { connect } from "cloudflare:sockets";
 // import { createHash, createDecipheriv } from "node:crypto";
 // import { Buffer } from "node:buffer";
@@ -16,12 +137,13 @@ let cachedPrxList = [];
 // Constant
 const horse = "dHJvamFu";
 const flash = "dm1lc3M=";
+const vless = "dmxlc3M=";
 const v2 = "djJyYXk=";
 const neko = "Y2xhc2g=";
 
 const APP_DOMAIN = `${serviceName}.${rootDomain}`;
 const PORTS = [443, 80];
-const PROTOCOLS = [atob(horse), atob(flash), "ss"];
+const PROTOCOLS = [atob(horse), atob(vless), atob(flash), "ss"];
 const KV_PRX_URL = "https://raw.githubusercontent.com/FoolVPN-ID/Nautica/refs/heads/main/kvProxyList.json";
 const PRX_BANK_URL = "https://raw.githubusercontent.com/FoolVPN-ID/Nautica/refs/heads/main/proxyList.txt";
 const DNS_SERVER_ADDRESS = "8.8.8.8";
@@ -138,8 +260,10 @@ function getAllConfig(request, hostName, prxList, page = 0) {
       const prxs = [];
       for (const port of PORTS) {
         uri.port = port.toString();
-        uri.hash = `${i + 1} ${getFlagEmoji(country)} ${org} WS ${port == 443 ? "TLS" : "NTLS"} [${serviceName}]`;
         for (const protocol of PROTOCOLS) {
+          uri.hash = `${i + 1} ${getFlagEmoji(country)} ${org} ${protocol.toUpperCase()} WS ${
+            port == 443 ? "TLS" : "NTLS"
+          } [${serviceName}]`;
           // Special exceptions
           if (protocol === "ss") {
             uri.username = btoa(`none:${uuid}`);
@@ -156,7 +280,7 @@ function getAllConfig(request, hostName, prxList, page = 0) {
 
           uri.protocol = protocol;
           uri.searchParams.set("security", port == 443 ? "tls" : "none");
-          uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : hostName);
+          uri.searchParams.set("sni", port == 443 ? hostName : "");
 
           // Build VPN URI
           prxs.push(uri.toString());
@@ -179,7 +303,7 @@ function getAllConfig(request, hostName, prxList, page = 0) {
 
     return document.build();
   } catch (error) {
-    return `An error occurred while generating the ${atob(flash).toUpperCase()} configurations. ${error}`;
+    return `An error occurred while generating the configurations. ${error}`;
   }
 }
 
@@ -327,7 +451,7 @@ export default {
                 }
 
                 uri.searchParams.set("security", port == 443 ? "tls" : "none");
-                uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : APP_DOMAIN);
+                uri.searchParams.set("sni", port == 443 ? APP_DOMAIN : "");
                 uri.searchParams.set("path", `/${prx.prxIP}-${prx.prxPort}`);
 
                 uri.hash = `${result.length + 1} ${getFlagEmoji(prx.country)} ${prx.org} WS ${
