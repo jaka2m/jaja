@@ -1516,8 +1516,13 @@ let baseHTML = `
         const searchBar = document.getElementById("search-bar");
         const searchValue = searchBar.value;
         const url = new URL(window.location.href);
-        url.searchParams.delete("cc");
-        url.searchParams.set("search", searchValue);
+        if (searchValue.length === 2) {
+          url.searchParams.set("cc", searchValue);
+          url.searchParams.delete("search");
+        } else {
+          url.searchParams.set("search", searchValue);
+          url.searchParams.delete("cc");
+        }
         window.location.href = url.toString();
       }
 
@@ -1785,7 +1790,7 @@ proxyGroupElement += `    </div>`;
 
     buildCountryFlag() {
         const prxBankUrl = this.url.searchParams.get("prx-list");
-        const selectedCCs = (this.url.searchParams.get("cc")?.toUpperCase() || "").split(',');
+        const selectedCC = this.url.searchParams.get("cc");
         const flagList = [];
         for (const proxy of cachedPrxList) {
             flagList.push(proxy.country);
@@ -1793,7 +1798,7 @@ proxyGroupElement += `    </div>`;
 
         let flagElement = "";
         for (const flag of new Set(flagList)) {
-            const isSelected = selectedCCs.includes(flag);
+            const isSelected = selectedCC === flag;
             // Apply different classes based on selection state
             const linkClasses = isSelected 
                 ? 'border-2 border-blue-400 rounded-lg p-0.5' // Classes for selected flag
