@@ -12,7 +12,7 @@ const flash = "dmxlc3M=";
 const v2 = "djJyYXk=";
 const neko = "Y2xhc2g=";
 
-const APP_DOMAIN = `${serviceName}.${rootDomain}`;
+// const APP_DOMAIN = `${serviceName}.${rootDomain}`;
 const PORTS = [443, 80];
 const PROTOCOLS = [atob(horse), atob(flash), "ss"];
 const wildcards = [
@@ -110,7 +110,7 @@ export default {
      const proxyState = new Map();
 
 async function updateProxies() {
-  const proxies = await getProxyList(env);
+  const proxies = await getProxyList();
   console.log("Proxy list updated (getProxyList called).");
 }
 
@@ -1961,39 +1961,39 @@ function buildCountryFlag() {
     <td class="path-cell">${config.path}</td>
     <td class="button-cell">
         <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('VLess', '${vlessTLSRibet}', '${vlessTLSSimple}')">
+            onclick="showOptions('VLess', '${vlessTLSRibet}', '${vlessTLSSimple}', '${config.countryCode}', '${config.ip}', '${config.isp}')">
             VLESS
         </button>
     </td>
     <td class="button-cell">
         <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('Trojan', '${trojanTLSRibet}', '${trojanTLSSimple}')">
+            onclick="showOptions('Trojan', '${trojanTLSRibet}', '${trojanTLSSimple}', '${config.countryCode}', '${config.ip}', '${config.isp}')">
             TROJAN
         </button>
     </td>
     <td class="button-cell">
         <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('SS', '${ssTLSRibet}', '${ssTLSSimple}')">
+            onclick="showOptions('SS', '${ssTLSRibet}', '${ssTLSSimple}', '${config.countryCode}', '${config.ip}', '${config.isp}')">
             Shadowsocks
         </button>
     </td>
 </tr>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 <script>
-    function showOptions(type, vlessTLSRibet, vlessTLSSimple, config) {
+    function showOptions(type, vlessTLSRibet, vlessTLSSimple, countryCode, ip, isp) {
         Swal.fire({
             width: '270px',
             html: \`
                 <div class="px-1 py-1 text-center">
-                <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
+                <span class="flag-circle flag-icon flag-icon-${countryCode.toLowerCase()}"
                 style="width: 60px; height: 60px; border-radius: 50%; display: inline-block;">
                 </span>
                 </div>
                 <div class="mt-3">
                 <div class="h-px bg-[#4682b4] shadow-sm"></div>
-                <div class="text-xs">IP : ${config.ip}</div>
-                <div class="text-xs">ISP : ${config.isp}</div>
-                <div class="text-xs">Country : ${config.countryCode}</div>
+                <div class="text-xs">IP : ${ip}</div>
+                <div class="text-xs">ISP : ${isp}</div>
+                <div class="text-xs">Country : ${countryCode}</div>
                 <div class="h-px bg-[#4682b4] shadow-sm"></div>
                 <div class="mt-3">
                 <button class="bg-[#2ecc71] bg-opacity-80 py-2 px-3 text-xs rounded-md" onclick="copy('\${vlessTLSSimple}')">COPY PATH COUNTRY</button>
@@ -2087,39 +2087,39 @@ function buildCountryFlag() {
     <td class="path-cell">${config.path}</td>
     <td class="button-cell">
         <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('VLess', '${vlessNTLSRibet}', '${vlessNTLSSimple}')">
+            onclick="showOptions('VLess', '${vlessNTLSRibet}', '${vlessNTLSSimple}', '${config.countryCode}', '${config.ip}', '${config.isp}')">
             VLESS
         </button>
     </td>
     <td class="button-cell">
         <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('Trojan', '${trojanNTLSRibet}', '${trojanNTLSSimple}')">
+            onclick="showOptions('Trojan', '${trojanNTLSRibet}', '${trojanNTLSSimple}', '${config.countryCode}', '${config.ip}', '${config.isp}')">
             TROJAN
         </button>
     </td>
     <td class="button-cell">
         <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('SS', '${ssNTLSRibet}', '${ssNTLSSimple}')">
+            onclick="showOptions('SS', '${ssNTLSRibet}', '${ssNTLSSimple}', '${config.countryCode}', '${config.ip}', '${config.isp}')">
             Shadowsocks
         </button>
     </td>
 </tr>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 <script>
-    function showOptions(type, vlessTLSRibet, vlessTLSSimple, config) {
+    function showOptions(type, vlessTLSRibet, vlessTLSSimple, countryCode, ip, isp) {
         Swal.fire({
             width: '270px',
             html: \`
                 <div class="px-1 py-1 text-center">
-                <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
+                <span class="flag-circle flag-icon flag-icon-${countryCode.toLowerCase()}"
                 style="width: 60px; height: 60px; border-radius: 50%; display: inline-block;">
                 </span>
                 </div>
                 <div class="mt-3">
                 <div class="h-px bg-[#4682b4] shadow-sm"></div>
-                <div class="text-xs">IP : ${config.ip}</div>
-                <div class="text-xs">ISP : ${config.isp}</div>
-                <div class="text-xs">Country : ${config.countryCode}</div>
+                <div class="text-xs">IP : ${ip}</div>
+                <div class="text-xs">ISP : ${isp}</div>
+                <div class="text-xs">Country : ${countryCode}</div>
                 <div class="h-px bg-[#4682b4] shadow-sm"></div>
                 <div class="mt-3">
                 <button class="bg-[#2ecc71] bg-opacity-80 py-2 px-3 text-xs rounded-md" onclick="copy('\${vlessTLSSimple}')">COPY PATH COUNTRY</button>
