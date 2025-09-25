@@ -1,6 +1,4 @@
 import { connect } from "cloudflare:sockets";
-// import { createHash, createDecipheriv } from "node:crypto";
-// import { Buffer } from "node:buffer";
 
 // Variables
 const rootDomain = "gpj1.dpdns.org"; // Ganti dengan domain utama kalian
@@ -126,7 +124,7 @@ function getAllConfig(request, hostName, prxList, page = 0) {
 
         // Build HTML
         const document = new Document(request);
-        document.setTitle("Welcome to <span class='text-blue-500 font-semibold'>Nautica</span>");
+        document.setTitle("Free VPN <span class='text-blue-500 font-semibold'>Cloudflare</span>");
         document.setTotalProxy(totalProxies);
         document.setPage(page + 1, totalPages);
 
