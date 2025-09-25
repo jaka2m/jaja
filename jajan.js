@@ -38,6 +38,53 @@ let pathinfo = "/Free-VPN-CF-Geo-Project/";
 const WS_READY_STATE_OPEN = 1;
 const WS_READY_STATE_CLOSING = 2;
 
+const getFlagEmoji = (countryCode) => {
+  if (!countryCode) return '🏳️';
+  return countryCode
+    .toUpperCase()
+    .split('')
+    .map((char) => String.fromCodePoint(0x1f1e6 - 65 + char.charCodeAt(0)))
+    .join('');
+};
+
+function generateProxyUrls(protocol, { prxIP, prxPort, country, org }, { uuid, displayIndex, serviceName, hostName, modifiedHostName }, { v2, flash, horse }) {
+    const configs = {};
+
+    let uriTls = new URL(`${protocol}://${modifiedHostName}`);
+    uriTls.port = 443;
+    uriTls.searchParams.set("encryption", "none");
+    uriTls.searchParams.set("type", "ws");
+    uriTls.searchParams.set("host", hostName);
+    uriTls.searchParams.set("security", "tls");
+    uriTls.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prxPort}`);
+    uriTls.hash = `${displayIndex} ${getFlagEmoji(country)} ${org} WS TLS [${serviceName}]`;
+    if (protocol === "ss") {
+      uriTls.username = btoa(`none:${uuid}`);
+      uriTls.searchParams.set("plugin", `${atob(v2)}-plugin;tls;mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${modifiedHostName}`);
+    } else {
+      uriTls.username = uuid;
+    }
+    configs.tls = uriTls.toString();
+
+    let uriNtls = new URL(`${protocol}://${modifiedHostName}`);
+    uriNtls.port = 80;
+    uriNtls.searchParams.set("encryption", "none");
+    uriNtls.searchParams.set("type", "ws");
+    uriNtls.searchParams.set("host", hostName);
+    uriNtls.searchParams.set("security", "none");
+    uriNtls.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prxPort}`);
+    uriNtls.hash = `${displayIndex} ${getFlagEmoji(country)} ${org} WS NTLS [${serviceName}]`;
+    if (protocol === "ss") {
+      uriNtls.username = btoa(`none:${uuid}`);
+      uriNtls.searchParams.set("plugin", `${atob(v2)}-plugin;mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${modifiedHostName}`);
+    } else {
+      uriNtls.username = uuid;
+      uriNtls.searchParams.set("sni", "");
+    }
+    configs.ntls = uriNtls.toString();
+    return configs;
+};
+
 async function getProxyList(forceReload = false) {
   if (!cachedProxyList.length || forceReload) {
     if (!proxyListURL) {
@@ -1863,15 +1910,6 @@ function buildCountryFlag() {
   return flagElement;
 }
 
-    const getFlagEmoji = (countryCode) => {
-      if (!countryCode) return '🏳️';
-      return countryCode
-        .toUpperCase()
-        .split('')
-        .map((char) => String.fromCodePoint(0x1f1e6 - 65 + char.charCodeAt(0)))
-        .join('');
-    };
-
     const url = new URL(request.url);
     const hostName = url.hostname;
     const page = parseInt(url.searchParams.get('page')) || 1;
@@ -1924,26 +1962,9 @@ function buildCountryFlag() {
         const path2 = encodeURIComponent(`/${config.ip}=${config.port}`);
         const subP = `/Free-VPN-CF-Geo-Project`;
         
-        const vlessTLSSimple = `vless://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(subP + config.path.toUpperCase())}#(${config.countryCode})%20${config.isp.replace(/\s/g, '%20')}${getFlagEmoji(config.countryCode)}`;
-        const vlessTLSRibet = `vless://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${subP}${path2}#(${config.countryCode})%20${config.isp.replace(/\s/g, '%20')}${getFlagEmoji(config.countryCode)}`;
-        
-        const trojanTLSSimple = `trojan://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(subP + config.path.toUpperCase())}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        const trojanTLSRibet = `trojan://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${subP}${path2}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        
-        const ssTLSSimple = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:443?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=tls&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        const ssTLSRibet = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:443?encryption=none&type=ws&host=${modifiedHostName}&path=${subP}${path2}&security=tls&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        
-        
-        
-        
-        const vlessNTLSSimple = `vless://${uuid}@${wildcard}:80?path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        const vlessNTLSRibet = `vless://${uuid}@${wildcard}:80?path=${subP}${path2}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        
-        const trojanNTLSSimple = `trojan://${uuid}@${wildcard}:80?path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        const trojanNTLSRibet = `trojan://${uuid}@${wildcard}:80?path=${subP}${path2}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        
-        const ssNTLSSimple = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:80?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=none&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-        const ssNTLSRibet = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:80?encryption=none&type=ws&host=${modifiedHostName}&path=${subP}${path2}&security=none&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
+        const vlessConfigs = generateProxyUrls(atob(flash), { prxIP: config.ip, prxPort: config.port, country: config.countryCode, org: config.isp }, { uuid: uuid, displayIndex: 1, serviceName: 'Geo-Project', hostName: hostName, modifiedHostName: modifiedHostName }, { v2, flash, horse });
+        const trojanConfigs = generateProxyUrls(atob(horse), { prxIP: config.ip, prxPort: config.port, country: config.countryCode, org: config.isp }, { uuid: uuid, displayIndex: 1, serviceName: 'Geo-Project', hostName: hostName, modifiedHostName: modifiedHostName }, { v2, flash, horse });
+        const ssConfigs = generateProxyUrls("ss", { prxIP: config.ip, prxPort: config.port, country: config.countryCode, org: config.isp }, { uuid: uuid, displayIndex: 1, serviceName: 'Geo-Project', hostName: hostName, modifiedHostName: modifiedHostName }, { v2, flash, horse });
 
 
 
@@ -1953,82 +1974,31 @@ function buildCountryFlag() {
     <td class="ip-cell">${config.ip}:${config.port}</td>
     <td class="proxy-status" id="status-${ipPort}"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
     <td class="px-1 py-1 text-center">
-        <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
-              style="width: 40px; height: 40px; border-radius: 50%; display: inline-block;">
+        <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}"
+            style="width: 40px; height: 40px; border-radius: 50%; display: inline-block;">
         </span>
     </td>
     <td class="country-cell">${config.countryCode} | ${config.isp}</td>
     <td class="path-cell">${config.path}</td>
     <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('VLess', '${vlessTLSRibet}', '${vlessTLSSimple}')">
+        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105"
+            onclick="showOptions('VLess', '${vlessConfigs.tls}', '${vlessConfigs.ntls}', config)">
             VLESS
         </button>
     </td>
     <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('Trojan', '${trojanTLSRibet}', '${trojanTLSSimple}')">
+        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105"
+            onclick="showOptions('Trojan', '${trojanConfigs.tls}', '${trojanConfigs.ntls}', config)">
             TROJAN
         </button>
     </td>
     <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('SS', '${ssTLSRibet}', '${ssTLSSimple}')">
+        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105"
+            onclick="showOptions('SS', '${ssConfigs.tls}', '${ssConfigs.ntls}', config)">
             Shadowsocks
         </button>
     </td>
 </tr>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-<script>
-    function showOptions(type, vlessTLSRibet, vlessTLSSimple, config) {
-        Swal.fire({
-            width: '270px',
-            html: \`
-                <div class="px-1 py-1 text-center">
-                <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
-                style="width: 60px; height: 60px; border-radius: 50%; display: inline-block;">
-                </span>
-                </div>
-                <div class="mt-3">
-                <div class="h-px bg-[#4682b4] shadow-sm"></div>
-                <div class="text-xs">IP : ${config.ip}</div>
-                <div class="text-xs">ISP : ${config.isp}</div>
-                <div class="text-xs">Country : ${config.countryCode}</div>
-                <div class="h-px bg-[#4682b4] shadow-sm"></div>
-                <div class="mt-3">
-                <button class="bg-[#2ecc71] bg-opacity-80 py-2 px-3 text-xs rounded-md" onclick="copy('\${vlessTLSSimple}')">COPY PATH COUNTRY</button>
-                <div class="mt-3">
-                <button class="bg-[#2ecc71] bg-opacity-80 py-2 px-3 text-xs rounded-md" onclick="copy('\${vlessTLSRibet}')">COPY PATH IP PORT</button>
-                <div class="mt-3">
-                    <button class="close-btn" onclick="Swal.close()">Close</button>
-                </div>
-            \`,
-            showCloseButton: false,
-            showConfirmButton: false,
-            background: 'rgba(6, 18, 67, 0.70)',
-            color: 'white',
-            customClass: {
-                popup: 'rounded-popup',
-                closeButton: 'close-btn'
-            },
-            position: 'center', 
-            showClass: {
-                popup: 'animate__animated animate__fadeInLeft' 
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutRight' 
-            },
-            didOpen: () => {
-                const popup = document.querySelector('.swal2-popup');
-                popup.style.animationDuration = '0.3s'; 
-            },
-            didClose: () => {
-                const popup = document.querySelector('.swal2-popup');
-                popup.style.animationDuration = '0.3s'; 
-            }
-        });
-    }
-</script>
 
 <script>
           fetch('${healthCheckUrl}')
@@ -2086,75 +2056,24 @@ function buildCountryFlag() {
     <td class="country-cell">${config.countryCode} | ${config.isp}</td>
     <td class="path-cell">${config.path}</td>
     <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('VLess', '${vlessNTLSRibet}', '${vlessNTLSSimple}')">
+        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105"
+            onclick="showOptions('VLess', '${vlessConfigs.tls}', '${vlessConfigs.ntls}', config)">
             VLESS
         </button>
     </td>
     <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('Trojan', '${trojanNTLSRibet}', '${trojanNTLSSimple}')">
+        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105"
+            onclick="showOptions('Trojan', '${trojanConfigs.tls}', '${trojanConfigs.ntls}', config)">
             TROJAN
         </button>
     </td>
     <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick="showOptions('SS', '${ssNTLSRibet}', '${ssNTLSSimple}')">
+        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105"
+            onclick="showOptions('SS', '${ssConfigs.tls}', '${ssConfigs.ntls}', config)">
             Shadowsocks
         </button>
     </td>
 </tr>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-<script>
-    function showOptions(type, vlessTLSRibet, vlessTLSSimple, config) {
-        Swal.fire({
-            width: '270px',
-            html: \`
-                <div class="px-1 py-1 text-center">
-                <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
-                style="width: 60px; height: 60px; border-radius: 50%; display: inline-block;">
-                </span>
-                </div>
-                <div class="mt-3">
-                <div class="h-px bg-[#4682b4] shadow-sm"></div>
-                <div class="text-xs">IP : ${config.ip}</div>
-                <div class="text-xs">ISP : ${config.isp}</div>
-                <div class="text-xs">Country : ${config.countryCode}</div>
-                <div class="h-px bg-[#4682b4] shadow-sm"></div>
-                <div class="mt-3">
-                <button class="bg-[#2ecc71] bg-opacity-80 py-2 px-3 text-xs rounded-md" onclick="copy('\${vlessTLSSimple}')">COPY PATH COUNTRY</button>
-                <div class="mt-3">
-                <button class="bg-[#2ecc71] bg-opacity-80 py-2 px-3 text-xs rounded-md" onclick="copy('\${vlessTLSRibet}')">COPY PATH IP PORT</button>
-                <div class="mt-3">
-                    <button class="close-btn" onclick="Swal.close()">Close</button>
-                </div>
-            \`,
-            showCloseButton: false,
-            showConfirmButton: false,
-            background: 'rgba(6, 18, 67, 0.70)',
-            color: 'white',
-            customClass: {
-                popup: 'rounded-popup',
-                closeButton: 'close-btn'
-            },
-            position: 'center', 
-            showClass: {
-                popup: 'animate__animated animate__fadeInLeft' 
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutRight' 
-            },
-            didOpen: () => {
-                const popup = document.querySelector('.swal2-popup');
-                popup.style.animationDuration = '0.3s'; 
-            },
-            didClose: () => {
-                const popup = document.querySelector('.swal2-popup');
-                popup.style.animationDuration = '0.3s'; 
-            }
-        });
-    }
-</script>
 
 <script>
           fetch('${healthCheckUrl}')
@@ -4182,57 +4101,29 @@ function safeCloseWebSocket(socket) {
     console.error("safeCloseWebSocket error", error);
   }
 }
-// Fungsi untuk mengonversi countryCode menjadi emoji bendera
-const getEmojiFlag = (countryCode) => {
-  if (!countryCode || countryCode.length !== 2) return ''; // Validasi input
-  return String.fromCodePoint(
-    ...[...countryCode.toUpperCase()].map(char => 0x1F1E6 + char.charCodeAt(0) - 65)
-  );
-};
-async function generateClashSub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
-  
-  let conf = '';
-  let bex = '';
-  let count = 1;
-  
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
-    const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '443' : '80';
-    const snio = tls ? `\n  servername: ${geo81}` : '';
-    const snioo = tls ? `\n  cipher: auto` : '';
-    if (type === 'vless') {
-      bex += `  - ${ispName}\n`
-      conf += `
-- name: ${ispName}
+async function generateClashSub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
+
+    let conf = '';
+    let bex = '';
+    let count = 1;
+
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const emojiFlag = getFlagEmoji(line.split(',')[2]);
+        const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim();
+        let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count++}`);
+        const UUIDS = `${generateUUIDv4()}`;
+        const ports = tls ? '443' : '80';
+        const snio = tls ? `\n  servername: ${geo81}` : '';
+        const snioo = tls ? `\n  cipher: auto` : '';
+
+        if (type === 'vless' || type === 'mix') {
+            bex += `  - ${ispName}${type === 'mix' ? ' vless' : ''}\n`;
+            conf += `
+- name: ${ispName}${type === 'mix' ? ' vless' : ''}
   server: ${bug}
   port: ${ports}
   type: vless
@@ -4242,13 +4133,15 @@ async function generateClashSub(type, bug, geo81, tls, country = null, limit = n
   skip-cert-verify: true
   network: ws${snio}
   ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
+    path: /Free-VPN-Geo-Project/${proxyHost}-${proxyPort}
     headers:
       Host: ${geo81}`;
-    } else if (type === 'trojan') {
-      bex += `  - ${ispName}\n`
-      conf += `
-- name: ${ispName}
+        }
+
+        if (type === 'trojan' || type === 'mix') {
+            bex += `  - ${ispName}${type === 'mix' ? ' trojan' : ''}\n`;
+            conf += `
+- name: ${ispName}${type === 'mix' ? ' trojan' : ''}
   server: ${bug}
   port: 443
   type: trojan
@@ -4258,13 +4151,15 @@ async function generateClashSub(type, bug, geo81, tls, country = null, limit = n
   network: ws
   sni: ${geo81}
   ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
+    path: /Free-VPN-Geo-Project/${proxyHost}-${proxyPort}
     headers:
       Host: ${geo81}`;
-    } else if (type === 'ss') {
-      bex += `  - ${ispName}\n`
-      conf += `
-- name: ${ispName}
+        }
+
+        if (type === 'ss' || type === 'mix') {
+            bex += `  - ${ispName}${type === 'mix' ? ' ss' : ''}\n`;
+            conf += `
+- name: ${ispName}${type === 'mix' ? ' ss' : ''}
   type: ss
   server: ${bug}
   port: ${ports}
@@ -4277,59 +4172,12 @@ async function generateClashSub(type, bug, geo81, tls, country = null, limit = n
     tls: ${tls}
     skip-cert-verify: true
     host: ${geo81}
-    path: ${pathinfo}${proxyHost}=${proxyPort}
+    path: /Free-VPN-Geo-Project/${proxyHost}-${proxyPort}
     mux: false
     headers:
       custom: ${geo81}`;
-    } else if (type === 'mix') {
-      bex += `  - ${ispName} vless\n  - ${ispName} trojan\n  - ${ispName} ss\n`;
-      conf += `
-- name: ${ispName} vless
-  server: ${bug}
-  port: ${ports}
-  type: vless
-  uuid: ${UUIDS}
-  cipher: auto
-  tls: ${tls}
-  udp: true
-  skip-cert-verify: true
-  network: ws${snio}
-  ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
-    headers:
-      Host: ${geo81}
-- name: ${ispName} trojan
-  server: ${bug}
-  port: 443
-  type: trojan
-  password: ${UUIDS}
-  udp: true
-  skip-cert-verify: true
-  network: ws
-  sni: ${geo81}
-  ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
-    headers:
-      Host: ${geo81}
-- name: ${ispName} ss
-  type: ss
-  server: ${bug}
-  port: ${ports}
-  cipher: none
-  password: ${UUIDS}
-  udp: true
-  plugin: v2ray-plugin
-  plugin-opts:
-    mode: websocket
-    tls: ${tls}
-    skip-cert-verify: true
-    host: ${geo81}
-    path: ${pathinfo}${proxyHost}=${proxyPort}
-    mux: false
-    headers:
-      custom: ${geo81}`;
+        }
     }
-  }
   return `#### BY : GEO PROJECT #### 
 
 port: 7890
@@ -4508,47 +4356,28 @@ rules:
 - RULE-SET,rule_privacy,ADS
 - MATCH,INTERNET`;
 }
-async function generateSurfboardSub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
-  let conf = '';
-  let bex = '';
-  let count = 1;
-  
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
-    const UUIDS = `${generateUUIDv4()}`;
-    if (type === 'trojan') {
-      bex += `${ispName},`
-      conf += `
-${ispName} = trojan, ${bug}, 443, password = ${UUIDS}, udp-relay = true, skip-cert-verify = true, sni = ${geo81}, ws = true, ws-path = ${pathinfo}${proxyHost}:${proxyPort}, ws-headers = Host:"${geo81}"\n`;
+async function generateSurfboardSub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
+
+    let conf = '';
+    let bex = '';
+    let count = 1;
+
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const emojiFlag = getFlagEmoji(line.split(',')[2]);
+        const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim();
+        let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count++}`);
+        const UUIDS = `${generateUUIDv4()}`;
+
+        if (type === 'trojan') {
+            bex += `${ispName},`;
+            conf += `
+${ispName} = trojan, ${bug}, 443, password = ${UUIDS}, udp-relay = true, skip-cert-verify = true, sni = ${geo81}, ws = true, ws-path = /Free-VPN-Geo-Project/${proxyHost}-${proxyPort}, ws-headers = Host:"${geo81}"\n`;
+        }
     }
-  }
   return `#### BY : GEO PROJECT #### 
 
 [General]
@@ -4876,46 +4705,27 @@ DOMAIN-SUFFIX,weather-analytics-events.apple.com, AdBlock
 DOMAIN-SUFFIX,notes-analytics-events.apple.com, AdBlock
 FINAL,Select Group`;
 }
-async function generateHusiSub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
-  let conf = '';
-  let bex = '';
-  let count = 1;
-  
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
-    const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '443' : '80';
-    const snio = tls ? `\n      "tls": {\n        "disable_sni": false,\n        "enabled": true,\n        "insecure": true,\n        "server_name": "${geo81}"\n      },` : '';
-    if (type === 'vless') {
-      bex += `        "${ispName}",\n`
-      conf += `
+async function generateHusiSub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
+
+    let conf = '';
+    let bex = '';
+    let count = 1;
+
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const emojiFlag = getFlagEmoji(line.split(',')[2]);
+        const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim();
+        let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count++}`);
+        const UUIDS = `${generateUUIDv4()}`;
+        const ports = tls ? '443' : '80';
+        const snio = tls ? `\n      "tls": {\n        "disable_sni": false,\n        "enabled": true,\n        "insecure": true,\n        "server_name": "${geo81}"\n      },` : '';
+
+        if (type === 'vless' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' vless' : ''}",\n`;
+            conf += `
     {
       "domain_strategy": "ipv4_only",
       "flow": "",
@@ -4927,22 +4737,24 @@ async function generateHusiSub(type, bug, geo81, tls, country = null, limit = nu
       "packet_encoding": "xudp",
       "server": "${bug}",
       "server_port": ${ports},
-      "tag": "${ispName}",${snio}
+      "tag": "${ispName}${type === 'mix' ? ' vless' : ''}",${snio}
       "transport": {
         "early_data_header_name": "Sec-WebSocket-Protocol",
         "headers": {
           "Host": "${geo81}"
         },
         "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
+        "path": "/Free-VPN-Geo-Project/${proxyHost}-${proxyPort}",
         "type": "ws"
       },
       "type": "vless",
       "uuid": "${UUIDS}"
     },`;
-    } else if (type === 'trojan') {
-      bex += `        "${ispName}",\n`
-      conf += `
+        }
+
+        if (type === 'trojan' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' trojan' : ''}",\n`;
+            conf += `
     {
       "domain_strategy": "ipv4_only",
       "multiplex": {
@@ -4953,92 +4765,35 @@ async function generateHusiSub(type, bug, geo81, tls, country = null, limit = nu
       "password": "${UUIDS}",
       "server": "${bug}",
       "server_port": ${ports},
-      "tag": "${ispName}",${snio}
+      "tag": "${ispName}${type === 'mix' ? ' trojan' : ''}",${snio}
       "transport": {
         "early_data_header_name": "Sec-WebSocket-Protocol",
         "headers": {
           "Host": "${geo81}"
         },
         "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
+        "path": "/Free-VPN-Geo-Project/${proxyHost}-${proxyPort}",
         "type": "ws"
       },
       "type": "trojan"
     },`;
-    } else if (type === 'ss') {
-      bex += `        "${ispName}",\n`
-      conf += `
+        }
+
+        if (type === 'ss' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' ss' : ''}",\n`;
+            conf += `
     {
       "type": "shadowsocks",
-      "tag": "${ispName}",
+      "tag": "${ispName}${type === 'mix' ? ' ss' : ''}",
       "server": "${bug}",
       "server_port": 443,
       "method": "none",
       "password": "${UUIDS}",
       "plugin": "v2ray-plugin",
-      "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
+      "plugin_opts": "mux=0;path=/Free-VPN-Geo-Project/${proxyHost}-${proxyPort};host=${geo81};tls=1"
     },`;
-    } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
-      conf += `
-    {
-      "domain_strategy": "ipv4_only",
-      "flow": "",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "packet_encoding": "xudp",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName} vless",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "vless",
-      "uuid": "${UUIDS}"
-    },
-    {
-      "domain_strategy": "ipv4_only",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "password": "${UUIDS}",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName} trojan",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "trojan"
-    },
-    {
-      "type": "shadowsocks",
-      "tag": "${ispName} ss",
-      "server": "${bug}",
-      "server_port": 443,
-      "method": "none",
-      "password": "${UUIDS}",
-      "plugin": "v2ray-plugin",
-      "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
-    },`;
+        }
     }
-  }
   return `#### BY : GEO PROJECT #### 
 
 {
@@ -5214,49 +4969,30 @@ ${conf}
   }
 }`;
 }
-async function generateSingboxSub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
-  let conf = '';
-  let bex = '';
-  let count = 1;
-  
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
-    const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '443' : '80';
-    const snio = tls ? `\n      "tls": {\n        "enabled": true,\n        "server_name": "${geo81}",\n        "insecure": true\n      },` : '';
-    if (type === 'vless') {
-      bex += `        "${ispName}",\n`
-      conf += `
+async function generateSingboxSub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
+
+    let conf = '';
+    let bex = '';
+    let count = 1;
+
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const emojiFlag = getFlagEmoji(line.split(',')[2]);
+        const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim();
+        let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count++}`);
+        const UUIDS = `${generateUUIDv4()}`;
+        const ports = tls ? '443' : '80';
+        const snio = tls ? `\n      "tls": {\n        "enabled": true,\n        "server_name": "${geo81}",\n        "insecure": true\n      },` : '';
+
+        if (type === 'vless' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' vless' : ''}",\n`;
+            conf += `
     {
       "type": "vless",
-      "tag": "${ispName}",
+      "tag": "${ispName}${type === 'mix' ? ' vless' : ''}",
       "domain_strategy": "ipv4_only",
       "server": "${bug}",
       "server_port": ${ports},
@@ -5267,7 +5003,7 @@ async function generateSingboxSub(type, bug, geo81, tls, country = null, limit =
       },
       "transport": {
         "type": "ws",
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
+        "path": "/Free-VPN-Geo-Project/${proxyHost}-${proxyPort}",
         "headers": {
           "Host": "${geo81}"
         },
@@ -5275,12 +5011,14 @@ async function generateSingboxSub(type, bug, geo81, tls, country = null, limit =
       },
       "packet_encoding": "xudp"
     },`;
-    } else if (type === 'trojan') {
-      bex += `        "${ispName}",\n`
-      conf += `
+        }
+
+        if (type === 'trojan' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' trojan' : ''}",\n`;
+            conf += `
     {
       "type": "trojan",
-      "tag": "${ispName}",
+      "tag": "${ispName}${type === 'mix' ? ' trojan' : ''}",
       "domain_strategy": "ipv4_only",
       "server": "${bug}",
       "server_port": ${ports},
@@ -5291,82 +5029,30 @@ async function generateSingboxSub(type, bug, geo81, tls, country = null, limit =
       },
       "transport": {
         "type": "ws",
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
+        "path": "/Free-VPN-Geo-Project/${proxyHost}-${proxyPort}",
         "headers": {
           "Host": "${geo81}"
         },
         "early_data_header_name": "Sec-WebSocket-Protocol"
       }
     },`;
-    } else if (type === 'ss') {
-      bex += `        "${ispName}",\n`
-      conf += `
+        }
+
+        if (type === 'ss' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' ss' : ''}",\n`;
+            conf += `
     {
       "type": "shadowsocks",
-      "tag": "${ispName}",
+      "tag": "${ispName}${type === 'mix' ? ' ss' : ''}",
       "server": "${bug}",
       "server_port": 443,
       "method": "none",
       "password": "${UUIDS}",
       "plugin": "v2ray-plugin",
-      "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
+      "plugin_opts": "mux=0;path=/Free-VPN-Geo-Project/${proxyHost}-${proxyPort};host=${geo81};tls=1"
     },`;
-    } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
-      conf += `
-    {
-      "type": "vless",
-      "tag": "${ispName} vless",
-      "domain_strategy": "ipv4_only",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "uuid": "${UUIDS}",${snio}
-      "multiplex": {
-        "protocol": "smux",
-        "max_streams": 32
-      },
-      "transport": {
-        "type": "ws",
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      },
-      "packet_encoding": "xudp"
-    },
-    {
-      "type": "trojan",
-      "tag": "${ispName} trojan",
-      "domain_strategy": "ipv4_only",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "password": "${UUIDS}",${snio}
-      "multiplex": {
-        "protocol": "smux",
-        "max_streams": 32
-      },
-      "transport": {
-        "type": "ws",
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      }
-    },
-    {
-      "type": "shadowsocks",
-      "tag": "${ispName} ss",
-      "server": "${bug}",
-      "server_port": 443,
-      "method": "none",
-      "password": "${UUIDS}",
-      "plugin": "v2ray-plugin",
-      "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
-    },`;
+        }
     }
-  }
   return `#### BY : GEO PROJECT #### 
 
 {
@@ -5506,46 +5192,27 @@ ${conf}
   }
 }`;
 }
-async function generateNekoboxSub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
-  let conf = '';
-  let bex = '';
-  let count = 1;
-  
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
-    const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '443' : '80';
-    const snio = tls ? `\n      "tls": {\n        "disable_sni": false,\n        "enabled": true,\n        "insecure": true,\n        "server_name": "${geo81}"\n      },` : '';
-    if (type === 'vless') {
-      bex += `        "${ispName}",\n`
-      conf += `
+async function generateNekoboxSub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
+
+    let conf = '';
+    let bex = '';
+    let count = 1;
+
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const emojiFlag = getFlagEmoji(line.split(',')[2]);
+        const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim();
+        let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count++}`);
+        const UUIDS = `${generateUUIDv4()}`;
+        const ports = tls ? '443' : '80';
+        const snio = tls ? `\n      "tls": {\n        "disable_sni": false,\n        "enabled": true,\n        "insecure": true,\n        "server_name": "${geo81}"\n      },` : '';
+
+        if (type === 'vless' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' vless' : ''}",\n`;
+            conf += `
     {
       "domain_strategy": "ipv4_only",
       "flow": "",
@@ -5557,22 +5224,24 @@ async function generateNekoboxSub(type, bug, geo81, tls, country = null, limit =
       "packet_encoding": "xudp",
       "server": "${bug}",
       "server_port": ${ports},
-      "tag": "${ispName}",${snio}
+      "tag": "${ispName}${type === 'mix' ? ' vless' : ''}",${snio}
       "transport": {
         "early_data_header_name": "Sec-WebSocket-Protocol",
         "headers": {
           "Host": "${geo81}"
         },
         "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
+        "path": "/Free-VPN-Geo-Project/${proxyHost}-${proxyPort}",
         "type": "ws"
       },
       "type": "vless",
       "uuid": "${UUIDS}"
     },`;
-    } else if (type === 'trojan') {
-      bex += `        "${ispName}",\n`
-      conf += `
+        }
+
+        if (type === 'trojan' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' trojan' : ''}",\n`;
+            conf += `
     {
       "domain_strategy": "ipv4_only",
       "multiplex": {
@@ -5583,92 +5252,35 @@ async function generateNekoboxSub(type, bug, geo81, tls, country = null, limit =
       "password": "${UUIDS}",
       "server": "${bug}",
       "server_port": ${ports},
-      "tag": "${ispName}",${snio}
+      "tag": "${ispName}${type === 'mix' ? ' trojan' : ''}",${snio}
       "transport": {
         "early_data_header_name": "Sec-WebSocket-Protocol",
         "headers": {
           "Host": "${geo81}"
         },
         "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
+        "path": "/Free-VPN-Geo-Project/${proxyHost}-${proxyPort}",
         "type": "ws"
       },
       "type": "trojan"
     },`;
-    } else if (type === 'ss') {
-      bex += `        "${ispName}",\n`
-      conf += `
+        }
+
+        if (type === 'ss' || type === 'mix') {
+            bex += `        "${ispName}${type === 'mix' ? ' ss' : ''}",\n`;
+            conf += `
     {
       "type": "shadowsocks",
-      "tag": "${ispName}",
+      "tag": "${ispName}${type === 'mix' ? ' ss' : ''}",
       "server": "${bug}",
       "server_port": 443,
       "method": "none",
       "password": "${UUIDS}",
       "plugin": "v2ray-plugin",
-      "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
+      "plugin_opts": "mux=0;path=/Free-VPN-Geo-Project/${proxyHost}-${proxyPort};host=${geo81};tls=1"
     },`;
-    } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
-      conf += `
-    {
-      "domain_strategy": "ipv4_only",
-      "flow": "",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "packet_encoding": "xudp",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName} vless",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "vless",
-      "uuid": "${UUIDS}"
-    },
-    {
-      "domain_strategy": "ipv4_only",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "password": "${UUIDS}",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName} trojan",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "trojan"
-    },
-    {
-      "type": "shadowsocks",
-      "tag": "${ispName} ss",
-      "server": "${bug}",
-      "server_port": 443,
-      "method": "none",
-      "password": "${UUIDS}",
-      "plugin": "v2ray-plugin",
-      "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
-    },`;
+        }
     }
-  }
   return `#### BY : GEO PROJECT #### 
 
 {
@@ -5835,145 +5447,100 @@ ${conf}
   }
 }`;
 }
-async function generateV2rayngSub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean);
+async function generateV2rayngSub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
 
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
+    let conf = '';
 
-  let conf = '';
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const countryCode = parts[2];
+        const isp = parts[3];
 
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const countryCode = parts[2]; // Kode negara ISO
-    const isp = parts[3]; // Informasi ISP
+        const countryText = `[${countryCode}]`;
+        const ispInfo = `${countryText} ${isp}`;
+        const UUIDS = `${generateUUIDv4()}`;
 
-    // Gunakan teks Latin-1 untuk menggantikan emoji flag
-    const countryText = `[${countryCode}]`; // Format bendera ke teks Latin-1
-    const ispInfo = `${countryText} ${isp}`;
-    const UUIDS = `${generateUUIDv4()}`;
+        const vlessConfigs = generateProxyUrls(atob(flash), { prxIP: proxyHost, prxPort: proxyPort, country: countryCode, org: isp }, { uuid: UUIDS, displayIndex: 1, serviceName: 'Geo-Project', hostName: bug, modifiedHostName: geo81 });
+        const trojanConfigs = generateProxyUrls(atob(horse), { prxIP: proxyHost, prxPort: proxyPort, country: countryCode, org: isp }, { uuid: UUIDS, displayIndex: 1, serviceName: 'Geo-Project', hostName: bug, modifiedHostName: geo81 });
+        const ssConfigs = generateProxyUrls("ss", { prxIP: proxyHost, prxPort: proxyPort, country: countryCode, org: isp }, { uuid: UUIDS, displayIndex: 1, serviceName: 'Geo-Project', hostName: bug, modifiedHostName: geo81 });
 
-    if (type === 'vless') {
-      if (tls) {
-        conf += `vless://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-      } else {
-        conf += `vless://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-      }
-    } else if (type === 'trojan') {
-      if (tls) {
-        conf += `trojan://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-      } else {
-        conf += `trojan://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-      }
-    } else if (type === 'ss') {
-      if (tls) {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
-      } else {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${ispInfo}\n`;
-      }
-    } else if (type === 'mix') {
-      if (tls) {
-        conf += `vless://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-        conf += `trojan://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
-      } else {
-        conf += `vless://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-        conf += `trojan://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${ispInfo}\n`;
-      }
+        if (type === 'vless') {
+            conf += (tls ? vlessConfigs.tls : vlessConfigs.ntls) + '\n';
+        } else if (type === 'trojan') {
+            conf += (tls ? trojanConfigs.tls : trojanConfigs.ntls) + '\n';
+        } else if (type === 'ss') {
+            conf += (tls ? ssConfigs.tls : ssConfigs.ntls) + '\n';
+        } else if (type === 'mix') {
+            conf += (tls ? vlessConfigs.tls : vlessConfigs.ntls) + '\n';
+            conf += (tls ? trojanConfigs.tls : trojanConfigs.ntls) + '\n';
+            conf += (tls ? ssConfigs.tls : ssConfigs.ntls) + '\n';
+        }
     }
-  }
 
-  const base64Conf = btoa(conf.replace(/ /g, '%20'));
+    const base64Conf = btoa(conf.replace(/ /g, '%20'));
 
-  return base64Conf;
+    return base64Conf;
 }
-async function generateV2raySub(type, bug, geo81, tls, country = null, limit = null) {
-  const proxyListResponse = await fetch(proxyListURL);
-  const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
-  }
-  let conf = '';
-  for (let line of ips) {
-    const parts = line.split(',');
-    const proxyHost = parts[0];
-    const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const UUIDS = generateUUIDv4();
-    const information = encodeURIComponent(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]}`);
-    if (type === 'vless') {
-      if (tls) {
-        conf += `vless://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-      } else {
-        conf += `vless://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-      }
-    } else if (type === 'trojan') {
-      if (tls) {
-        conf += `trojan://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-      } else {
-        conf += `trojan://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-      }
-    } else if (type === 'ss') {
-      if (tls) {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${information}\n`;
-      } else {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${information}\n`;
-      }
-    } else if (type === 'mix') {
-      if (tls) {
-        conf += `vless://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-        conf += `trojan://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${information}\n`;
-      } else {
-        conf += `vless://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-        conf += `trojan://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${information}\n`;
-      }
+async function generateV2raySub(type, bug, geo81, tls, country, limit) {
+    const ips = await getFilteredProxyList(country, limit);
+
+    let conf = '';
+    for (let line of ips) {
+        const parts = line.split(',');
+        const proxyHost = parts[0];
+        const proxyPort = parts[1] || 443;
+        const countryCode = parts[2];
+        const isp = parts[3];
+
+        const UUIDS = generateUUIDv4();
+
+        const vlessConfigs = generateProxyUrls(atob(flash), { prxIP: proxyHost, prxPort: proxyPort, country: countryCode, org: isp }, { uuid: UUIDS, displayIndex: 1, serviceName: 'Geo-Project', hostName: bug, modifiedHostName: geo81 });
+        const trojanConfigs = generateProxyUrls(atob(horse), { prxIP: proxyHost, prxPort: proxyPort, country: countryCode, org: isp }, { uuid: UUIDS, displayIndex: 1, serviceName: 'Geo-Project', hostName: bug, modifiedHostName: geo81 });
+        const ssConfigs = generateProxyUrls("ss", { prxIP: proxyHost, prxPort: proxyPort, country: countryCode, org: isp }, { uuid: UUIDS, displayIndex: 1, serviceName: 'Geo-Project', hostName: bug, modifiedHostName: geo81 });
+
+        if (type === 'vless') {
+            conf += (tls ? vlessConfigs.tls : vlessConfigs.ntls) + '\n';
+        } else if (type === 'trojan') {
+            conf += (tls ? trojanConfigs.tls : trojanConfigs.ntls) + '\n';
+        } else if (type === 'ss') {
+            conf += (tls ? ssConfigs.tls : ssConfigs.ntls) + '\n';
+        } else if (type === 'mix') {
+            conf += (tls ? vlessConfigs.tls : vlessConfigs.ntls) + '\n';
+            conf += (tls ? trojanConfigs.tls : trojanConfigs.ntls) + '\n';
+            conf += (tls ? ssConfigs.tls : ssConfigs.ntls) + '\n';
+        }
     }
-  }
-  
-  return conf;
+
+    return conf;
 }
+async function getFilteredProxyList(country, limit) {
+    const proxyListResponse = await fetch(proxyListURL);
+    const proxyList = await proxyListResponse.text();
+    let ips = proxyList.split('\n').filter(Boolean);
+
+    if (country && country.toLowerCase() === 'random') {
+        ips = ips.sort(() => Math.random() - 0.5);
+    } else if (country) {
+        ips = ips.filter(line => {
+            const parts = line.split(',');
+            if (parts.length > 1) {
+                const lineCountry = parts[2].toUpperCase();
+                return lineCountry === country.toUpperCase();
+            }
+            return false;
+        });
+    }
+
+    if (limit && !isNaN(limit)) {
+        ips = ips.slice(0, limit);
+    }
+
+    return ips;
+}
+
 function generateUUIDv4() {
   const randomValues = crypto.getRandomValues(new Uint8Array(16));
   randomValues[6] = (randomValues[6] & 0x0f) | 0x40;
