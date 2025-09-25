@@ -1405,7 +1405,6 @@ let baseHTML = `
     
       // Shared
       const workerHost = "PLACEHOLDER_WORKER_HOST";
-      const rootDomain = workerHost.split(".").slice(-2).join(".");
       const notification = document.getElementById("notification-badge");
       const windowContainer = document.getElementById("container-window");
       const windowInfoContainer = document.getElementById("container-window-info");
@@ -1446,9 +1445,9 @@ let baseHTML = `
       function registerDomain() {
         const domainInputElement = document.getElementById("new-domain-input");
         const rawDomain = domainInputElement.value.toLowerCase();
-        const domain = rawDomain + "." + rootDomain;
+        const domain = rawDomain + "." + workerHost;
 
-        if (!rawDomain.match(/^[a-z0-9.-]+$/) || rawDomain.endsWith(rootDomain)) {
+        if (!rawDomain.match(/^[a-z0-9.-]+$/)) {
           windowInfoContainer.innerText = "Invalid subdomain format!";
           return;
         }
