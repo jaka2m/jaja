@@ -232,12 +232,12 @@ export default {
         const hostname = request.headers.get("Host");
 
         // Queries
-        const countrySelect = url.searchParams.get("cc")?.split(",");
-        const searchKeywords = url.searchParams.get("cc")?.toLowerCase() || "";
+        const countrySelect = url.searchParams.get("cc")?.toUpperCase().split(",");
+        const searchKeywords = url.searchParams.get("search")?.toLowerCase() || "";
         const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
         let prxList = (await getPrxList(prxBankUrl)).filter((prx) => {
           // Filter prxs by Country
-          if (countrySelect) {
+          if (countrySelect && countrySelect[0]) {
             if (!countrySelect.includes(prx.country)) return false;
           }
 
@@ -1516,7 +1516,8 @@ let baseHTML = `
         const searchBar = document.getElementById("search-bar");
         const searchValue = searchBar.value;
         const url = new URL(window.location.href);
-        url.searchParams.set("cc", searchValue);
+        url.searchParams.delete("cc");
+        url.searchParams.set("search", searchValue);
         window.location.href = url.toString();
       }
 
@@ -1784,7 +1785,7 @@ proxyGroupElement += `    </div>`;
 
     buildCountryFlag() {
         const prxBankUrl = this.url.searchParams.get("prx-list");
-        const selectedCC = this.url.searchParams.get("cc"); 
+        const selectedCCs = (this.url.searchParams.get("cc")?.toUpperCase() || "").split(',');
         const flagList = [];
         for (const proxy of cachedPrxList) {
             flagList.push(proxy.country);
@@ -1792,7 +1793,7 @@ proxyGroupElement += `    </div>`;
 
         let flagElement = "";
         for (const flag of new Set(flagList)) {
-            const isSelected = selectedCC === flag;
+            const isSelected = selectedCCs.includes(flag);
             // Apply different classes based on selection state
             const linkClasses = isSelected 
                 ? 'border-2 border-blue-400 rounded-lg p-0.5' // Classes for selected flag
