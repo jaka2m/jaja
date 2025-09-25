@@ -983,14 +983,13 @@ function getFlagEmoji(isoCode) {
 // CloudflareApi Class
 class CloudflareApi {
   constructor() {
-    this.bearer = `Bearer ${apiKey}`;
     this.accountID = accountID;
     this.zoneID = zoneID;
     this.apiEmail = apiEmail;
     this.apiKey = apiKey;
 
     this.headers = {
-      Authorization: this.bearer,
+      "Content-Type": "application/json",
       "X-Auth-Email": this.apiEmail,
       "X-Auth-Key": this.apiKey,
     };
@@ -1017,18 +1016,16 @@ class CloudflareApi {
     domain = domain.toLowerCase();
     const registeredDomains = await this.getDomainList();
 
-    if (!domain.endsWith(rootDomain)) return 400;
+    const subDomain = domain.replace(`.${APP_DOMAIN}`, "");
+    if (!domain.endsWith(APP_DOMAIN)) return 400;
     if (registeredDomains.includes(domain)) return 409;
 
     try {
-      const domainTest = await fetch(`https://${domain.replaceAll("." + APP_DOMAIN, "")}`);
-      if (domainTest.status == 530) return domainTest.status;
-
       const badWordsListRes = await fetch(BAD_WORDS_LIST);
       if (badWordsListRes.status == 200) {
         const badWordsList = (await badWordsListRes.text()).split("\n");
         for (const badWord of badWordsList) {
-          if (domain.includes(badWord.toLowerCase())) {
+          if (subDomain.includes(badWord.toLowerCase())) {
             return 403;
           }
         }
@@ -1639,7 +1636,7 @@ let baseHTML = `
         const containerIP = document.getElementById("container-info-ip");
         const containerCountry = document.getElementById("container-info-country");
         const containerISP = document.getElementById("container-info-isp");
-        const res = fetch("https://" + workerHost + "/api/v1/myip").then(async (res) => {
+        const res = fetch("https://" + rootDomain + "/api/v1/myip").then(async (res) => {
           if (res.status == 200) {
             const respJson = await res.json();
             containerIP.innerText = "IP: " + respJson.ip;
@@ -1853,7 +1850,7 @@ proxyGroupElement += `    </div>`;
         this.html = this.html.replace('PLACEHOLDER_TELEGRAM_BUTTON', telegramButton);
 
         this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', `https://${serviceName}.${rootDomain}/check?target=`);
-        this.html = this.html.replaceAll('PLACEHOLDER_WORKER_HOST', `${serviceName}.${rootDomain}`);
+        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', `${serviceName}.${rootDomain}`);
         this.html = this.html.replaceAll('PLACEHOLDER_CONVERTER_URL', CONVERTER_URL);
         this.html = this.html.replaceAll('PLACEHOLDER_DONATE_LINK', DONATE_LINK);
 
