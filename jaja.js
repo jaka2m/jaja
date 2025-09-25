@@ -233,7 +233,7 @@ export default {
 
         // Queries
         const countrySelect = url.searchParams.get("cc")?.split(",");
-        const searchKeywords = url.searchParams.get("cc")?.toLowerCase() || "";
+        const searchKeywords = url.searchParams.get("search")?.toLowerCase() || "";
         const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
         let prxList = (await getPrxList(prxBankUrl)).filter((prx) => {
           // Filter prxs by Country
@@ -1516,7 +1516,7 @@ let baseHTML = `
         const searchBar = document.getElementById("search-bar");
         const searchValue = searchBar.value;
         const url = new URL(window.location.href);
-        url.searchParams.set("cc", searchValue);
+        url.searchParams.set("search", searchValue);
         window.location.href = url.toString();
       }
 
