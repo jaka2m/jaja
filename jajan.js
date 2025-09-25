@@ -5729,144 +5729,88 @@ ${conf}
   }
 }`;
 }
-async function generateV2rayngSub(type, bug, geo81, tls, country = null, limit = null) {
+async function generateSub(type, bug, geo81, tls, country = null, limit = null) {
   const prxListResponse = await fetch(prxListURL);
   const prxList = await prxListResponse.text();
-  let ips = prxList
-    .split('\n')
-    .filter(Boolean);
+  let ips = prxList.split('\n').filter(Boolean);
 
   if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar prx
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
     ips = ips.filter(line => {
       const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
+      return parts.length > 1 && parts[2].toUpperCase() === country.toUpperCase();
     });
   }
   
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah prx berdasarkan limit
+    ips = ips.slice(0, limit);
   }
 
   let conf = '';
+  const serviceName = 'GEO PROJECT';
 
-  for (let line of ips) {
+  ips.forEach((line, index) => {
     const parts = line.split(',');
-    const prxHost = parts[0];
+    const prxIP = parts[0];
     const prxPort = parts[1] || 443;
-    const countryCode = parts[2]; // Kode negara ISO
-    const isp = parts[3]; // Informasi ISP
-
-    // Gunakan teks Latin-1 untuk menggantikan emoji flag
-    const countryText = `[${countryCode}]`; // Format bendera ke teks Latin-1
-    const ispInfo = `${countryText} ${isp}`;
-    const UUIDS = `${generateUUIDv4()}`;
-
-    if (type === 'vless') {
-      if (tls) {
-        conf += `vless://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${ispInfo}\n`;
-      } else {
-        conf += `vless://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-      }
-    } else if (type === 'trojan') {
-      if (tls) {
-        conf += `trojan://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${ispInfo}\n`;
-      } else {
-        conf += `trojan://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-      }
-    } else if (type === 'ss') {
-      if (tls) {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
-      } else {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&sni=${geo81}#${ispInfo}\n`;
-      }
-    } else if (type === 'mix') {
-      if (tls) {
-        conf += `vless://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${ispInfo}\n`;
-        conf += `trojan://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${ispInfo}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
-      } else {
-        conf += `vless://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-        conf += `trojan://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&sni=${geo81}#${ispInfo}\n`;
-      }
-    }
-  }
-
-  const base64Conf = btoa(conf.replace(/ /g, '%20'));
-
-  return base64Conf;
-}
-async function generateV2raySub(type, bug, geo81, tls, country = null, limit = null) {
-  const prxListResponse = await fetch(prxListURL);
-  const prxList = await prxListResponse.text();
-  let ips = prxList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar prx
-  } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
-      if (parts.length > 1) {
-        const lineCountry = parts[2].toUpperCase();
-        return lineCountry === country.toUpperCase();
-      }
-      return false;
-    });
-  }
-  if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah prx berdasarkan limit
-  }
-  let conf = '';
-  for (let line of ips) {
-    const parts = line.split(',');
-    const prxHost = parts[0];
-    const prxPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
+    const countryCode = parts[2];
+    const org = parts[3];
+    const displayIndex = index + 1;
     const UUIDS = generateUUIDv4();
-    const information = encodeURIComponent(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]}`);
+
+    const generateUrl = (protocol, useTls) => {
+        const url = new URL(`${protocol}://${bug}`);
+        url.port = useTls ? '443' : '80';
+        url.searchParams.set("encryption", "none");
+        url.searchParams.set("type", "ws");
+        url.searchParams.set("host", bug);
+        url.searchParams.set("security", useTls ? "tls" : "none");
+        url.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prxPort}`);
+        url.hash = `${displayIndex} ${getEmojiFlag(countryCode)} ${org} WS ${useTls ? 'TLS' : 'NTLS'} [${serviceName}]`;
+
+        if (protocol === "ss") {
+            url.username = btoa(`none:${UUIDS}`);
+            const pluginOpts = `mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${geo81}`;
+            url.searchParams.set("plugin", `${atob(v2)}-plugin;${useTls ? 'tls;' : ''}${pluginOpts}`);
+        } else {
+            url.username = UUIDS;
+            if (useTls) {
+                url.searchParams.set("sni", geo81);
+            } else {
+                url.searchParams.set("sni", "");
+            }
+        }
+        return url.toString() + '\n';
+    };
+
+    const generateForProto = (proto) => {
+        conf += generateUrl(proto, tls);
+    };
+
     if (type === 'vless') {
-      if (tls) {
-        conf += `vless://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${information}\n`;
-      } else {
-        conf += `vless://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-      }
+      generateForProto('vless');
     } else if (type === 'trojan') {
-      if (tls) {
-        conf += `trojan://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${information}\n`;
-      } else {
-        conf += `trojan://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-      }
+      generateForProto('trojan');
     } else if (type === 'ss') {
-      if (tls) {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=tls&sni=${geo81}#${information}\n`;
-      } else {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&sni=${geo81}#${information}\n`;
-      }
+      generateForProto('ss');
     } else if (type === 'mix') {
-      if (tls) {
-        conf += `vless://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${information}\n`;
-        conf += `trojan://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}#${information}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=tls&sni=${geo81}#${information}\n`;
-      } else {
-        conf += `vless://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-        conf += `trojan://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${prxHost}%3D${prxPort}&security=none&sni=${geo81}#${information}\n`;
-      }
+      generateForProto('vless');
+      generateForProto('trojan');
+      generateForProto('ss');
     }
-  }
-  
+  });
+
   return conf;
+}
+
+async function generateV2rayngSub(type, bug, geo81, tls, country = null, limit = null) {
+    const conf = await generateSub(type, bug, geo81, tls, country, limit);
+    return btoa(conf);
+}
+
+async function generateV2raySub(type, bug, geo81, tls, country = null, limit = null) {
+    return await generateSub(type, bug, geo81, tls, country, limit);
 }
 function generateUUIDv4() {
   const randomValues = crypto.getRandomValues(new Uint8Array(16));
