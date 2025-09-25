@@ -1150,7 +1150,7 @@ let baseHTML = `
       id="loading-screen"
       class="fixed inset-0 z-50 flex justify-center items-center bg-gray-900 bg-opacity-80 transition-opacity duration-500"
     >
-      <h1 class="text-white text-4xl font-bold">Selamat Datang</h1>
+      <h1 class="text-blue-500 text-4xl font-bold">Selamat Datang</h1>
     </div>
 
     <div id="notification-badge" class="fixed z-50 opacity-0 transition-opacity ease-in-out duration-300 mt-9 mr-6 right-0 p-4 max-w-sm rounded-xl flex items-center gap-x-4 shadow-lg glass-effect dark:glass-effect-light">
