@@ -1404,7 +1404,8 @@ let baseHTML = `
   });
     
       // Shared
-      const rootDomain = "PLACEHOLDER_ROOT_DOMAIN";
+      const workerHost = "PLACEHOLDER_WORKER_HOST";
+      const rootDomain = workerHost.split(".").slice(-2).join(".");
       const notification = document.getElementById("notification-badge");
       const windowContainer = document.getElementById("container-window");
       const windowInfoContainer = document.getElementById("container-window-info");
@@ -1422,7 +1423,7 @@ let baseHTML = `
 
         windowInfoContainer.innerText = "Fetching data...";
 
-        const url = "https://" + rootDomain + "/api/v1/domains/get";
+        const url = "https://" + workerHost + "/api/v1/domains/get";
         const res = fetch(url).then(async (res) => {
           const domainListContainer = document.getElementById("container-domains");
           domainListContainer.innerHTML = "";
@@ -1445,16 +1446,16 @@ let baseHTML = `
       function registerDomain() {
         const domainInputElement = document.getElementById("new-domain-input");
         const rawDomain = domainInputElement.value.toLowerCase();
-        const domain = domainInputElement.value + "." + rootDomain;
+        const domain = rawDomain + "." + rootDomain;
 
-        if (!rawDomain.match(/\\w+\\.\\w+$/) || rawDomain.endsWith(rootDomain)) {
-          windowInfoContainer.innerText = "Invalid URL!";
+        if (!rawDomain.match(/^[a-z0-9-]+$/) || rawDomain.endsWith(rootDomain)) {
+          windowInfoContainer.innerText = "Invalid subdomain format!";
           return;
         }
 
         windowInfoContainer.innerText = "Pushing request...";
 
-        const url = "https://" + rootDomain + "/api/v1/domains/put?domain=" + domain;
+        const url = "https://" + workerHost + "/api/v1/domains/put?domain=" + domain;
         const res = fetch(url).then((res) => {
           if (res.status == 200) {
             windowInfoContainer.innerText = "Done!";
@@ -1639,7 +1640,7 @@ let baseHTML = `
         const containerIP = document.getElementById("container-info-ip");
         const containerCountry = document.getElementById("container-info-country");
         const containerISP = document.getElementById("container-info-isp");
-        const res = fetch("https://" + rootDomain + "/api/v1/myip").then(async (res) => {
+        const res = fetch("https://" + workerHost + "/api/v1/myip").then(async (res) => {
           if (res.status == 200) {
             const respJson = await res.json();
             containerIP.innerText = "IP: " + respJson.ip;
@@ -1853,7 +1854,7 @@ proxyGroupElement += `    </div>`;
         this.html = this.html.replace('PLACEHOLDER_TELEGRAM_BUTTON', telegramButton);
 
         this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', `https://${serviceName}.${rootDomain}/check?target=`);
-        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', `${serviceName}.${rootDomain}`);
+        this.html = this.html.replaceAll('PLACEHOLDER_WORKER_HOST', `${serviceName}.${rootDomain}`);
         this.html = this.html.replaceAll('PLACEHOLDER_CONVERTER_URL', CONVERTER_URL);
         this.html = this.html.replaceAll('PLACEHOLDER_DONATE_LINK', DONATE_LINK);
 
