@@ -931,8 +931,12 @@ function safeCloseWebSocket(socket) {
 }
 
 async function checkPrxHealth(prxIP, prxPort) {
-  const req = await fetch(`${PRX_HEALTH_CHECK_API}?ip=${prxIP}:${prxPort}`);
-  return await req.json();
+  try {
+    const req = await fetch(`${PRX_HEALTH_CHECK_API}?ip=${prxIP}:${prxPort}`);
+    return await req.json();
+  } catch (e) {
+    return { status: "ERROR", delay: "N/A", colo: "N/A" };
+  }
 }
 
 // Helpers
@@ -1047,6 +1051,7 @@ class CloudflareApi {
       }),
       headers: {
         ...this.headers,
+        "Content-Type": "application/json",
       },
     });
 
@@ -1605,6 +1610,11 @@ let baseHTML = `
                         pingElement.classList.add("text-red-600");
                         pingElement.classList.remove("text-green-600");
                     }
+                })
+                .catch(() => {
+                    pingElement.textContent = "Check Failed!";
+                    pingElement.classList.add("text-red-600");
+                    pingElement.classList.remove("text-green-600");
                 })
                 .finally(() => {
                     resolve(0);
