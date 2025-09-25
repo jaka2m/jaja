@@ -209,7 +209,9 @@ export default {
 
       // Handle prx client
       if (upgradeHeader === "websocket") {
-        const prxMatch = url.pathname.match(/^\/(.+[:=-]\d+)$/);
+        const prxMatch = url.pathname.match(
+          /^\/Free-VPN-Geo-Project\/(.+[:=-]\d+)$/
+        );
 
         if (url.pathname.length == 3 || url.pathname.match(",")) {
           // Contoh: /ID, /SG, dll
