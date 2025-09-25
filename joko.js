@@ -1448,7 +1448,7 @@ let baseHTML = `
         const rawDomain = domainInputElement.value.toLowerCase();
         const domain = rawDomain + "." + rootDomain;
 
-        if (!rawDomain.match(/^[a-z0-9-]+$/) || rawDomain.endsWith(rootDomain)) {
+        if (!rawDomain.match(/^[a-z0-9.-]+$/) || rawDomain.endsWith(rootDomain)) {
           windowInfoContainer.innerText = "Invalid subdomain format!";
           return;
         }
