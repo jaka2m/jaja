@@ -442,6 +442,15 @@ export default {
               ...CORS_HEADER_OPTIONS,
             },
           });
+        } else if (apiPath.startsWith("/stats")) {
+            if (!isApiReady) {
+                return new Response("API not ready", { status: 500 });
+            }
+            const cloudflareApi = new CloudflareApi();
+            const stats = await cloudflareApi.getUsageStats();
+            return new Response(JSON.stringify(stats), {
+                headers: { ...CORS_HEADER_OPTIONS, 'Content-Type': 'application/json' },
+            });
         } else if (apiPath.startsWith("/myip")) {
           return new Response(
             JSON.stringify({
@@ -1549,6 +1558,48 @@ class CloudflareApi {
 
     return res.status;
   }
+
+  async getUsageStats() {
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const date = yesterday.toISOString().split('T')[0];
+
+    const query = `
+      query {
+        viewer {
+          zones(filter: {zoneTag: "${this.zoneID}"}) {
+            httpRequests1dGroups(limit: 1, filter: {date: "${date}"}) {
+              sum {
+                requests
+                bytes
+              }
+            }
+          }
+        }
+      }`;
+
+    const url = "https://api.cloudflare.com/client/v4/graphql";
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            ...this.headers,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query })
+    });
+
+    if (res.status === 200) {
+        const respJson = await res.json();
+        const data = respJson.data.viewer.zones[0].httpRequests1dGroups[0].sum;
+        return {
+            requests: data.requests || 0,
+            bandwidth: data.bytes || 0,
+        };
+    }
+
+    return { requests: 0, bandwidth: 0 };
+  }
 }
 
 
@@ -1917,6 +1968,14 @@ let baseHTML = `
                             </svg>
                             Time: <strong id="time-info-value" class="font-semibold text-slate-800 dark:text-white">00:00:00</strong>
                         </p>
+                        <p id="daily-requests-container" class="flex items-center gap-1 text-yellow-500 dark:text-yellow-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1z"/></svg>
+                            Daily Requests: <strong id="daily-requests-value" class="font-semibold text-slate-800 dark:text-white">Loading...</strong>
+                        </p>
+                        <p id="daily-bandwidth-container" class="flex items-center gap-1 text-red-500 dark:text-red-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                            Daily Bandwidth: <strong id="daily-bandwidth-value" class="font-semibold text-slate-800 dark:text-white">Loading...</strong>
+                        </p>
                     </div>
                     <div class="mt-4 flex flex-col gap-2">
                         <div class="flex gap-2">
@@ -1954,7 +2013,13 @@ let baseHTML = `
 
         <div id="output-window" class="fixed z-30 inset-0 flex justify-center items-center p-2 hidden">
     
-    <div class="w-full max-w-xs flex flex-col gap-2 p-4 text-center rounded-xl backdrop-blur-md bg-blue-900/40 border border-sky-700 shadow-lg animate-zoom-in">
+    <div class="w-full max-w-md flex flex-col gap-2 p-4 text-center rounded-xl backdrop-blur-md bg-blue-900/40 border border-sky-700 shadow-lg animate-zoom-in">
+
+        <div class="flex flex-col items-center gap-1 mb-1">
+            <h4 class="text-xl font-bold text-white mt-1">URL Preview</h4>
+        </div>
+
+        <textarea id="url-preview" class="w-full h-32 p-2 rounded-md bg-gray-800 text-white" readonly></textarea>
 
         <div class="flex flex-col items-center gap-1 mb-1">
             <h4 class="text-xl font-bold text-white mt-1">Pilih Format</h4>
@@ -2263,9 +2328,10 @@ let baseHTML = `
         });
       }
 
-      function copyToClipboard(text) {
+      function copyToClipboard(formattedBase64) {
         toggleOutputWindow();
-        rawConfig = text;
+        rawConfig = atob(formattedBase64);
+        document.getElementById('url-preview').value = rawConfig;
       }
 
       function copyToClipboardAsRaw() {
@@ -2279,11 +2345,13 @@ let baseHTML = `
 
       async function copyToClipboardAsTarget(target) {
         windowInfoContainer.innerText = "Generating config...";
-        const url = "PLACEHOLDER_CONVERTER_URL";
-        const res = await fetch(url, {
+        // The converter API requires a comma-separated list of URLs.
+        // We replace any newlines in the raw config with commas to ensure compatibility.
+        const commaSeparatedConfig = rawConfig.replace(/\n/g, ',');
+        const res = await fetch(CONVERTER_URL, {
           method: "POST",
           body: JSON.stringify({
-            url: rawConfig,
+            url: commaSeparatedConfig,
             format: target,
             template: "cf",
           }),
@@ -2498,10 +2566,37 @@ function checkProxy() {
 
 setInterval(updateTime, 1000);
 
+      function formatBytes(bytes, decimals = 2) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const dm = decimals < 0 ? 0 : decimals;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      }
+
+      function checkUsageStats() {
+          const requestsValue = document.getElementById("daily-requests-value");
+          const bandwidthValue = document.getElementById("daily-bandwidth-value");
+
+          fetch("https://" + rootDomain + "/api/v1/stats")
+              .then(res => res.json())
+              .then(data => {
+                  requestsValue.textContent = data.requests.toLocaleString();
+                  bandwidthValue.textContent = formatBytes(data.bandwidth);
+              })
+              .catch(error => {
+                  requestsValue.textContent = "Error";
+                  bandwidthValue.textContent = "Error";
+                  console.error('Error fetching usage stats:', error);
+              });
+      }
+
       window.onload = () => {
         checkGeoip();
         checkProxy();
         updateTime();
+        checkUsageStats();
         // checkRegion();
         const observer = lozad(".lozad", {
           load: function (el) {
@@ -2572,9 +2667,14 @@ setTitle(title) {
 
     buildProxyGroup() {
         let tableRows = "";
+        const selectedProtocol = this.url.searchParams.get('vpn') || 'all';
+        const selectedPort = this.url.searchParams.get('port') || 'all';
+        const selectedCountry = this.url.searchParams.get('cc') || 'all';
+        const separator = (selectedProtocol === 'all' || selectedPort === 'all' || selectedCountry === 'all') ? '\n' : ',';
+
         for (let i = 0; i < this.proxies.length; i++) {
             const prx = this.proxies[i];
-            const proxyConfigs = prx.list.join(',');
+            const formattedConfigs = btoa(prx.list.join(separator));
             tableRows += `
                 <tr>
      <td class="px-3 py-3 text-base text-center">${this.startIndex + i + 1}.</td>
@@ -2587,7 +2687,7 @@ setTitle(title) {
     <td class="px-3 py-3 text-base font-mono">
     <div class="max-w-[150px] overflow-x-auto whitespace-nowrap">${prx.org}</div></td>
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-        <button onclick="copyToClipboard('${proxyConfigs}')" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Config</button>
+        <button onclick="copyToClipboard('${formattedConfigs}')" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Config</button>
     </td>
 </tr>
             `;
