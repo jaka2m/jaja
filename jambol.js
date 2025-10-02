@@ -3,7 +3,7 @@ import { connect } from "cloudflare:sockets";
 // Variables
 const rootDomain = "gpj2.dpdns.org"; // Ganti dengan domain utama kalian
 const serviceName = "tes"; // Ganti dengan nama workers kalian
-const apiKey = "e1d2b64d4da5e42f24c88535f12f21bc84d06"; // Ganti dengan Global API key kalian (https://dash.cloudflare.com/profile/api-tokens)
+const apiKey = "bbsg7EhMm0ldDwaeWa55C9cW3huiUQ3z9id1WZ5i"; // Ganti dengan Global API key kalian (https://dash.cloudflare.com/profile/api-tokens)
 const apiEmail = "paoandest@gmail.com"; // Ganti dengan email yang kalian gunakan
 const accountID = "723b4d7d922c6af940791b5624a7cb05"; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
 const zoneID = "143d6f80528eae02e7a909f85e5320ab"; // Ganti dengan Zone ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
@@ -110,7 +110,7 @@ async function reverseWeb(request, target, targetPath) {
   return newResponse;
 }
 
-function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = null, selectedPort = null, wildcardDomains = [], rootDomain) {
+function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = null, selectedPort = null, wildcardDomains = [], rootDomain, analytics) {
     const startIndex = PRX_PER_PAGE * page;
     const totalProxies = prxList.length;
     const totalPages = Math.ceil(totalProxies / PRX_PER_PAGE) || 1;
@@ -134,6 +134,10 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
         document.setTitle("Free Vless Trojan SS");
         document.setTotalProxy(totalProxies);
         document.setPage(page + 1, totalPages);
+        if (analytics) {
+            document.setDailyRequests(analytics.requests);
+            document.setDailyBandwidth(analytics.bandwidth);
+        }
 
         for (let i = startIndex; i < startIndex + PRX_PER_PAGE; i++) {
             const prx = prxList[i];
@@ -271,8 +275,9 @@ export default {
 
         const cloudflareApi = new CloudflareApi();
         const wildcardDomains = await cloudflareApi.getDomainList();
+        const analytics = await cloudflareApi.getZoneAnalytics();
 
-        const result = getAllConfig(request, hostname, prxList, pageIndex, selectedProtocol, selectedPort, wildcardDomains, rootDomain);
+        const result = getAllConfig(request, hostname, prxList, pageIndex, selectedProtocol, selectedPort, wildcardDomains, rootDomain, analytics);
         return new Response(result, {
           status: 200,
           headers: { "Content-Type": "text/html;charset=utf-8" },
@@ -1463,16 +1468,12 @@ function getFlagEmoji(isoCode) {
 // CloudflareApi Class
 class CloudflareApi {
   constructor() {
-    this.bearer = `Bearer ${apiKey}`;
+    this.apiKey = apiKey;
     this.accountID = accountID;
     this.zoneID = zoneID;
-    this.apiEmail = apiEmail;
-    this.apiKey = apiKey;
 
     this.headers = {
-      Authorization: this.bearer,
-      "X-Auth-Email": this.apiEmail,
-      "X-Auth-Key": this.apiKey,
+      "Authorization": `Bearer ${this.apiKey}`
     };
   }
 
@@ -1548,6 +1549,76 @@ class CloudflareApi {
     });
 
     return res.status;
+  }
+
+  async getZoneAnalytics() {
+    const query = `
+      query GetZoneAnalytics($zoneTag: string, $since: Time, $until: Time) {
+        viewer {
+          zones(filter: { zoneTag: $zoneTag }) {
+            httpRequests1mGroups(
+              limit: 1
+              filter: { datetime_geq: $since, datetime_lt: $until }
+            ) {
+              sum {
+                requests
+                bytes
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const now = new Date();
+    const until = now.toISOString();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+    const variables = {
+      zoneTag: this.zoneID,
+      since,
+      until,
+    };
+
+    try {
+      const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+        method: "POST",
+        headers: {
+          ...this.headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query,
+          variables,
+        }),
+      });
+
+      const respJson = await res.json();
+
+      if (respJson.errors) {
+        console.error("Cloudflare API Error:", JSON.stringify(respJson.errors, null, 2));
+        return { requests: 0, bandwidth: 0 };
+      }
+
+      const data = respJson.data?.viewer?.zones?.[0]?.httpRequests1mGroups?.[0]?.sum;
+
+      if (data) {
+        return {
+          requests: data.requests,
+          bandwidth: data.bytes,
+        };
+      } else {
+         console.error("Unexpected API response structure:", JSON.stringify(respJson, null, 2));
+      }
+
+    } catch (e) {
+        console.error("Failed to fetch zone analytics:", e);
+    }
+
+    return {
+      requests: 0,
+      bandwidth: 0,
+    };
   }
 }
 
@@ -1916,6 +1987,19 @@ let baseHTML = `
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                             </svg>
                             Time: <strong id="time-info-value" class="font-semibold text-slate-800 dark:text-white">00:00:00</strong>
+                        </p>
+                        <p id="container-info-daily-requests" class="flex items-center gap-1 text-cyan-500 dark:text-cyan-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            Daily Requests: <strong id="daily-requests-value" class="font-semibold text-slate-800 dark:text-white">0</strong>
+                        </p>
+                        <p id="container-info-daily-bandwidth" class="flex items-center gap-1 text-red-500 dark:text-red-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 1h10v8H5V6z" clip-rule="evenodd" />
+                            </svg>
+                            Daily Bandwidth: <strong id="daily-bandwidth-value" class="font-semibold text-slate-800 dark:text-white">0 B</strong>
                         </p>
                     </div>
                     <div class="mt-4 flex flex-col gap-2">
@@ -2551,6 +2635,30 @@ class Document {
         this.html = this.html.replace(
             '<strong id="page-info-value" class="font-semibold">0/0</strong>',
             `<strong id="page-info-value" class="font-semibold">${current}/${total}</strong>`
+        );
+    }
+
+    setDailyRequests(requests) {
+        this.html = this.html.replace(
+            '<strong id="daily-requests-value" class="font-semibold text-slate-800 dark:text-white">0</strong>',
+            `<strong id="daily-requests-value" class="font-semibold text-slate-800 dark:text-white">${new Intl.NumberFormat().format(requests)}</strong>`
+        );
+    }
+
+    setDailyBandwidth(bytes) {
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes === 0) {
+            this.html = this.html.replace(
+                '<strong id="daily-bandwidth-value" class="font-semibold text-slate-800 dark:text-white">0 B</strong>',
+                `<strong id="daily-bandwidth-value" class="font-semibold text-slate-800 dark:text-white">0 B</strong>`
+            );
+            return;
+        }
+        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        const formattedBandwidth = (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
+        this.html = this.html.replace(
+            '<strong id="daily-bandwidth-value" class="font-semibold text-slate-800 dark:text-white">0 B</strong>',
+            `<strong id="daily-bandwidth-value" class="font-semibold text-slate-800 dark:text-white">${formattedBandwidth}</strong>`
         );
     }
 
