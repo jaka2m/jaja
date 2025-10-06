@@ -15,7 +15,6 @@ const apiEmail = "paoandest@gmail.com"; // Ganti dengan email yang kalian gunaka
 const accountID = "723b4d7d922c6af940791b5624a7cb05"; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
 const zoneID = "143d6f80528eae02e7a909f85e5320ab"; // Ganti dengan Zone ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
 const ownerPassword = ".";
-const VMESS_UUID = "a3b8d7c6-e5f4-4a1c-9a2e-3f7b6d5a1c0e";
 
 const wildcards = [];
 
@@ -98,10 +97,6 @@ let pathinfo = "/Free-VPN-CF-Geo-Project/";
 // Constants
 const WS_READY_STATE_OPEN = 1;
 const WS_READY_STATE_CLOSING = 2;
-const KDFSALT_CONST_VMESS_HEADER_PAYLOAD_LENGTH_AEAD_KEY = "VMess Header AEAD Key_Length";
-const KDFSALT_CONST_VMESS_HEADER_PAYLOAD_LENGTH_AEAD_IV = "VMess Header AEAD IV_Length";
-const KDFSALT_CONST_VMESS_HEADER_PAYLOAD_AEAD_KEY = "VMess Header AEAD Key";
-const KDFSALT_CONST_VMESS_HEADER_PAYLOAD_AEAD_IV = "VMess Header AEAD IV";
 
 async function getProxyList(forceReload = false) {
   if (!cachedProxyList.length || forceReload) {
@@ -1557,7 +1552,6 @@ async function handleSubRequest(hostnem) {
                     <label for="configType">Tipe Config</label>
                     <select id="configType" class="form-control" required>
                         <option value="vless">VLESS</option>
-                        <option value="vmess">VMESS</option>
                         <option value="trojan">TROJAN</option>
                         <option value="shadowsocks">SHADOWSOCKS</option>
                         <option value="mix">ALL CONFIG</option>
@@ -1968,9 +1962,10 @@ function buildCountryFlag() {
   for (const flag of uniqueFlags) {
     if (flag && flag !== "Unknown") {
       try {
-        flagElement += `<a href="/web?page=${page}&search=${flag}" class="py-1">
-      <span class="flag-circle flag-icon flag-icon-${flag.toLowerCase()}" 
-      style="display: inline-block; width: 40px; height: 40px; margin: 2px; border: 2px solid #008080; border-radius: 50%;">
+        // Mengubah href: Menghapus `page=${page}&`
+        flagElement += `<a href="/web?search=${flag}" class="py-1">
+        <span class="flag-circle flag-icon flag-icon-${flag.toLowerCase()}" 
+        style="display: inline-block; width: 40px; height: 40px; margin: 2px; border: 2px solid #007bff; border-radius: 50%;">
 </span>
 </a>`;
       } catch (err) {
@@ -2053,34 +2048,7 @@ function buildCountryFlag() {
         const ssTLSSimple = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:443?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=tls&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
         const ssTLSRibet = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:443?encryption=none&type=ws&host=${modifiedHostName}&path=${subP}${path2}&security=tls&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
         
-        const vmessTLSSimple = `vmess://${safeBtoa(JSON.stringify({
-          "v": "2",
-          "ps": `(${config.countryCode}) ${config.isp.replace(/\s/g, ' ')}${getFlagEmoji(config.countryCode)}`,
-          "add": wildcard,
-          "port": "443",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": modifiedHostName,
-          "path": `${subP}${config.path.toUpperCase()}`,
-          "tls": "tls",
-          "sni": modifiedHostName,
-        }))}`;
-        const vmessTLSRibet = `vmess://${safeBtoa(JSON.stringify({
-          "v": "2",
-          "ps": `(${config.countryCode}) ${config.isp.replace(/\s/g, ' ')}${getFlagEmoji(config.countryCode)}`,
-          "add": wildcard,
-          "port": "443",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": modifiedHostName,
-          "path": `${subP}${path2}`,
-          "tls": "tls",
-          "sni": modifiedHostName,
-        }))}`;
+        
         
         
         const vlessNTLSSimple = `vless://${uuid}@${wildcard}:80?path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
@@ -2091,35 +2059,6 @@ function buildCountryFlag() {
         
         const ssNTLSSimple = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:80?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(subP + config.path.toUpperCase())}&security=none&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
         const ssNTLSRibet = `ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:80?encryption=none&type=ws&host=${modifiedHostName}&path=${subP}${path2}&security=none&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`;
-
-        const vmessNTLSSimple = `vmess://${btoa(JSON.stringify({
-          "v": "2",
-          "ps": `(${config.countryCode}) ${config.isp.replace(/\s/g, ' ')}${getFlagEmoji(config.countryCode)}`,
-          "add": wildcard,
-          "port": "80",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": modifiedHostName,
-          "path": `${subP}${config.path.toUpperCase()}`,
-          "tls": "none",
-          "sni": "",
-        }))}`;
-        const vmessNTLSRibet = `vmess://${btoa(JSON.stringify({
-          "v": "2",
-          "ps": `(${config.countryCode}) ${config.isp.replace(/\s/g, ' ')}${getFlagEmoji(config.countryCode)}`,
-          "add": wildcard,
-          "port": "80",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": modifiedHostName,
-          "path": `${subP}${path2}`,
-          "tls": "none",
-          "sni": "",
-        }))}`;
 
 
 
@@ -2133,37 +2072,63 @@ function buildCountryFlag() {
     <td class="proxy-status" id="status-${ipPort}" data-label="STATUS IP"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
     
     <td class="px-1 py-1 text-center" data-label="BENDERA">
-        <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
-              style="width: 40px; height: 40px; border-radius: 50%; display: inline-block;">
-        </span>
-    </td>
+    <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
+          style="
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: inline-block;
+            /* === Efek Biru Neon/Glow Baru === */
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.8), inset 0 0 5px rgba(0, 191, 255, 0.5); 
+            border: 2px solid #00bfff; /* Border biru terang */
+          ">
+    </span>
+</td>
     
     <td class="country-cell" data-label="NEGARA | ISP">${config.countryCode} | ${config.isp}</td>
     
     <td class="path-cell" data-label="PATH">${config.path}</td>
     
     <td class="button-cell" data-label="VLESS">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
+        <button class="px" 
+            style="
+                background: linear-gradient(to right, #007BFF, #0056B3); /* Gradien Biru */
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                padding: 5px 10px;
+                cursor: pointer;
+            "
             onclick='showOptions("VLess", "${vlessTLSRibet}", "${vlessTLSSimple}", ${JSON.stringify(config)})'>
             VLESS
         </button>
     </td>
-    <td class="button-cell" data-label="VMESS">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick='showOptions("VMess", "${vmessTLSRibet}", "${vmessTLSSimple}", ${JSON.stringify(config)})'>
-            VMESS
-        </button>
-    </td>
     
     <td class="button-cell" data-label="TROJAN">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
+        <button class="px-3" 
+            style="
+                background: linear-gradient(to right, #007BFF, #0056B3); /* Gradien Biru */
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                padding: 5px 10px;
+                cursor: pointer;
+            "
             onclick='showOptions("Trojan", "${trojanTLSRibet}", "${trojanTLSSimple}", ${JSON.stringify(config)})'>
             TROJAN
         </button>
     </td>
     
     <td class="button-cell" data-label="SHADOWSOCKS">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#008080] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
+        <button class="px-3" 
+            style="
+                background: linear-gradient(to right, #007BFF, #0056B3); /* Gradien Biru */
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                padding: 5px 10px;
+                cursor: pointer;
+            "
             onclick='showOptions("SS", "${ssTLSRibet}", "${ssTLSSimple}", ${JSON.stringify(config)})'>
             SHADOWSOCKS
         </button>
@@ -2267,37 +2232,71 @@ function buildCountryFlag() {
         } else {
             return `
                 <tr class="config-row">
-    <td>${rowNumber}.</td>
-    <td class="ip-cell" style="word-break: break-all;">${config.ip}:${config.port}</td>
-    <td class="proxy-status" id="status-${ipPort}"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
-    <td class="px-1 py-1 text-center">
-        <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
-              style="width: 40px; height: 40px; border-radius: 50%; display: inline-block;">
-        </span>
-    </td>
-    <td class="country-cell">${config.countryCode} | ${config.isp}</td>
-    <td class="path-cell">${config.path}</td>
-    <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#00FFFF] to-[#00A3A3] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick='showOptions("VLess", "${vlessNTLSRibet}", "${vlessNTLSSimple}", ${JSON.stringify(config)})'>
+    <td data-label="NO">${rowNumber}.</td>
+    
+    <td class="ip-cell" data-label="IP:PORT" style="word-break: break-all;">${config.ip}:${config.port}</td>
+    
+    <td class="proxy-status" id="status-${ipPort}" data-label="STATUS IP"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
+    
+    <td class="px-1 py-1 text-center" data-label="BENDERA">
+    <span class="flag-circle flag-icon flag-icon-${config.countryCode.toLowerCase()}" 
+          style="
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: inline-block;
+            /* === Efek Biru Neon/Glow Baru === */
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.8), inset 0 0 5px rgba(0, 191, 255, 0.5); 
+            border: 2px solid #00bfff; /* Border biru terang */
+          ">
+    </span>
+</td>
+    
+    <td class="country-cell" data-label="NEGARA | ISP">${config.countryCode} | ${config.isp}</td>
+    
+    <td class="path-cell" data-label="PATH">${config.path}</td>
+    
+    <td class="button-cell" data-label="VLESS">
+        <button class="px" 
+            style="
+                background: linear-gradient(to right, #007BFF, #0056B3); /* Gradien Biru */
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                padding: 5px 10px;
+                cursor: pointer;
+            "
+            onclick='showOptions("VLess", "${vlessTLSRibet}", "${vlessTLSSimple}", ${JSON.stringify(config)})'>
             VLESS
         </button>
     </td>
-    <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#00FFFF] to-[#00A3A3] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick='showOptions("VMess", "${vmessNTLSRibet}", "${vmessNTLSSimple}", ${JSON.stringify(config)})'>
-            VMESS
-        </button>
-    </td>
-    <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#00FFFF] to-[#00A3A3] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick='showOptions("Trojan", "${trojanNTLSRibet}", "${trojanNTLSSimple}", ${JSON.stringify(config)})'>
+    
+    <td class="button-cell" data-label="TROJAN">
+        <button class="px-3" 
+            style="
+                background: linear-gradient(to right, #007BFF, #0056B3); /* Gradien Biru */
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                padding: 5px 10px;
+                cursor: pointer;
+            "
+            onclick='showOptions("Trojan", "${trojanTLSRibet}", "${trojanTLSSimple}", ${JSON.stringify(config)})'>
             TROJAN
         </button>
     </td>
-    <td class="button-cell">
-        <button class="px-3 py-1 bg-gradient-to-r from-[#00FFFF] to-[#00A3A3] text-black font-semibold border-0 rounded-md transform transition hover:scale-105" 
-            onclick='showOptions("SS", "${ssNTLSRibet}", "${ssNTLSSimple}", ${JSON.stringify(config)})'>
+    
+    <td class="button-cell" data-label="SHADOWSOCKS">
+        <button class="px-3" 
+            style="
+                background: linear-gradient(to right, #007BFF, #0056B3); /* Gradien Biru */
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                padding: 5px 10px;
+                cursor: pointer;
+            "
+            onclick='showOptions("SS", "${ssTLSRibet}", "${ssTLSSimple}", ${JSON.stringify(config)})'>
             SHADOWSOCKS
         </button>
     </td>
@@ -2419,311 +2418,353 @@ function buildCountryFlag() {
 
   return new Response(`
 
+<!DOCTYPE html>
 <html>
-      <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-      <title>Geo-VPN | VPN Tunnel | CloudFlare</title>
-      
-      <!-- SEO Meta Tags -->
-      <meta name="description" content="Akun Vless Gratis. Geo-VPN offers free Vless accounts with Cloudflare and Trojan support. Secure and fast VPN tunnel services.">
-      <meta name="keywords" content="Geo-VPN, Free Vless, Vless CF, Trojan CF, Cloudflare, VPN Tunnel, Akun Vless Gratis">
-      <meta name="author" content="Geo-VPN">
-      <meta name="robots" content="index, follow"> 
-      <meta name="robots" content="noarchive"> 
-      <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1"> 
-      
-      <!-- Social Media Meta Tags -->
-      <meta property="og:title" content="Geo-VPN | Free Vless & Trojan Accounts">
-      <meta property="og:description" content="Geo-VPN provides free Vless accounts and VPN tunnels via Cloudflare. Secure, fast, and easy setup.">
-      <meta property="og:image" content="https://geoproject.biz.id/circle-flags/bote.png">
-      <meta property="og:url" content="https://geoproject.biz.id/circle-flags/bote.png">
-      <meta property="og:type" content="website">
-      <meta property="og:site_name" content="Geo-VPN">
-      <meta property="og:locale" content="en_US">
-      
-      <!-- Twitter Card Meta Tags -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="Geo-VPN | Free Vless & Trojan Accounts">
-      <meta name="twitter:description" content="Get free Vless accounts and fast VPN services via Cloudflare with Geo-VPN. Privacy and security guaranteed.">
-      <meta name="twitter:image" content="https://geoproject.biz.id/circle-flags/bote.png"> 
-      <meta name="twitter:site" content="@sampiiiiu">
-      <meta name="twitter:creator" content="@sampiiiiu">
-      <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css/css/flag-icon.min.css">
-      <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.1/css/all.css">
-      
-      <!-- Telegram Meta Tags -->
-      <meta property="og:image:type" content="image/jpeg"> 
-      <meta property="og:image:secure_url" content="https://geoproject.biz.id/circle-flags/bote.png">
-      <meta property="og:audio" content="URL-to-audio-if-any"> 
-      <meta property="og:video" content="URL-to-video-if-any"> 
-      
-      <!-- Additional Meta Tags -->
-      <meta name="theme-color" content="#000000"> 
-      <meta name="format-detection" content="telephone=no"> 
-      <meta name="generator" content="Geo-VPN">
-      <meta name="google-site-verification" content="google-site-verification-code">
-      
-     <!-- Open Graph Tags for Rich Links -->
-      <meta property="og:image:width" content="1200">
-      <meta property="og:image:height" content="630">
-      <meta property="og:image:alt" content="Geo-VPN Image Preview">
-      
-      <!-- Favicon and Icon links -->
-      <link rel="icon" href="https://geoproject.biz.id/circle-flags/bote.png">
-      <link rel="apple-touch-icon" href="https://geoproject.biz.id/circle-flags/bote.png">
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-      
-    <style>
-/* ================================================= */
-/* MODIFIKASI CYAN TRANSPARAN            */
-/* ================================================= */
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <title>Geo-VPN | VPN Tunnel | CloudFlare</title>
+        
+        <meta name="description" content="Akun Vless Gratis. Geo-VPN offers free Vless accounts with Cloudflare and Trojan support. Secure and fast VPN tunnel services.">
+        <meta name="keywords" content="Geo-VPN, Free Vless, Vless CF, Trojan CF, Cloudflare, VPN Tunnel, Akun Vless Gratis">
+        <meta name="author" content="Geo-VPN">
+        <meta name="robots" content="index, follow"> 
+        <meta name="robots" content="noarchive"> 
+        <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1"> 
+        
+        <meta property="og:title" content="Geo-VPN | Free Vless & Trojan Accounts">
+        <meta property="og:description" content="Geo-VPN provides free Vless accounts and VPN tunnels via Cloudflare. Secure, fast, and easy setup.">
+        <meta property="og:image" content="https://geoproject.biz.id/circle-flags/bote.png">
+        <meta property="og:url" content="https://geoproject.biz.id/circle-flags/bote.png">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="Geo-VPN">
+        <meta property="og:locale" content="en_US">
+        
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Geo-VPN | Free Vless & Trojan Accounts">
+        <meta name="twitter:description" content="Get free Vless accounts and fast VPN services via Cloudflare with Geo-VPN. Privacy and security guaranteed.">
+        <meta name="twitter:image" content="https://geoproject.biz.id/circle-flags/bote.png"> 
+        <meta name="twitter:site" content="@sampiiiiu">
+        <meta name="twitter:creator" content="@sampiiiiu">
+        <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css/css/flag-icon.min.css">
+        <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.1/css/all.css">
+        
+        <meta property="og:image:type" content="image/jpeg"> 
+        <meta property="og:image:secure_url" content="https://geoproject.biz.id/circle-flags/bote.png">
+        <meta property="og:audio" content="URL-to-audio-if-any"> 
+        <meta property="og:video" content="URL-to-video-if-any"> 
+        
+        <meta name="theme-color" content="#000000"> 
+        <meta name="format-detection" content="telephone=no"> 
+        <meta name="generator" content="Geo-VPN">
+        <meta name="google-site-verification" content="google-site-verification-code">
+        
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="Geo-VPN Image Preview">
+        
+        <link rel="icon" href="https://geoproject.biz.id/circle-flags/bote.png">
+        <link rel="apple-touch-icon" href="https://geoproject.biz.id/circle-flags/bote.png">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <style>
+/* =================================================================== */
+/* 1. VARIABEL & KEYFRAMES (Definitions) */
+/* =================================================================== */
 :root {
-    --primary: #00FFFF; /* CYAN terang untuk aksi utama */
-    --secondary: #00C0C0; /* CYAN lebih gelap */
-    --accent: #ff00ff;
-    --dark: #080c14;
-    --darker: #040608;
-    --light: #e0ffff;
-    --card-bg: rgba(8, 12, 20, 0.95);
-    --glow: 0 0 20px rgba(0, 255, 255, 0.5); /* Glow berbasis CYAN */
-    --color-primary: #00d4ff; /* Biru neon */
-            --color-secondary: #00bfff; /* Biru lebih terang */
-            --color-tertiary: #39ff14; /* Hijau neon untuk tombol */
-            --color-background: #020d1a; /* Latar belakang lebih gelap */
-            --color-card: rgba(0, 212, 255, 0.1); /* Kartu dengan sedikit transparansi */
-            --color-text: #e0f4f4; /* Teks cerah */
-            --color-table-header: rgba(0, 212, 255, 0.2); /* Header tabel */
-            --transition: all 0.3s ease;
-        }
+    /* -- CYBERPUNK BASE COLORS -- */
+    --primary: #6366f1; /* Indigo - untuk struktur */
+    --secondary: #06b6d4; /* Cyan - untuk aksen */
+    --neon-magenta: #ff00ff; /* Neon Pink/Magenta */
+    --dark-bg: #030617; /* Background Super Gelap */
+    --light: #e0f2fe; /* Teks/Warna Terang */
+    --gray-light: #94a3b8;
+    --glass: rgba(25, 30, 45, 0.7); /* Latar Belakang Glassmorphism */
+    --glass-border: rgba(99, 102, 241, 0.3);
+
+    /* -- BLUE GRADIENT & GLOW (New) -- */
+    --neon-cyan: #00ffff; /* Neon Light Blue (Dipertahankan untuk Kontras) */
+    --blue-light: #00bfff; /* Biru langit/cerah, untuk efek neon */
+    --blue-primary: #007bff; /* Biru Laut terang untuk border/aksen */
+    --blue-dark: #0056b3; /* Biru gelap untuk gradien */
+    --blue-shadow: rgba(0, 123, 255, 0.6); /* Biru dengan transparansi untuk bayangan */
+    --blue-header: rgba(0, 123, 255, 0.9); /* Biru untuk header tabel */
+    --blue-hover-light: rgba(0, 191, 255, 0.1); /* Biru Cyan terang untuk efek hover tabel */
 }
 
-/* --- ANIMASI DAN TOMBOL (TIDAK BERUBAH TOTAL, HANYA WARNA GLOW) --- */
-
-@keyframes rainbow {
-    0% { color: red; }
-    14% { color: black; }
-    28% { color: black; }
-    42% { color: green; }
-    57% { color: blue; }
-    71% { color: indigo; }
-    85% { color: violet; }
-    100% { color: red; }
+@keyframes neon-pulse {
+    0% { box-shadow: 0 0 5px var(--neon-cyan); }
+    50% { box-shadow: 0 0 15px var(--neon-cyan), 0 0 20px var(--neon-magenta); }
+    100% { box-shadow: 0 0 5px var(--neon-cyan); }
 }
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+
+@keyframes lightning {
+    0% { opacity: 0; transform: translateX(-100%) skewX(-20deg); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(100%) skewX(-20deg); }
+}
+
+/* =================================================================== */
+/* 2. BASE & GLOBAL STYLING */
+/* =================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacMacFont, sans-serif;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--light);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Tekstur Cyberpunk Grid/Noise */
+    background-image: 
+        linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 0, 255, 0.05) 75%, rgba(255, 0, 255, 0.05) 76%, transparent 77%, transparent), 
+        linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 0, 255, 0.05) 75%, rgba(255, 0, 255, 0.05) 76%, transparent 77%, transparent);
+    background-size: 50px 50px;
+}
+
+::selection {
+    background: var(--neon-magenta);
+    color: var(--dark-bg);
+}
+
+header {
+    text-align: center;
+}
+
+/* Container utama di mana semua konten berada */
+.quantum-container {
+    max-width: 350px; /* Default untuk mobile */
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(3, 6, 23, 0.85); 
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.6); 
+    min-height: calc(100vh - 40px);
+}
+.quantum-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-magenta);
+    letter-spacing: 3px; 
+    padding: 10px 0;
+    border-bottom: 2px solid rgba(255, 0, 255, 0.3); 
+    margin-bottom: 30px;
+}
+.quantum-container > div:last-child {
+    text-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+}
+
+
+/* =================================================================== */
+/* 3. POPUP WELCOME STYLES */
+/* =================================================================== */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(3, 6, 23, 0.98), rgba(6, 12, 30, 0.98)),
+                url('https://img.wattpad.com/63b4fef6d4a8b5eef3a12394990aea164cfe4be1/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f7279496d616765L434916e4f5962596f476f5241773d3d2d3132302e313563323538386461323838623263313733313931313130373332332e6a7067?s=fit&w=720&h=720') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.popup-container {
+    background: var(--glass);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 30px var(--neon-cyan), 0 0 50px var(--neon-magenta);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+    animation: neon-pulse 5s infinite alternate;
+}
+
+.popup-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-magenta), var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px var(--neon-magenta), 0 0 15px var(--neon-cyan);
+}
+
+.popup-subtitle {
+    font-size: 1.2rem;
+    color: var(--gray-light);
+    margin-bottom: 25px;
+}
+
+.popup-content p {
+    font-size: 0.9rem;
+    color: var(--gray-light);
+}
+
+.popup-progress {
+    width: 100%;
+    height: 20px;
+    background: var(--glass);
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+
+.popup-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+.popup-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.control-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.lightning-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    transform: skewX(-20deg);
+    animation: lightning 0.5s ease-out;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .close-btn {
-    background-color: #dc3545;
+    background: linear-gradient(to right, #007bff, #0056b3); 
     color: white;
     padding: 6px 11px;
     font-size: 16px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s;
 }
 
 .close-btn:hover {
-    background-color: #c82333;
+    background: linear-gradient(to right, #0056b3, #007bff);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+    transform: translateY(-1px);
 }
 
-/* LOADING ICON - TETAP UTUH */
-.loading-icon {
-    font-size: 40px;
-    animation: rotate 1s linear infinite;
-    color: #f00; /* default color */
-}
-
-.loading-icon:before {
-    content: '110'; /* spinner icon */
-    font-family: 'FontAwesome';
-    color: red;
-    animation: spinColors 1.2s linear infinite;
-}
-
-@keyframes spinColors {
-    0% { color: red; }
-    25% { color: yellow; }
-    50% { color: green; }
-    75% { color: blue; }
-    100% { color: purple; }
-}
-.spinner {
-    border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-}
-
-/* --- TATA LETAK DAN RESPONSIVITAS --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Space Grotesk', sans-serif;
-}
-
-body {
-    background: url('https://raw.githubusercontent.com/bitzblack/ip/refs/heads/main/shubham-dhage-5LQ_h5cXB6U-unsplash.jpg') no-repeat center center fixed;
-    background-size: cover;
-    justify-content: center;
-    align-items: center;
-    background-size: 300% 300%;
-    color: #fff;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    animation: rainbowBackground 10s infinite;
-}
-
-@keyframes rainbowBackground {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-@keyframes moveColors {
-    100% {
-        background-position: -200%;
-    }
-    0% {
-        background-position: 200%;
-    }
-}
-
-.warna-text {
-    font-size: 20px;
-    font-weight: bold;
-    display: inline-block;
-    background: linear-gradient(90deg, red, orange, yellow, green, blue, purple);
-    background-size: 200%;
-    color: transparent;
-    -webkit-background-clip: text;
-    animation: moveColors 5s linear infinite;
-}
-
-h1 {
+/* =================================================================== */
+/* 4. FORM & SEARCH (Input, Dropdown, Button) */
+/* =================================================================== */
+/* Search Input */
+#search-bar {
+    background-color: var(--glass);
+    color: var(--light);
+    border: 2px solid var(--secondary);
+    border-radius: 8px;
+    padding: 12px 15px; 
+    transition: border-color 0.3s, box-shadow 0.3s;
     font-family: 'Rajdhani', sans-serif;
-    padding-top: 10px;
-    margin-top: 10px;
-    color: black;
-    text-align: center;
-    font-size: 9vw;
+}
+#search-bar:focus {
+    outline: none;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-cyan); 
+}
+#search-bar::placeholder {
+    color: #007bff; /* Biru Laut */
+    opacity: 1;
+}
+
+/* Search Button (Tailwind Classes Overwrite) */
+.search-quantum button, .bg-gradient-to-r {
+    /* Ganti gradien yang menggunakan hijau dengan gradien biru */
+    background: linear-gradient(90deg, var(--blue-primary), var(--blue-dark)) !important; 
+    color: white !important;
     font-weight: bold;
-    /* Glow Biru ke CYAN */
-    text-shadow:
-        0 0 5px rgba(0, 255, 255, 0.8),
-        0 0 10px rgba(0, 255, 255, 0.8),
-        0 0 20px rgba(0, 255, 255, 0.8),
-        0 0 30px rgba(0, 255, 255, 0.8),
-        0 0 40px rgba(0, 255, 255, 0.8);
-
-    background: linear-gradient(45deg, var(--primary), var(--secondary), var(--dark));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px #000;
-    position: relative;
-    animation: titlePulse 3s ease-in-out infinite;
+    border: none;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px var(--blue-shadow);
+}
+.search-quantum button:hover, .bg-gradient-to-r:hover {
+    box-shadow: 0 0 15px 5px var(--blue-light);
 }
 
-@keyframes titlePulse {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.02); filter: brightness(1.2); }
-}
-
-h2 {
-    color: black;
-    text-align: center;
-    font-size: 4vw;
-    font-weight: bold;
-    /* Glow Biru ke CYAN */
-    text-shadow:
-        0 0 5px rgba(0, 255, 255, 0.8),
-        0 0 10px rgba(0, 255, 255, 0.8),
-        0 0 20px rgba(0, 255, 255, 0.8),
-        0 0 30px rgba(0, 255, 255, 0.8),
-        0 0 40px rgba(0, 255, 255, 0.8);
-}
-
-header, footer {
-    box-sizing: border-box;
-    background-color: ;
-    color: white;
-    text-align: center;
-    border: 0px solid rgba(143, 0, 0, 0.89);
-    border-radius: 10px;
-    padding: 0 20px;
-    position: fixed;
-    width: 100%;
-    left: 0;
-    right: 2px;
-    pointer-events: none;
-    z-index: 10;
-}
-
-header {
-    top: 0;
-}
-
-footer {
-    bottom: 0;
-}
-
+/* Dropdown Container */
 .wildcard-dropdown {
     display: flex;
-    margin-bottom: 5px;
-    margin: 3px;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    margin: 0.8rem auto;
-    width: 100%;
-    max-width: 100%;
-    padding: 0.8rem;
-    box-sizing: border-box;
+    gap: 15px; /* Menggunakan 15px dari versi awal */
+    margin-top: 15px;
+    margin-bottom: 25px; /* Menggunakan 25px dari versi awal */
+    width: 50%;
+    max-width: 250px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.wildcard-dropdown select {
-    margin-bottom: 5px;
-    margin: 3px;
-    flex: 1;
-    max-width: 50%;
-    min-width: 100px;
-}
-
-@media (min-width: 768px) {
-    .wildcard-dropdown select {
-        max-width: 300px;
-    }
-}
-
+/* Dropdown/Select Element */
 select {
     width: 100%;
     max-width: 200px;
     padding: 0.4rem 0.6rem;
     font-size: 0.8rem;
     color: var(--light);
-    /* Latar belakang transparan CYAN */
-    background: rgba(0, 255, 255, 0.05);
-    border: 2px solid rgba(0, 255, 255, 0.3);
+    /* Latar belakang CYan -> Biru */
+    background: rgba(0, 123, 255, 0.05); /* Biru Transparan */
+    border: 2px solid rgba(0, 123, 255, 0.3); /* Biru Transparan */
     border-radius: 10px;
-    box-shadow: var(--glow);
+    /* Hilangkan box-shadow: var(--glow) karena tidak terdefinisi */
     outline: none;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     appearance: none;
-    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23e0ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M6 9l6 6 6-6"%3E%3C/path%3E%3C/svg%3E');
+    /* Ganti warna SVG dropdown panah ke Light */
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23e0f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M6 9l6 6 6-6"%3E%3C/path%3E%3C/svg%3E');
     background-position: right 10px center;
     background-repeat: no-repeat;
     background-size: 1rem;
@@ -2732,1248 +2773,340 @@ select {
 
 select:hover {
     border-color: var(--primary);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.2); /* Biru Transparan */
 }
 
 select:focus {
-    border-color: var(--secondary);
-    background: rgba(0, 255, 255, 0.1);
-    box-shadow: 0 0 20px var(--secondary);
+    border-color: var(--blue-primary); /* Menggunakan biru primary */
+    background: rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 20px var(--blue-primary);
 }
 
-.button-style {
-    padding: 0.6rem 1rem;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 0.6rem;
-    color: var(--dark);
-    /* Background CYAN */
-    background: var(--primary);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+.wildcard-dropdown select option {
+    /* Menggunakan variabel dark-bg */
+    background-color: var(--dark-bg); 
 }
 
-.button-style::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
-    transition: 0.5s;
-}
-
-.button-style:hover::before {
-    left: 100%;
-}
-
-.button-style:hover {
-    transform: translateY(-2px);
-    /* Bayangan CYAN */
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
-}
-
-.button-style:active {
-    transform: translateY(1px);
-    /* Reduksi bayangan CYAN */
-    box-shadow: 0 3px 10px rgba(0, 255, 255, 0.2);
-}
-
-
-.menu {
-    display: flex;
-    align-items: center;
-    margin-left: 5px;
-    margin-bottom: 5px;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-.menu a {
-    font-family: 'Rajdhani', sans-serif;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-}
-
-.menu img {
-    margin-right: 5px;
-}
-
-.menu:nth-child(odd) {
-    color: #fff;
-    background-color: rgba(239, 80, 0, 0.87);
-}
-
-.menu:nth-child(even) {
-    color: #fff;
-    background-color: rgba(3, 117, 1, 0.87);
-}
-
-
-.quantum-container {
-    background-color: rgba(0, 0, 0, 0.82);
-    flex: 1;
-    padding: 20px;
-    margin-top: 95px;
-    margin-bottom: 50px;
-    padding-left: 10px;
-    padding-right: 10px;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #fff;
-    border-radius: 10px;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-    /* Glow Biru ke CYAN */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.5);
-
-    width: 90%;
-    max-width: 960px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-@media (max-width: 767px) {
-    .quantum-container {
-        width: 98%;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-}
-
-@media (min-width: 1024px) {
-    .quantum-container {
-        width: 98%;
-        max-width: 1800px;
-        padding: 40px;
-    }
-}
-
-.quantum-card {
-    width: 100%;
-    overflow-x: auto;
-    margin-bottom: 0px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    padding: 0px;
-    background-color: rgba(0, 0, 0, 0.82);
-    /* Glow Biru ke CYAN */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
-        0 0 30px rgba(0, 255, 255, 0.5);
-
-}
-
-@media (min-width: 768px) {
-    .quantum-card {
-        margin: 0 2rem;
-    }
-}
-
-@keyframes cardFloat {
-    0%, 100% { transform: translateY(0) rotateX(0); }
-    50% { transform: translateY(-10px) rotateX(2deg); }
-}
-
-
-.quantum-title {
-    font-family: 'Rajdhani', sans-serif;
-    padding-top: 10px;
-    margin-top: 10px;
-    color: black;
-    text-align: center;
-    font-size: 10vw;
-    font-weight: bold;
-    /* Glow Biru ke CYAN */
-    text-shadow:
-        0 0 5px rgba(0, 255, 255, 0.8),
-        0 0 10px rgba(0, 255, 255, 0.8),
-        0 0 20px rgba(0, 255, 255, 0.8),
-        0 0 30px rgba(0, 255, 255, 0.8),
-        0 0 40px rgba(0, 255, 255, 0.8);
-
-    background: linear-gradient(45deg, var(--accent), var(--secondary), var(--dark));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px #000;
-    position: relative;
-    animation: titlePulse 3s ease-in-out infinite;
-}
-
-.quantum-title1 {
-    color: black;
-    text-align: center;
-    font-size: 4vw;
-    font-weight: bold;
-    /* Glow Biru ke CYAN */
-    text-shadow:
-        0 0 5px rgba(0, 255, 255, 0.8),
-        0 0 10px rgba(0, 255, 255, 0.8),
-        0 0 20px rgba(0, 255, 255, 0.8),
-        0 0 30px rgba(0, 255, 255, 0.8),
-        0 0 40px rgba(0, 255, 255, 0.8);
-}
-
-.search-quantum {
-    position: relative;
-    margin-top: 0.1rem;
-    margin-bottom: 0.3rem;
-}
-
-#search-bar {
-    padding: 2px;
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 5px;
-    margin-top: 7px;
-    margin: 5px;
-    padding-top: 7px;
-    font-size: 3vw;
-    color: var(--light);
-    /* Latar belakang transparan CYAN */
-    background: rgba(0, 255, 255, 0.05);
-    border: 2px solid rgba(0, 255, 255, 0.3);
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
-
-#search-bar:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-    background: rgba(0, 255, 255, 0.1);
-}
-
-
-.copy-btn {
-    padding: 0.8rem 1.5rem;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--dark);
-    /* Background CYAN */
-    background: var(--primary);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.copy-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.5s;
-}
-
-.copy-btn:hover::before {
-    left: 100%;
-}
-
-.copy-btn:hover {
-    transform: translateY(-2px);
-    /* Bayangan CYAN */
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
-}
-
-.btn-icon {
-    font-size: 1.2rem;
-}
-
-.quantum-pagination {
-    display: flex;
-    justify-content: center;
-    gap: 0.8rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-}
-
-.quantum-pagination a {
-    padding: 0.8rem 1.5rem;
-    /* Background transparan CYAN */
-    background: rgba(0, 255, 255, 0.1);
-    color: var(--primary);
-    text-decoration: none;
-    border-radius: 12px;
-    /* Border transparan CYAN */
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    transition: all 0.3s ease;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    min-width: 45px;
-    text-align: center;
-}
-
-.quantum-pagination a:hover,
-.quantum-pagination a.active {
-    background: var(--primary);
-    color: var(--dark);
-    transform: translateY(-2px);
-    /* Bayangan CYAN */
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
-}
-
-.quantum-toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    padding: 1rem 2rem;
-    background: var(--primary);
-    color: var(--dark);
-    border-radius: 12px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    /* Bayangan CYAN */
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
-    transform: translateY(100%);
-    opacity: 0;
-    animation: toastSlide 0.3s forwards;
-    z-index: 1000;
-}
-
-@keyframes toastSlide {
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-    .quantum-containera {
-        padding: 0.5rem;
-        margin: 0.5rem;
-    }
-
-    .quantum-card {
-        padding: 1rem;
-        margin: 0;
-        width: 100%;
-        border-radius: 10px;
-        max-width: 100%;
-    }
-
-    .quantum-title {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    #search-bar {
-        margin-bottom: 5px;
-        margin: 0.5px;
-        margin-top: 7px;
-        padding: 10px; 1px;
-        padding-top: 7px;
-        font-size: 10px;
-    }
-
-    .table-wrapper {
-        margin: 0.5rem 0;
-        padding: 0;
-        border-radius: 10px;
-        max-height: 60vh;
-        overflow-y: auto;
-        /* Background transparan CYAN */
-        background: rgba(0, 255, 255, 0.02);
-    }
-
-    .copy-btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-    }
-
-    .quantum-pagination {
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .quantum-pagination a {
-        padding: 0.5rem 0.7rem;
-        font-size: 0.7rem;
-        min-width: 30px;
-    }
-
-    .quantum-toast {
-        left: 1rem;
-        right: 1rem;
-        bottom: 1rem;
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .quantum-card {
-        padding: 0.5rem;
-        max-width: 100%;
-    }
-
-    .quantum-title {
-        font-size: 1.5rem;
-    }
-
-    .table-wrapper {
-        margin: 0.5rem -0.5rem;
-        padding: 0 0.5rem;
-    }
-
-    .quantum-table {
-        font-size: 0.8rem;
-    }
-
-    .copy-btn {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.7rem;
-    }
-}
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    margin-bottom: 0px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    padding: 0px;
-    background-color: rgba(0, 0, 0, 0.82);
-    /* Glow Biru ke CYAN */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
-        0 0 30px rgba(0, 255, 255, 0.5);
-}
-
-.swal-popup-extra-small-text {
-    font-size: 12px;
-}
-
-.swal-title-extra-small-text {
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.swal-content-extra-small-text {
-    font-size: 12px;
-}
-
-.button, .button1, .button2, .button3 {
-    white-space: nowrap;
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-
-    padding: 10px 10px;
-    margin: 10px 5px;
-    border: 0px solid #fff;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-}
-
-/* Button Colors */
-.button1 {
-    margin: 10px;
-    padding: 10px 10px;
-    border: 0px solid rgba(183, 43, 0, 0.97);
-    border-radius: 10px;
-    border-radius: 5px;
-    background-color: green;
-    color: #fff;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-.button2 {
-    margin: 10px;
-    padding: 10px 10px;
-    border: 0px solid rgba(183, 43, 0, 0.97);
-    border-radius: 10px;
-    border-radius: 5px;
-    background-color: rgba(14, 116, 255, 0.97);
-    color: #fff;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-.button3 {
-    margin: 10px;
-    padding: 10px 10px;
-    border: 0px solid rgba(183, 43, 0, 0.97);
-    border-radius: 10px;
-    border-radius: 5px;
-    background-color: rgba(255, 61, 68, 0.97);
-    color: #fff;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-/* Hover Effects */
-.button:hover { background-color: #2980b9; border: 1px solid rgba(197, 51, 6, 0.89); border-radius: 8px; }
-
-/* Click Effects */
-.button:active {
-    transform: scale(0.95);
-    border: 2px solid #333;
-}
-
-/* Shadow/Glow Effects */
-.button, .button1, .button2, .button3 {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-.button:hover {
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-
-.button6 {
-    margin : 5px;
-    padding: 5px;
-    border: px solid rgba(183, 43, 0, 0.97);
-    border-radius: 0px;
-    border-radius: 0px;
-    background-color: ;
-    color: #fff;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-.button7 {
-    margin: 2px;
-    padding: 2px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 6px;
-    /* Gradien Hijau ke CYAN */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 192, 192, 0.6));
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: white;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
-    pointer-events: auto;
-    line-height: 1;
-    height: 40px;
-    /* Shadow CYAN */
-    box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease-in-out;
-}
-
-.button7:hover {
-    /* Warna lebih terang saat hover - CYAN */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.5), rgba(0, 220, 220, 0.7));
-    /* Shadow CYAN lebih kuat */
-    box-shadow: 0 6px 12px rgba(0, 255, 255, 0.7), inset 0 2px 6px rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-}
-
-.popup-content {
-    background-color: rgba(0, 0, 0, 0.82);
-    padding: 20px;
-    border: 0px solid rgba(197, 51, 6, 0.89);
-    border-radius: 5px;
-    text-align: center;
-
-    position: relative;
-    z-index: 1000;
-    pointer-events: auto;
-}
-
-.popupnav-content {
-    background-color: rgba(0, 0, 0, 0.82);
-    padding: 10px;
-    border: 0px solid rgba(197, 51, 6, 0.89);
-    border-radius: 10px;
-    text-align: center;
-
-    position: relative;
-    z-index: 1000;
-    pointer-events: auto;
-}
-
-.popupnav {
-    display: none;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 300px;
-    height: 100%;
-    background-color: ;
-    justify-content: left;
-    align-items: center;
-    z-index: 100;
-    pointer-events: auto;
-    animation: slideInLeft 0.5s forwards;
-    color: #fff;
-    text-align: left;
-    font-size: 15px;
-    font-weight: bold;
-    /* Glow Biru ke CYAN */
-    text-shadow:
-        0 0 4px rgba(0, 255, 255, 0.8),
-        0 0 6px rgba(0, 255, 255, 0.8),
-        0 0 8px rgba(0, 255, 255, 0.8),
-        0 0 10px rgba(0, 255, 255, 0.8),
-        0 0 15px rgba(0, 255, 255, 0.8);
-}
-
-@keyframes slideInLeft {
-    from {
-        left: -100%;
-    }
-    to {
-        left: 0;
-    }
-}
-
-.rainbow-text {
-    font-size: 15px;
-    font-weight: bold;
-    animation: rainbow 2s infinite;
-}
-
-.flag-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    text-align: center;
-    gap: 8px;
-}
-
-
-.flag-circle {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-}
-
-.flag-icon {
-    display: inline-block;
-}
-
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Space Grotesk', sans-serif;
-}
-
-/* Animasi Loading */
-.loading-icon {
-    /* Warna ICON Loading */
-    color: var(--primary);
-    font-size: 30px;
-}
-
-.loading-text {
-    font-size: 18px;
-    /* Warna TEXT Loading */
-    color: var(--primary);
-    margin-left: 10px;
-    font-weight: bold;
-}
-
-.quantum-title {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-/* Animasi Checkmark */
-.check-icon {
-    color: green;
-    font-size: 20px;
-    animation: checkAnim 0.3s ease-in-out;
-}
-
-@keyframes checkAnim {
-    0% {
-        transform: scale(0);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* Animasi X (Error) */
-.error-icon {
-    color: red;
-    font-size: 20px;
-    animation: errorAnim 0.3s ease-in-out;
-}
-
-/* Progress Bar (Loading) */
-.popup-progress {
-            width: 100%;
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        .popup-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00dbde, #fc00ff);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-
-/* NAV BAR SECTION */
-.navbarconten {
-    width: 100%;
-    overflow-x: auto;
-    margin-bottom: 0px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    padding: 0px;
-    background-color: rgba(0, 0, 0, 0.82);
-    /* Glow Biru ke CYAN */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
-        0 0 30px rgba(0, 255, 255, 0.5);
-
-}
-.navbar {
-    position: fixed;
-    top: 60%;
-    left: -80px;
-    transform: translateY(-50%);
-    background: ;
-    color: white;
-    padding: 10px 0;
-    transition: left 0.3s ease-in-out;
-    z-index: 1000;
-    border-radius: 0 10px 10px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Saat navbar terbuka */
-.navbar.show {
-    left: 0;
-}
-
-.navbar a img {
-    width: 40px;
-}
-
-.navbar a {
-    display: block;
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-}
-
-.navbar a:hover {
-    background: ;
-}
-
-/* Tombol Toggle */
-.toggle-btn {
-    position: absolute;
-    top: 60%;
-    right: -30px;
-    transform: translateY(-50%);
-    background: ;
-    border: none;
-    cursor: pointer;
-    z-index: 1001;
-    padding: 10px;
-    border-radius: 0 10px 10px 0;
-    transition: right 0.3s ease-in-out;
-}
-
-.toggle-btn img {
-    width: 20px;
-    height: 150px;
-}
-
-/* Saat navbar terbuka, tombol ikut bergeser */
-.navbar.show .toggle-btn {
-    right: -29px;
-}
-
-        header {
-            width: 100%;
-            text-align: center;
-        }
-
-        
-        /* --- Kontainer Utama Konten --- */
-        .quantum-container {
-            width: 95%;
-            max-width: 1000px; /* Lebar maksimum untuk konten utama */
-            padding: 1rem 0.5rem;
-            margin-top: 0;
-            padding-bottom: 5rem;
-        }
-
-        /* --- Formulir & Dropdown --- */
-        .search-quantum > div {
-            display: flex;
-            width: 100%;
-            max-width: 500px; 
-            margin: 0 auto;
-            gap: 10px;
-        }
-
-        #search-bar {
-            flex: 1;
-            height: 45px;
-            padding: 0 1rem;
-            background: rgba(0, 212, 255, 0.05);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            color: var(--color-text);
-            transition: var(--transition);
-        }
-
-        #search-bar:focus {
-            border-color: var(--color-secondary);
-            box-shadow: 0 0 8px 3px rgba(0, 255, 255, 0.7);
-        }
-
-        .wildcard-dropdown {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .wildcard-dropdown select {
-            padding: 0.5rem 0.5rem;
-            background: rgba(0, 212, 255, 0.05);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            color: var(--color-text);
-            appearance: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .wildcard-dropdown select option {
-            background-color: var(--color-background);
-        }
-        
-        /* Tombol Tailwind - Penyesuaian Gaya Neon */
-        .bg-gradient-to-r {
-            background: linear-gradient(90deg, #39ff14, #008080);
-            color: black;
-            font-weight: bold;
-            border: none;
-            transition: var(--transition);
-        }
-
-        .bg-gradient-to-r:hover {
-            box-shadow: 0 0 15px 5px rgba(57, 255, 20, 0.7);
-        }
-
-        /* --- Tabel Data --- */
-
-        
-        .loading-icon {
-            color: var(--color-primary);
-            font-size: 1.2rem;
-        }
-        
-        /* Tombol Aksi di Tabel */
-        .button-cell button {
-            background: var(--color-tertiary); /* Hijau Neon */
-            color: var(--color-background);
-            font-weight: 700;
-            padding: 0.5rem 0.75rem;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
-            transition: var(--transition);
-            min-width: 80px;
-        }
-
-        .button-cell button:hover {
-            background: #5eff3d;
-            box-shadow: 0 0 15px 5px rgba(57, 255, 20, 0.7);
-        }
-
-        /* --- Navigasi Bendera Horizontal --- */
-        .flag-scroll-wrapper {
-            background: rgba(0, 212, 255, 0.1); 
-            box-shadow: 0 0 10px 2px rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            border: 2px solid #008080 !important;
-            height: 55px;
-            padding: 5px;
-        }
-        
-        .quantum-table {
-    /* Menghapus width: 100% yang berulang */
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 0px solid rgba(26, 4, 83, 0.81);
-    border-radius: 10px;
-    overflow: hidden;
-    /* width: 100%; - Dihapus karena didefinisikan ulang di bagian bawah */
-}
-
-.quantum-table th {
-    /* Background transparan CYAN */
-    background-color: rgba(0, 255, 255, 0.1);
-    color: white;
-    font-weight: bold;
-    /* padding: 10px; - Dihapus karena didefinisikan ulang di bagian bawah */
-    text-align: center;
-}
-
-#total-proxy {
-    margin: 20px 0;
-    text-align: center;
-}
-
-.quantum-table td {
-    /* padding: 10px; - Dihapus karena didefinisikan ulang di bagian bawah */
-    text-align: center;
-    /* Background transparan CYAN */
-    background-color: rgba(0, 255, 255, 0.03);
-    color: #fff;
-    border-bottom: 1px solid #ddd;
-    transition: background-color 0.3s ease;
-}
-
-.quantum-table tr {
-    transition: all 0.3s ease;
-}
-
-.quantum-table tr:hover td {
-    /* Background transparan CYAN saat hover */
-    background-color: rgba(0, 255, 255, 0.08);
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.1);
-}
-
-.quantum-table th,
-.quantum-table td {
-    padding: 0.8rem 0.5rem;
-    font-size: 0.9rem;
-}
 
+/* =================================================================== */
+/* 5. TABLE STYLING */
+/* =================================================================== */
 .table-wrapper {
     overflow-x: auto;
-    margin-top: 1.5rem;
-    /* Tambahkan efek card pada wrapper tabel */
-    background: var(--color-card);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    padding: 10px;
+    margin-top: 20px;
+    border: 2px solid var(--blue-primary);
+    border-radius: 7px;
+    box-shadow: 0 0 25px var(--blue-shadow);
 }
 
 .quantum-table {
     width: 100%;
-    min-width: 900px; /* Lebar minimum untuk scroll horizontal */
-    border-collapse: separate;
-    border-spacing: 0 10px;
-    table-layout: fixed; /* Penting untuk mengatur lebar kolom */
+    border-collapse: collapse;
+    min-width: 1200px; 
+    font-family: 'Rajdhani', sans-serif;
 }
 
-.quantum-table thead th {
-    background: var(--color-table-header);
-    color: var(--color-primary);
-    padding: 1rem 0.5rem;
-    text-align: center;
+.quantum-table thead {
+    background-color: var(--blue-header);
+    color: var(--light);
+    text-transform: uppercase;
     font-weight: 700;
-    font-size: 0.9rem;
-    border: none;
+    font-size: 1rem;
     position: sticky;
     top: 0;
-    z-index: 10;
+    box-shadow: 0 5px 15px var(--blue-shadow);
 }
 
-.quantum-table tbody tr {
-    background: rgba(0, 212, 255, 0.05); /* Latar baris transparan */
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.08);
+.quantum-table th, .quantum-table td {
+    padding: 15px 10px;
+    text-align: center; 
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
 }
-
-.quantum-table tbody tr:hover {
-    background: rgba(0, 212, 255, 0.15);
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-}
-
 .quantum-table td {
-    padding: 0.75rem 0.5rem;
-    text-align: center;
-    vertical-align: middle;
+    color: var(--light);
+    font-size: 1rem;
+}
+
+/* Penyesuaian Lebar Kolom */
+.quantum-table th.col-15, .quantum-table td:nth-child(1) { max-width: 50px; }
+.quantum-table th.col-22, .quantum-table td:nth-child(2) { max-width: 180px; } 
+.quantum-table th.col-17, .quantum-table td:nth-child(4) { max-width: 120px; } 
+.quantum-table th.col-17, .quantum-table td:nth-child(6) { max-width: 100px; } 
+
+/* Kolom ISP (Allow Wrap) */
+.quantum-table th.col-19, .quantum-table td:nth-child(5) { 
+    max-width: 150px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    vertical-align: top;
+    text-align: left;
+}
+
+/* Table Body Styles */
+.quantum-table tbody tr:nth-child(even) {
+    /* Dibiarkan: menggunakan --glass */
+}
+.quantum-table tbody tr:hover {
+    background-color: var(--blue-hover-light);
+    box-shadow: inset 0 0 10px rgba(0, 191, 255, 0.5); 
+    cursor: crosshair; 
+}
+
+
+/* Flag Container */
+.w-full.h-12.overflow-x-auto {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+/* Flag Icons */
+.flag-icon {
+    font-size: 1.5rem;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    border: 2px solid var(--neon-cyan);
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+.flag-icon:hover {
+    transform: scale(1.2) rotate(5deg);
+    box-shadow: 0 0 20px var(--neon-magenta);
+}
+
+/* =================================================================== */
+/* 6. TABLE BUTTONS */
+/* =================================================================== */
+.table-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none; 
+    color: var(--dark-bg);
+    text-transform: uppercase;
     border: none;
-    font-size: 0.85rem;
-    border-left: 1px solid rgba(0, 212, 255, 0.1);
-}
-.quantum-table td:first-child { border-left: none; }
-
-.flag-circle {
-    border: 2px solid var(--color-primary) !important;
-    box-shadow: 0 0 5px var(--color-primary);
+    background: linear-gradient(to right, var(--blue-primary), var(--blue-dark));
 }
 
-.quantum-table .col-10 { width: 4%; }
-.quantum-table .col-11 { width: 5%; }
-.quantum-table .col-12 { width: 6%; }
-.quantum-table .col-13 { width: 7%; }
-.quantum-table .col-14 { width: 8%; }
-.quantum-table .col-15 { width: 9%; }
-.quantum-table .col-16 { width: 10%; }
-.quantum-table .col-17 { width: 12%; }
-.quantum-table .col-18 { width: 14%; }
-.quantum-table .col-19 { width: 16%; }
-.quantum-table .col-20 { width: 18%; }
-.quantum-table .col-21 { width: 20%; }
-.quantum-table .col-22 { width: 22%; }
-.quantum-table .col-23 { width: 24%; }
-.quantum-table .col-24 { width: 26%; }
-.quantum-table .col-25 { width: 28%; }
-.quantum-table .col-26 { width: 30%; }
-.quantum-table .col-27 { width: 32%; }
-.quantum-table .col-28 { width: 34%; }
-.quantum-table .col-29 { width: 36%; }
-.quantum-table .col-30 { width: 38%; }
-.quantum-table .col-31 { width: 40%; }
-.quantum-table .col-32 { width: 42%; }
-.quantum-table .col-33 { width: 44%; }
-.quantum-table .col-34 { width: 46%; }
-.quantum-table .col-35 { width: 48%; }
-.quantum-table .col-36 { width: 50%; } /* Kolom Lebar Maksimum */
-</style>
-</head>
-<body>
-    <header>
-        <h1 class="quantum-title">${namaWeb}</h1>
-    </header>
-<div class="mt-20">
-        </div>
-    <div class="quantum-container">
-        <div class="search-quantum" style="display: flex; align-items: center; flex-direction: column;">
-            <div style="display: flex; width: 90%; align-items: center; gap: 10px;">
-                <input type="text" id="search-bar" placeholder="Search by IP, CountryCode, or ISP" 
-                       value="${searchQuery}" 
-                       style="flex: 1; height: 45px; padding-left: 10px;">
-                <button id="search-button" class="bg-gradient-to-r from-green-500 to-green-700 p-2 rounded-md shadow-lg flex items-center justify-center cursor-pointer h-[45px] w-[45px] hover:from-green-700 hover:to-green-900"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 h-6 w-6 text-white"> <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /> </svg> 
-</button>
-            </div>
-            ${searchQuery ? `
-                <button id="home-button" class="bg-gradient-to-r from-green-500 to-green-700 p-2 rounded-md shadow-lg flex items-center justify-center cursor-pointer h-[40px] w-[40px] transition duration-300 ease-in-out hover:from-green-700 hover:to-green-900" style="margin: 5px;" onclick="goToHomePage('${hostName}')"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 h-6 w-6 text-white"> <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.15-.439 1.59 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h14.25c.621 0 1.125-.504 1.125-1.125V9.75M9 14.25h6" /> </svg> 
-</button>
-             ` 
-            : ''}
-        </div>
+.vless-btn {
+    /* Menggunakan gradien yang sudah didefinisikan untuk konsistensi */
+    background: linear-gradient(90deg, var(--neon-magenta), var(--blue-dark)); 
+    box-shadow: 0 0 8px var(--neon-magenta);
+    animation: neon-pulse 3s infinite alternate ease-in-out;
+}
 
-            <div class="wildcard-dropdown"> 
-        <button onclick="toggleWildcardsWindow()" class="bg-gradient-to-r from-green-500 to-green-700 text-white rounded-full p-2 transition-colors duration-200 hover:from-green-700 hover:to-green-900"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" /> </svg> 
-</button>
-  <select id="wildcard" name="wildcard" onchange="onWildcardChange(event)" style="width: 90px; height: 45px;">
-    <option value="" ${!selectedWildcard ? 'selected' : ''}>No Wildcard</option>
-    ${allWildcards.map(w => `<option value="${w}" ${selectedWildcard === w ? 'selected' : ''}>${w}</option>`).join('')}
-  </select>
-  <select id="configType" name="configType" onchange="onConfigTypeChange(event)" style="width: 60px; height: 45px;">
-    <option value="tls" ${selectedConfigType === 'tls' ? 'selected' : ''}>TLS</option>
-    <option value="non-tls" ${selectedConfigType === 'non-tls' ? 'selected' : ''}>NON TLS</option> </select>
-    
-          <a href="${telegrambot}" target="_blank"> <button class="bg-gradient-to-r from-green-500 to-green-700 rounded-full p-2 block text-white border-2 border-green-900 transition duration-300 ease-in-out hover:from-green-700 hover:to-green-900"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6"> <path d="M22 12A10 10 0 0 1 12 2A10 10 0 0 1 2 12A10 10 0 0 1 12 22A10 10 0 0 1 22 12z"></path> <path d="M7 10l5 5l5-5"></path> <path d="M12 15l-5 5"></path> <path d="M12 15l5 5"></path> </svg> </button> 
-</a>
-            
-</div>
-<div class="w-full h-12 overflow-x-auto px-2 py-1 flex items-center space-x-2 shadow-lg bg-transparent border"
-            style="border-width: 2px; border-style: solid; border-color: #008080; height: 55px; border-radius: 10px;">
-            ${buildCountryFlag()}
-        </div>
-        <div class="table-wrapper">
-            <table class="quantum-table">
-                <thead>
-                    <tr>
-    <th class="col-15">No.</th>
-    <th class="col-22">IP:PORT</th>
-    <th class="col-18">STATUS IP</th>
-    <th class="col-17">COUNTRY</th>
-    <th class="col-19">ISP</th>
-    <th class="col-17">PATH</th>
-    <th class="col-18">VLESS</th>
-    <th class="col-18">VMESS</th>
-    <th class="col-18">TROJAN</th>
-    <th class="col-22">SHADOWSOCKS</th>
-    </tr>
-                </thead>
-                <tbody>
-                    ${tableRows}
-                </tbody>
-            </table>
-        </div>
-<div class="quantum-pagination">
-                ${prevPage}
-                ${paginationButtons.join('')}
-                ${nextPage}
-            </div>
-          <!-- Showing X to Y of Z Proxies message -->
-          <div style="text-align: center; margin-top: 16px; color: var(--primary); font-family: 'Rajdhani', sans-serif;">
-            Showing ${startIndex + 1} to ${endIndex} of ${totalFilteredConfigs} Proxies
-            </div>
-        </div>
-    </div>
-        <!-- Popup Menu -->
-        <div class="popupnav" id="menu">
-            <div class="popup-content">
-                <span style="font-family: 'Rajdhani', sans-serif;">CONTACT ADMIN UNTUK ORDER PREMIUM</span>
-                <hr/>
-                <br>
-                <span class="menu">
-                    <span>
-ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّٰهِ وَبَرَكَاتُهُ
+.trojan-btn {
+    /* Menggunakan gradien biru */
+    background: linear-gradient(90deg, var(--blue-light), var(--blue-dark)); 
+    box-shadow: 0 0 8px var(--blue-light);
+}
 
-Assalamualaikum Warahmatullahi Wabarakatuh</span>
-                </span>
-                <span class="menu">
-                    <a href="https://t.me/sampiiiiu" target="_blank" rel="noopener noreferrer">
-                        <img src="${telegramku}" alt="menu" width="30"> ADMIN TELEGRAM
-                    </a>
-                </span> 
-                <span class="menu">
-                    <a href="https://wa.me/6282339191527" target="_blank" rel="noopener noreferrer">
-                        <img src="${whatsappku}" alt="menu" width="30"> ADMIN WHATSAPP
-                    </a>
-                </span>
-                <span class="menu">
-                    <a href="${channelku}" target="_blank" rel="noopener noreferrer">
-                        <img src="https://geoproject.biz.id/social/tele.png" alt="menu" width="30"> CHANNEL TESTIMONI
-                    </a>
-                </span>
-                <button class="button7" id="close" onclick="hidePopup('menu')">Close</button>
-            </div>
-        </div>
+.ss-btn {
+    /* Tetap menggunakan oranye (ss) */
+    background: linear-gradient(90deg, #f97316, #fb923c);
+    box-shadow: 0 0 8px #f97316;
+}
 
-<div class="navbar" id="navbar">
-    <div class="toggle-btn" id="menu-btn" onclick="toggleNavbar()">
-        <img src="https://geoproject.biz.id/social/buka.png" alt="Toggle Menu">
-    </div>
-    <div class="navbarconten text-center">
-        <span>
-            <a href="https://wa.me/6282339191527" target="_blank" rel="noopener noreferrer">
-                <img src="https://geoproject.biz.id/social/mobile.png" alt="menu" width="40" class="mt-1">
-            </a>
-        </span>
-        <span>
-            <a href="/vpn" target="_self" rel="noopener noreferrer">
-                <img src="https://geoproject.biz.id/social/linksub.png" alt="menu" width="40" class="mt-1">
-            </a>
-        </span>
-        <!-- <span>-->
-        <span>
-            <a href="/checker" target="_self" rel="noopener noreferrer">
-                <img src="https://geoproject.biz.id/social/vpn.png" alt="menu" width="40" class="mt-1">
-            </a>
-        </span> 
-        <span>
-            <a href="https://t.me/sampiiiiu" target="_blank" rel="noopener noreferrer">
-                <img src="https://geoproject.biz.id/social/tele.png" alt="menu" width="40" class="mt-1">
-            </a>
-        </span>
-        <span>
-            <a href="https://t.me/VLTRSSbot" target="_blank" rel="noopener noreferrer">
-                <img src="https://geoproject.biz.id/social/bot.png" alt="menu" width="40" class="mt-1">
-            </a>
-        </span>
-        <span>
-            <a href="/" target="_self" rel="noopener noreferrer">
-                <img src="https://geoproject.biz.id/social/home.png" alt="menu" width="40" class="mt-1">
-            </a>
-        </span>
-    </div>
-</div
+.table-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 0 15px currentColor; /* Menggunakan warna teks tombol untuk bayangan */
+}
 
-        <!-- Footer -->
-        <footer class="footer">
-            <h1 class="quantum-title1">
-                <p>&copy; 2025 FREE VPN CLOUDFLARE</p>
-            </h1>
-        </footer>
-    </div>
+/* =================================================================== */
+/* 7. PAGINATION */
+/* =================================================================== */
+.quantum-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 0 10px; 
+    flex-wrap: wrap; 
+}
 
-    <!-- JavaScript -->
-    <script>
-    function toggleNavbar() {
-        const navbar = document.getElementById("navbar");
-        const menuBtn = document.getElementById("menu-btn").querySelector('img');
+.pagination-btn, .pagination-number { 
+    background-image: linear-gradient(90deg, var(--secondary) 0%, var(--blue-dark) 50%, var(--secondary) 100%);
+    background-size: 200% auto;
+    color: var(--dark-bg) !important;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.5s ease-in-out;
+    border: 1px solid var(--secondary);
+    text-decoration: none;
+}
 
-        if (navbar.classList.contains("show")) {
-            navbar.classList.remove("show");
-            menuBtn.src = "https://geoproject.biz.id/social/buka.png";
-        } else {
-            navbar.classList.add("show");
-            menuBtn.src = "https://geoproject.biz.id/social/tutup.png";
-        }
+.pagination-btn:hover:not(.active), .pagination-number:hover:not(.active) {
+    background-position: -100% 0; 
+    box-shadow: 0 0 15px var(--blue-light); /* Shadow biru */
+    transform: scale(1.05);
+    color: var(--dark-bg) !important;
+}
+
+.pagination-number.active {
+    background: var(--neon-magenta); 
+    color: white !important;
+    border-color: var(--neon-magenta);
+    box-shadow: 0 0 15px var(--neon-magenta);
+}
+
+/* =================================================================== */
+/* 8. MEDIA QUERIES */
+/* =================================================================== */
+@media (min-width: 640px) {
+    .quantum-container {
+        max-width: 900px;
     }
-</script>
-    <script>
-        // Function to show a popup
-        function showPopup(popupId) {
-            var popup = document.getElementById(popupId);
-            popup.style.display = "flex";
-            popup.style.animation = "slideInLeft 0.5s forwards"; // Animasi popup muncul dari kiri
-        }
+    .quantum-container .table-wrapper {
+        width: calc(100% + 40px);
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+}
 
-        // Function to hide a popup
-        function hidePopup(popupId) {
-            var popup = document.getElementById(popupId);
-            popup.style.animation = "slideOutRightToLeft 0.5s forwards"; // Animasi keluar
-            setTimeout(() => { popup.style.display = "none"; }, 500); // Sembunyikan setelah animasi selesai
-        }
-    </script>
-<script>
+@media (max-width: 768px) {
+    .quantum-title {
+        font-size: 2.2rem;
+        letter-spacing: 2px;
+    }
+    .quantum-table th, .quantum-table td {
+        padding: 8px 5px;
+        font-size: 0.85rem;
+    }
+}
+
+.proxy-count-text {
+    text-align: center;
+    margin-top: 16px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    
+    /* Gradien Biru Teks */
+    background: linear-gradient(90deg, #00bfff, #007bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    
+    /* Efek Glow Biru */
+    text-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+    
+    /* Memastikan tidak ada padding/margin berlebihan di sekitarnya */
+    padding: 0;
+    line-height: 1.2; 
+}
+</style>
+    </head>
+    <body> 
+    <div class="mt-3">
+            <header>
+                    <h1 class="quantum-title">${namaWeb}</h1>
+                </header>
+                
+        <div class="mt-3">
+            <div class="quantum-container">
+    <div class="search-quantum" style="display: flex; align-items: center; flex-direction: column;">
+        <div style="display: flex; width: 90%; align-items: center; gap: 10px;">
+            <input type="text" id="search-bar" placeholder="Search by IP, CountryCode, or ISP" 
+                value="${searchQuery}" 
+                style="flex: 1; height: 45px; padding-left: 10px;">
+            <button id="search-button" class="bg-gradient-to-r from-blue-500 to-blue-700 p-2 rounded-md shadow-lg flex items-center justify-center cursor-pointer h-[45px] w-[45px] hover:from-blue-700 hover:to-blue-900">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 h-6 w-6 text-white">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg> 
+            </button>
+        </div>
+        ${searchQuery ? `
+            <button id="home-button" class="bg-gradient-to-r from-blue-500 to-blue-700 p-2 rounded-md shadow-lg flex items-center justify-center cursor-pointer h-[40px] w-[40px] transition duration-300 ease-in-out hover:from-blue-700 hover:to-blue-900" style="margin: 5px;" onclick="goToHomePage('${hostName}')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 h-6 w-6 text-white">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.15-.439 1.59 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h14.25c.621 0 1.125-.504 1.125-1.125V9.75M9 14.25h6" />
+                </svg> 
+            </button>
+            ` 
+        : ''}
+    </div>
+
+    <div class="wildcard-dropdown"> 
+        <button onclick="toggleWildcardsWindow()" class="bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full p-2 transition-colors duration-200 hover:from-blue-700 hover:to-blue-900">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+            </svg> 
+        </button>
+        <select id="wildcard" name="wildcard" onchange="onWildcardChange(event)" style="width: 90px; height: 45px;">
+            <option value="" ${!selectedWildcard ? 'selected' : ''}>No Wildcard</option>
+            ${allWildcards.map(w => `<option value="${w}" ${selectedWildcard === w ? 'selected' : ''}>${w}</option>`).join('')}
+        </select>
+        <select id="configType" name="configType" onchange="onConfigTypeChange(event)" style="width: 60px; height: 45px;">
+            <option value="tls" ${selectedConfigType === 'tls' ? 'selected' : ''}>TLS</option>
+            <option value="non-tls" ${selectedConfigType === 'non-tls' ? 'selected' : ''}>NON TLS</option> 
+        </select>
+        
+        <a href="${telegrambot}" target="_blank">
+            <button class="bg-gradient-to-r from-blue-500 to-blue-700 rounded-full p-2 block text-white border-2 border-blue-900 transition duration-300 ease-in-out hover:from-blue-700 hover:to-blue-900">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                    <path d="M22 12A10 10 0 0 1 12 2A10 10 0 0 1 2 12A10 10 0 0 1 12 22A10 10 0 0 1 22 12z"></path>
+                    <path d="M7 10l5 5l5-5"></path>
+                    <path d="M12 15l-5 5"></path>
+                    <path d="M12 15l5 5"></path>
+                </svg> 
+            </button> 
+        </a>
+        
+    </div>
+    <div class="w-full h-12 overflow-x-auto px-2 py-1 flex items-center space-x-2 shadow-lg border"
+        style="border-width: 2px; border-style: solid; border-color: #007bff; height: 55px; border-radius: 10px; background: linear-gradient(to right, rgba(0, 123, 255, 0.6), rgba(0, 123, 255, 0.2));">
+        ${buildCountryFlag()}
+    </div>
+                <div class="table-wrapper">
+                    <table class="quantum-table">
+                        <thead>
+                            <tr>
+                                <th class="col-15">No.</th>
+                                <th class="col-22">IP:PORT</th>
+                                <th class="col-18">STATUS IP</th>
+                                <th class="col-17">COUNTRY</th>
+                                <th class="col-22">ISP</th>
+                                <th class="col-17">PATH</th>
+                                <th class="col-18">VLESS</th>
+                                <th class="col-18">TROJAN</th>
+                                <th class="col-22">SHADOWSOCKS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="quantum-pagination">
+                    ${prevPage}
+                    ${paginationButtons.join('')}
+                    ${nextPage}
+                </div>
+                
+                <div class="proxy-count-text">
+    Showing ${startIndex + 1} to ${endIndex} of ${totalFilteredConfigs} Proxies
+</div>
+            </div>
+        </div>
+        <script>
         const updateURL = (params) => {
           const url = new URL(window.location.href);
 
@@ -4270,137 +3403,6 @@ Assalamualaikum Warahmatullahi Wabarakatuh</span>
   `, { headers: { 'Content-Type': 'text/html' } });
 }
 
-async function hmac(key, data) {
-    const cryptoKey = await crypto.subtle.importKey(
-        "raw",
-        key,
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["sign"]
-    );
-    const signature = await crypto.subtle.sign("HMAC", cryptoKey, data);
-    return new Uint8Array(signature);
-}
-
-// KDF is the key derivation function for VMess AEAD.
-// KDF(K, P) = HMAC(HMAC(K, P_0), P_1) ...
-async function kdf(key, path) { // path is an array of Uint8Array
-    const vmessKey = new TextEncoder().encode("VMess AEAD KDF");
-    let currentKey = await hmac(vmessKey, key);
-
-    for (const p of path) {
-        currentKey = await hmac(currentKey, p);
-    }
-    
-    return currentKey;
-}
-
-
-async function parseVmessHeader(vmessBuffer) {
-    const textEncoder = new TextEncoder();
-	const user = {
-		uuid: VMESS_UUID,
-	};
-    
-    const key = hexToBytes(md5(user.uuid + 'c48619fe-8f02-49e0-b9e9-edf763e17e21'));
-
-    const authId = vmessBuffer.slice(0, 16);
-    const lengthGCM = vmessBuffer.slice(16, 34); // 18 bytes
-    const nonce = vmessBuffer.slice(34, 42); // 8 bytes
-
-    // 1. Decrypt Header Length
-    const key_len = (await kdf(new Uint8Array(key), [
-        textEncoder.encode(KDFSALT_CONST_VMESS_HEADER_PAYLOAD_LENGTH_AEAD_KEY), 
-        authId, 
-        nonce
-    ])).slice(0, 16);
-
-    const iv_len = (await kdf(new Uint8Array(key), [
-        textEncoder.encode(KDFSALT_CONST_VMESS_HEADER_PAYLOAD_LENGTH_AEAD_IV), 
-        authId, 
-        nonce
-    ])).slice(0, 12);
-
-    let headerLength;
-    try {
-        const aesGcm = await crypto.subtle.importKey('raw', key_len, { name: 'AES-GCM' }, false, ['decrypt']);
-        const decryptedLengthData = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv_len, additionalData: authId, tagLength: 128 }, aesGcm, lengthGCM);
-        headerLength = new DataView(decryptedLengthData).getUint16(0);
-    } catch (e) {
-        return { hasError: true, message: 'Failed to decrypt VMess header length: ' + e };
-    }
-
-    // 2. Decrypt Header Payload
-    const headerGCM = vmessBuffer.slice(42, 42 + headerLength + 16);
-    const key_header = (await kdf(new Uint8Array(key), [
-        textEncoder.encode(KDFSALT_CONST_VMESS_HEADER_PAYLOAD_AEAD_KEY), 
-        authId, 
-        nonce
-    ])).slice(0, 16);
-    const iv_header = (await kdf(new Uint8Array(key), [
-        textEncoder.encode(KDFSALT_CONST_VMESS_HEADER_PAYLOAD_AEAD_IV), 
-        authId, 
-        nonce
-    ])).slice(0, 12);
-
-    let headerData;
-    try {
-        const aesGcmHeader = await crypto.subtle.importKey('raw', key_header, { name: 'AES-GCM' }, false, ['decrypt']);
-        const decryptedHeader = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv_header, additionalData: authId, tagLength: 128 }, aesGcmHeader, headerGCM);
-        headerData = new Uint8Array(decryptedHeader);
-    } catch (e) {
-        return { hasError: true, message: 'Failed to decrypt VMess header payload: ' + e };
-    }
-
-    // 3. Parse Decrypted Header
-    const version = headerData[0];
-    if (version !== 1) {
-        return { hasError: true, message: `Unsupported VMess version: ${version}` };
-    }
-
-    const cmd = headerData[37];
-    const isUDP = cmd === 2;
-    
-    const port = new DataView(headerData.buffer, 38, 2).getUint16(0);
-    const addressType = headerData[40];
-    
-    let address;
-    let addressLength = 0;
-    let rawDataIndex = 41;
-
-    if (addressType === 1) { // IPv4
-        addressLength = 4;
-        address = new Uint8Array(headerData.slice(rawDataIndex, rawDataIndex + addressLength)).join('.');
-    } else if (addressType === 2) { // Domain
-        addressLength = headerData[rawDataIndex];
-        rawDataIndex += 1;
-        address = new TextDecoder().decode(headerData.slice(rawDataIndex, rawDataIndex + addressLength));
-    } else if (addressType === 3) { // IPv6
-        addressLength = 16;
-        const view = new DataView(headerData.buffer, rawDataIndex, addressLength);
-        const ipv6 = [];
-        for (let i = 0; i < 8; i++) {
-            ipv6.push(view.getUint16(i * 2).toString(16));
-        }
-        address = ipv6.join(':');
-    } else {
-        return { hasError: true, message: `Invalid address type: ${addressType}` };
-    }
-    
-    const vlessResponseHeader = new Uint8Array([version, 0]);
-    const headerTotalLength = 42 + headerLength + 16;
-    const rawClientData = vmessBuffer.slice(headerTotalLength);
-
-    return {
-        hasError: false,
-        addressRemote: address,
-        portRemote: port,
-        isUDP,
-        rawClientData,
-        version: vlessResponseHeader
-    };
-}
-
 async function websockerHandler(request) {
   const webSocketPair = new WebSocketPair();
   const [client, webSocket] = Object.values(webSocketPair);
@@ -4445,8 +3447,9 @@ async function websockerHandler(request) {
             protocolHeader = parseVlessHeader(chunk);
           } else if (protocol === "Shadowsocks") {
             protocolHeader = parseShadowsocksHeader(chunk);
-          } else if (protocol === "VMess") {
-            protocolHeader = await parseVmessHeader(chunk);
+          } else {
+            parseVmessHeader(chunk);
+            throw new Error("Unknown Protocol!");
           }
 
           addressLog = protocolHeader.addressRemote;
@@ -4500,11 +3503,6 @@ async function websockerHandler(request) {
 }
 
 async function protocolSniffer(buffer) {
-	const version = new Uint8Array(buffer.slice(0, 1))[0];
-	if (version === 1) {
-		return "VMess";
-	}
-
   if (buffer.byteLength >= 62) {
     const trojanDelimiter = new Uint8Array(buffer.slice(56, 60));
     if (trojanDelimiter[0] === 0x0d && trojanDelimiter[1] === 0x0a) {
@@ -4611,146 +3609,9 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
   return stream;
 }
 
-/**
- * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
- * Digest Algorithm, as defined in RFC 1321.
- * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
- * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
- * Distributed under the BSD License
- * See http://pajhome.org.uk/crypt/md5 for more info.
- */
-function md5(str) {
-  function safe_add(x, y) {
-    var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-    var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-    return (msw << 16) | (lsw & 0xFFFF);
-  }
-  function bit_rol(num, cnt) {
-    return (num << cnt) | (num >>> (32 - cnt));
-  }
-  function md5_cmn(q, a, b, x, s, t) {
-    return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
-  }
-  function md5_ff(a, b, c, d, x, s, t) {
-    return md5_cmn((b & c) | (~b & d), a, b, x, s, t);
-  }
-  function md5_gg(a, b, c, d, x, s, t) {
-    return md5_cmn((b & d) | (c & ~d), a, b, x, s, t);
-  }
-  function md5_hh(a, b, c, d, x, s, t) {
-    return md5_cmn(b ^ c ^ d, a, b, x, s, t);
-  }
-  function md5_ii(a, b, c, d, x, s, t) {
-    return md5_cmn(c ^ (b | ~d), a, b, x, s, t);
-  }
-  function core_md5(x, len) {
-    x[len >> 5] |= 0x80 << ((len) % 32);
-    x[(((len + 64) >>> 9) << 4) + 14] = len;
-    var a = 1732584193;
-    var b = -271733879;
-    var c = -1732584194;
-    var d = 271733878;
-    for (var i = 0; i < x.length; i += 16) {
-      var olda = a;
-      var oldb = b;
-      var oldc = c;
-      var oldd = d;
-      a = md5_ff(a, b, c, d, x[i + 0], 7, -680876936);
-      d = md5_ff(d, a, b, c, x[i + 1], 12, -389564586);
-      c = md5_ff(c, d, a, b, x[i + 2], 17, 606105819);
-      b = md5_ff(b, c, d, a, x[i + 3], 22, -1044525330);
-      a = md5_ff(a, b, c, d, x[i + 4], 7, -176418897);
-      d = md5_ff(d, a, b, c, x[i + 5], 12, 1200080426);
-      c = md5_ff(c, d, a, b, x[i + 6], 17, -1473231341);
-      b = md5_ff(b, c, d, a, x[i + 7], 22, -45705983);
-      a = md5_ff(a, b, c, d, x[i + 8], 7, 1770035416);
-      d = md5_ff(d, a, b, c, x[i + 9], 12, -1958414417);
-      c = md5_ff(c, d, a, b, x[i + 10], 17, -42063);
-      b = md5_ff(b, c, d, a, x[i + 11], 22, -1990404162);
-      a = md5_ff(a, b, c, d, x[i + 12], 7, 1804603682);
-      d = md5_ff(d, a, b, c, x[i + 13], 12, -40341101);
-      c = md5_ff(c, d, a, b, x[i + 14], 17, -1502002290);
-      b = md5_ff(b, c, d, a, x[i + 15], 22, 1236535329);
-      a = md5_gg(a, b, c, d, x[i + 1], 5, -165796510);
-      d = md5_gg(d, a, b, c, x[i + 6], 9, -1069501632);
-      c = md5_gg(c, d, a, b, x[i + 11], 14, 643717713);
-      b = md5_gg(b, c, d, a, x[i + 0], 20, -373897302);
-      a = md5_gg(a, b, c, d, x[i + 5], 5, -701558691);
-      d = md5_gg(d, a, b, c, x[i + 10], 9, 38016083);
-      c = md5_gg(c, d, a, b, x[i + 15], 14, -660478335);
-      b = md5_gg(b, c, d, a, x[i + 4], 20, -405537848);
-      a = md5_gg(a, b, c, d, x[i + 9], 5, 568446438);
-      d = md5_gg(d, a, b, c, x[i + 14], 9, -1019803690);
-      c = md5_gg(c, d, a, b, x[i + 3], 14, -187363961);
-      b = md5_gg(b, c, d, a, x[i + 8], 20, 1163531501);
-      a = md5_gg(a, b, c, d, x[i + 13], 5, -1444681467);
-      d = md5_gg(d, a, b, c, x[i + 2], 9, -51403784);
-      c = md5_gg(c, d, a, b, x[i + 7], 14, 1735328473);
-      b = md5_gg(b, c, d, a, x[i + 12], 20, -1926607734);
-      a = md5_hh(a, b, c, d, x[i + 5], 4, -378558);
-      d = md5_hh(d, a, b, c, x[i + 8], 11, -2022574463);
-      c = md5_hh(c, d, a, b, x[i + 11], 16, 1839030562);
-      b = md5_hh(b, c, d, a, x[i + 14], 23, -35309556);
-      a = md5_hh(a, b, c, d, x[i + 1], 4, -1530992060);
-      d = md5_hh(d, a, b, c, x[i + 4], 11, 1272893353);
-      c = md5_hh(c, d, a, b, x[i + 7], 16, -155497632);
-      b = md5_hh(b, c, d, a, x[i + 10], 23, -1094730640);
-      a = md5_hh(a, b, c, d, x[i + 13], 4, 681279174);
-      d = md5_hh(d, a, b, c, x[i + 0], 11, -358537222);
-      c = md5_hh(c, d, a, b, x[i + 3], 16, -722521979);
-      b = md5_hh(b, c, d, a, x[i + 6], 23, 76029189);
-      a = md5_hh(a, b, c, d, x[i + 9], 4, -640364487);
-      d = md5_hh(d, a, b, c, x[i + 12], 11, -421815835);
-      c = md5_hh(c, d, a, b, x[i + 15], 16, 530742520);
-      b = md5_hh(b, c, d, a, x[i + 2], 23, -995338651);
-      a = md5_ii(a, b, c, d, x[i + 0], 6, -198630844);
-      d = md5_ii(d, a, b, c, x[i + 7], 10, 1126891415);
-      c = md5_ii(c, d, a, b, x[i + 14], 15, -1416354905);
-      b = md5_ii(b, c, d, a, x[i + 5], 21, -57434055);
-      a = md5_ii(a, b, c, d, x[i + 12], 6, 1700485571);
-      d = md5_ii(d, a, b, c, x[i + 3], 10, -1894986606);
-      c = md5_ii(c, d, a, b, x[i + 10], 15, -1051523);
-      b = md5_ii(b, c, d, a, x[i + 1], 21, -2054922799);
-      a = md5_ii(a, b, c, d, x[i + 8], 6, 1873313359);
-      d = md5_ii(d, a, b, c, x[i + 15], 10, -30611744);
-      c = md5_ii(c, d, a, b, x[i + 6], 15, -1560198380);
-      b = md5_ii(b, c, d, a, x[i + 13], 21, 1309151649);
-      a = md5_ii(a, b, c, d, x[i + 4], 6, -145523070);
-      d = md5_ii(d, a, b, c, x[i + 11], 10, -1120210379);
-      c = md5_ii(c, d, a, b, x[i + 2], 15, 718787259);
-      b = md5_ii(b, c, d, a, x[i + 9], 21, -343485551);
-      a = safe_add(a, olda);
-      b = safe_add(b, oldb);
-      c = safe_add(c, oldc);
-      d = safe_add(d, oldd);
-    }
-    return [a, b, c, d];
-  }
-  function str2binl(str) {
-    var bin = [];
-    var mask = (1 << 8) - 1;
-    for (var i = 0; i < str.length * 8; i += 8)
-      bin[i >> 5] |= (str.charCodeAt(i / 8) & mask) << (i % 32);
-    return bin;
-  }
-  function binl2hex(binarray) {
-    var hex_tab = "0123456789abcdef";
-    var str = "";
-    for (var i = 0; i < binarray.length * 4; i++) {
-      str += hex_tab.charAt((binarray[i >> 2] >> ((i % 4) * 8 + 4)) & 0xF) +
-        hex_tab.charAt((binarray[i >> 2] >> ((i % 4) * 8)) & 0xF);
-    }
-    return str;
-  }
-  return binl2hex(core_md5(str2binl(str), str.length * 8));
+function parseVmessHeader(vmessBuffer) {
+  // https://xtls.github.io/development/protocols/vmess.html#%E6%8C%87%E4%BB%A4%E9%83%A8%E5%88%86
 }
-
-function hexToBytes(hex) {
-  for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
-  return bytes;
-}
-
 
 function parseShadowsocksHeader(ssBuffer) {
   const view = new DataView(ssBuffer);
@@ -5071,11 +3932,6 @@ function safeCloseWebSocket(socket) {
     console.error("safeCloseWebSocket error", error);
   }
 }
-
-function safeBtoa(str) {
-  return btoa(unescape(encodeURIComponent(str)));
-}
-
 // Fungsi untuk mengonversi countryCode menjadi emoji bendera
 const getEmojiFlag = (countryCode) => {
   if (!countryCode || countryCode.length !== 2) return ''; // Validasi input
@@ -5155,24 +4011,6 @@ async function generateClashSub(type, bug, geo81, tls, country = null, limit = n
     path: ${pathinfo}${proxyHost}=${proxyPort}
     headers:
       Host: ${geo81}`;
-    } else if (type === 'vmess') {
-      bex += `  - ${ispName}\n`
-      conf += `
-- name: ${ispName}
-  server: ${bug}
-  port: ${ports}
-  type: vmess
-  uuid: ${VMESS_UUID}
-  alterId: 0
-  cipher: auto
-  tls: ${tls}
-  udp: true
-  skip-cert-verify: true
-  network: ws${snio}
-  ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
-    headers:
-      Host: ${geo81}`;
     } else if (type === 'ss') {
       bex += `  - ${ispName}\n`
       conf += `
@@ -5194,43 +4032,13 @@ async function generateClashSub(type, bug, geo81, tls, country = null, limit = n
     headers:
       custom: ${geo81}`;
     } else if (type === 'mix') {
-      bex += `  - ${ispName} vless\n  - ${ispName} vmess\n  - ${ispName} trojan\n  - ${ispName} ss\n`;
+      bex += `  - ${ispName} vless\n  - ${ispName} trojan\n  - ${ispName} ss\n`;
       conf += `
 - name: ${ispName} vless
   server: ${bug}
   port: ${ports}
   type: vless
   uuid: ${UUIDS}
-  cipher: auto
-  tls: ${tls}
-  udp: true
-  skip-cert-verify: true
-  network: ws${snio}
-  ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
-    headers:
-      Host: ${geo81}
-- name: ${ispName} vmess
-  server: ${bug}
-  port: ${ports}
-  type: vmess
-  uuid: ${VMESS_UUID}
-  alterId: 0
-  cipher: auto
-  tls: ${tls}
-  udp: true
-  skip-cert-verify: true
-  network: ws${snio}
-  ws-opts:
-    path: ${pathinfo}${proxyHost}=${proxyPort}
-    headers:
-      Host: ${geo81}
-- name: ${ispName} vmess
-  server: ${bug}
-  port: ${ports}
-  type: vmess
-  uuid: ${VMESS_UUID}
-  alterId: 0
   cipher: auto
   tls: ${tls}
   udp: true
@@ -5485,10 +4293,7 @@ async function generateSurfboardSub(type, bug, geo81, tls, country = null, limit
     const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
     let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
     const UUIDS = `${generateUUIDv4()}`;
-    if (type === 'vmess') {
-      bex += `${ispName},`
-      conf += `${ispName} = vmess, ${bug}, 443, username=${VMESS_UUID}, udp-relay=true, skip-cert-verify=true, sni=${geo81}, ws=true, ws-path=${pathinfo}${proxyHost}:${proxyPort}, ws-headers=Host:"${geo81}"\n`;
-    } else if (type === 'trojan') {
+    if (type === 'trojan') {
       bex += `${ispName},`
       conf += `
 ${ispName} = trojan, ${bug}, 443, password = ${UUIDS}, udp-relay = true, skip-cert-verify = true, sni = ${geo81}, ws = true, ws-path = ${pathinfo}${proxyHost}:${proxyPort}, ws-headers = Host:"${geo81}"\n`;
@@ -5910,54 +4715,6 @@ async function generateHusiSub(type, bug, geo81, tls, country = null, limit = nu
       },
       "type": "trojan"
     },`;
-    } else if (type === 'vmess') {
-      bex += `        "${ispName}",\n`
-      conf += `
-    {
-      "type": "vmess",
-      "tag": "${ispName}",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "uuid": "${VMESS_UUID}",
-      "security": "auto",
-      "multiplex": {
-        "protocol": "smux",
-        "max_streams": 32
-      },${snio}
-      "transport": {
-        "type": "ws",
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "headers": {
-          "Host": "${geo81}"
-        }
-      }
-    },`;
-    } else if (type === 'vmess') {
-      bex += `        "${ispName}",\n`
-      conf += `
-    {
-      "domain_strategy": "ipv4_only",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName}",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "vmess",
-      "uuid": "${VMESS_UUID}",
-      "security": "auto"
-    },`;
     } else if (type === 'ss') {
       bex += `        "${ispName}",\n`
       conf += `
@@ -5972,7 +4729,7 @@ async function generateHusiSub(type, bug, geo81, tls, country = null, limit = nu
       "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
     },`;
     } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} vmess",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
+      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -5997,29 +4754,6 @@ async function generateHusiSub(type, bug, geo81, tls, country = null, limit = nu
       },
       "type": "vless",
       "uuid": "${UUIDS}"
-    },
-    {
-      "domain_strategy": "ipv4_only",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName} vmess",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "vmess",
-      "uuid": "${VMESS_UUID}",
-      "security": "auto"
     },
     {
       "domain_strategy": "ipv4_only",
@@ -6328,7 +5062,7 @@ async function generateSingboxSub(type, bug, geo81, tls, country = null, limit =
       "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
     },`;
     } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} vmess",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
+      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
       conf += `
     {
       "type": "vless",
@@ -6350,25 +5084,6 @@ async function generateSingboxSub(type, bug, geo81, tls, country = null, limit =
         "early_data_header_name": "Sec-WebSocket-Protocol"
       },
       "packet_encoding": "xudp"
-    },
-    {
-      "type": "vmess",
-      "tag": "${ispName} vmess",
-      "server": "${bug}",
-      "server_port": ${ports},
-      "uuid": "${VMESS_UUID}",
-      "security": "auto",
-      "multiplex": {
-        "protocol": "smux",
-        "max_streams": 32
-      },${snio}
-      "transport": {
-        "type": "ws",
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "headers": {
-          "Host": "${geo81}"
-        }
-      }
     },
     {
       "type": "trojan",
@@ -6644,7 +5359,7 @@ async function generateNekoboxSub(type, bug, geo81, tls, country = null, limit =
       "plugin_opts": "mux=0;path=${pathinfo}${proxyHost}=${proxyPort};host=${geo81};tls=1"
     },`;
     } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} vmess",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
+      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -6669,29 +5384,6 @@ async function generateNekoboxSub(type, bug, geo81, tls, country = null, limit =
       },
       "type": "vless",
       "uuid": "${UUIDS}"
-    },
-    {
-      "domain_strategy": "ipv4_only",
-      "multiplex": {
-        "enabled": false,
-        "max_streams": 32,
-        "protocol": "smux"
-      },
-      "server": "${bug}",
-      "server_port": ${ports},
-      "tag": "${ispName} vmess",${snio}
-      "transport": {
-        "early_data_header_name": "Sec-WebSocket-Protocol",
-        "headers": {
-          "Host": "${geo81}"
-        },
-        "max_early_data": 0,
-        "path": "${pathinfo}${proxyHost}=${proxyPort}",
-        "type": "ws"
-      },
-      "type": "vmess",
-      "uuid": "${VMESS_UUID}",
-      "security": "auto"
     },
     {
       "domain_strategy": "ipv4_only",
@@ -6945,72 +5637,26 @@ async function generateV2rayngSub(type, bug, geo81, tls, country = null, limit =
       } else {
         conf += `trojan://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
       }
-    } else if (type === 'vmess') {
-      const vmessConfig = {
-        "v": "2",
-        "ps": ispInfo,
-        "add": bug,
-        "port": tls ? "443" : "80",
-        "id": VMESS_UUID,
-        "aid": "0",
-        "net": "ws",
-        "type": "none",
-        "host": geo81,
-        "path": `/Free-VPN-CF-Geo-Project/${proxyHost}=${proxyPort}`,
-        "tls": tls ? "tls" : "none",
-        "sni": tls ? geo81 : "",
-      };
-      conf += `vmess://${safeBtoa(JSON.stringify(vmessConfig))}\n`;
     } else if (type === 'ss') {
       if (tls) {
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
       } else {
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${ispInfo}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${ispInfo}\n`;
       }
     } else if (type === 'mix') {
       if (tls) {
         conf += `vless://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-        const vmessConfig = {
-          "v": "2",
-          "ps": ispInfo,
-          "add": bug,
-          "port": "443",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": geo81,
-          "path": `/Free-VPN-CF-Geo-Project/${proxyHost}=${proxyPort}`,
-          "tls": "tls",
-          "sni": geo81,
-        };
-        conf += `vmess://${safeBtoa(JSON.stringify(vmessConfig))}\n`;
         conf += `trojan://${UUIDS}\u0040${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${ispInfo}\n`;
       } else {
         conf += `vless://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-        const vmessConfig = {
-          "v": "2",
-          "ps": ispInfo,
-          "add": bug,
-          "port": "80",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": geo81,
-          "path": `/Free-VPN-CF-Geo-Project/${proxyHost}=${proxyPort}`,
-          "tls": "none",
-          "sni": "",
-        };
-        conf += `vmess://${safeBtoa(JSON.stringify(vmessConfig))}\n`;
         conf += `trojan://${UUIDS}\u0040${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${ispInfo}\n`;
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${ispInfo}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${ispInfo}\n`;
       }
     }
   }
 
-  const base64Conf = safeBtoa(conf.replace(/ /g, '%20'));
+  const base64Conf = btoa(conf.replace(/ /g, '%20'));
 
   return base64Conf;
 }
@@ -7051,22 +5697,6 @@ async function generateV2raySub(type, bug, geo81, tls, country = null, limit = n
       } else {
         conf += `vless://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
       }
-    } else if (type === 'vmess') {
-      const vmessConfig = {
-        "v": "2",
-        "ps": decodeURIComponent(information),
-        "add": bug,
-        "port": tls ? "443" : "80",
-        "id": VMESS_UUID,
-        "aid": "0",
-        "net": "ws",
-        "type": "none",
-        "host": geo81,
-        "path": `/Free-VPN-CF-Geo-Project/${proxyHost}=${proxyPort}`,
-        "tls": tls ? "tls" : "none",
-        "sni": tls ? geo81 : "",
-      };
-      conf += `vmess://${safeBtoa(JSON.stringify(vmessConfig))}\n`;
     } else if (type === 'trojan') {
       if (tls) {
         conf += `trojan://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
@@ -7075,49 +5705,19 @@ async function generateV2raySub(type, bug, geo81, tls, country = null, limit = n
       }
     } else if (type === 'ss') {
       if (tls) {
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${information}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${information}\n`;
       } else {
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${information}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${information}\n`;
       }
     } else if (type === 'mix') {
       if (tls) {
         conf += `vless://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-        const vmessConfig = {
-          "v": "2",
-          "ps": decodeURIComponent(information),
-          "add": bug,
-          "port": "443",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": geo81,
-          "path": `/Free-VPN-CF-Geo-Project/${proxyHost}=${proxyPort}`,
-          "tls": "tls",
-          "sni": geo81,
-        };
-        conf += `vmess://${safeBtoa(JSON.stringify(vmessConfig))}\n`;
         conf += `trojan://${UUIDS}@${bug}:443?encryption=none&security=tls&sni=${geo81}&fp=randomized&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${information}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:443?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${geo81}#${information}\n`;
       } else {
         conf += `vless://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-        const vmessConfig = {
-          "v": "2",
-          "ps": decodeURIComponent(information),
-          "add": bug,
-          "port": "80",
-          "id": VMESS_UUID,
-          "aid": "0",
-          "net": "ws",
-          "type": "none",
-          "host": geo81,
-          "path": `/Free-VPN-CF-Geo-Project/${proxyHost}=${proxyPort}`,
-          "tls": "none",
-          "sni": "",
-        };
-        conf += `vmess://${safeBtoa(JSON.stringify(vmessConfig))}\n`;
         conf += `trojan://${UUIDS}@${bug}:80?path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${geo81}&fp=randomized&type=ws&sni=${geo81}#${information}\n`;
-        conf += `ss://${safeBtoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${information}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:80?encryption=none&type=ws&host=${geo81}&path=%2FFree-VPN-CF-Geo-Project%2F${proxyHost}%3D${proxyPort}&security=none&sni=${geo81}#${information}\n`;
       }
     }
   }
