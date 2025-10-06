@@ -1,7 +1,10 @@
 import { connect } from "cloudflare:sockets";
 
 const proxyListURL = 'https://raw.githubusercontent.com/jaka2m/botak/refs/heads/main/cek/proxyList.txt';
-const namaWeb = 'GEO PROJECT'
+const TELEGRAM_USERNAME = "sampiiiiu";
+const WHATSAPP_NUMBER = "6282339191527";
+const NAMAWEB = 'GEO PROJECT'
+const LINK_TELEGRAM = 'https://t.me/sampiiiiu'
 const telegrambot = 'https://t.me/VLTRSSbot'
 const channelku = 'https://t.me/testikuy_mang'
 const telegramku = 'https://geoproject.biz.id/circle-flags/telegram.png'
@@ -169,9 +172,12 @@ export default {
 
         if (request.method === 'DELETE') {
           try {
-            const { id } = await request.json();
+            const { id, password } = await request.json();
             if (!id) {
               return new Response('Domain ID is required', { status: 400 });
+            }
+            if (password !== ownerPassword) {
+                return new Response('Invalid password', { status: 401 });
             }
             const status = await cfApi.deleteDomain(id);
             return new Response(null, { status });
@@ -2419,57 +2425,623 @@ function buildCountryFlag() {
   return new Response(`
 
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <title>Geo-VPN | VPN Tunnel | CloudFlare</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROXY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@3.5/css/flag-icon.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /*
+        * =============================================
+        * Global CSS Variables & Basic Styles
+        * =============================================
+        */
+
+        :root {
+            /* Dark Mode Defaults */
+            --primary: #00ff88;
+            --secondary: #00ffff;
+            --accent: #ff00ff;
+            --dark: #080c14;
+            --darker: #040608;
+            --light: #e0ffff;
+            --card-bg: rgba(8, 12, 20, 0.95);
+            --glow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Light Mode Overrides */
+html.light {
+  --primary: #0088ff;
+  --secondary: #00ffff;
+  --accent: #ff00ff;
+  --dark: #f0f8ff;
+  --darker: #ffffff;
+  --light: #2c2c2c;
+  --card-bg: rgba(224, 242, 255, 0.7); /* Latar belakang kartu putih kebiruan transparan */
+  --glow: 0 0 30px rgba(173, 216, 230, 0.8); /* Efek blur putih kebiruan */
+}
+
+
+/* Modifikasi elemen lain */
+html.light .quantum-card {
+  backdrop-filter: blur(12px); /* Menambahkan efek blur pada kartu */
+  border: 1px solid rgba(173, 216, 230, 0.5); /* Border dengan warna yang sama */
+  box-shadow: var(--glow); /* Menggunakan variabel glow yang baru */
+}
+
+html.light .quantum-table td {
+  background: rgba(173, 216, 230, 0.1); /* Latar belakang sel tabel sedikit transparan */
+}
+
+html.light .quantum-table tr:hover td {
+  background: rgba(173, 216, 230, 0.2); /* Efek hover pada sel tabel */
+}
+
+html.light .button-style, html.light .copy-btn {
+  background: var(--primary);
+  color: var(--dark);
+  border: 1px solid var(--primary);
+  /* Tambahkan efek shadow pada tombol */
+  box-shadow: 0 0 15px rgba(0, 136, 255, 0.3);
+}
+
+html.light select {
+  color: var(--light);
+  background: rgba(173, 216, 230, 0.1); /* Latar belakang dropdown */
+  border: 2px solid rgba(173, 216, 230, 0.3); /* Border dropdown */
+  box-shadow: 0 0 15px rgba(173, 216, 230, 0.5); /* Glow dropdown */
+}
+
+        html.light body {
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(0, 136, 255, 0.1) 0, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(0, 255, 255, 0.1) 0, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230088ff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Universal Box Sizing & Font */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Body & Background */
+        body {
+            background: var(--darker);
+            color: var(--light);
+            min-height: 85vh;
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(0, 255, 136, 0.1) 0, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(0, 255, 255, 0.1) 0, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300ff88' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /*
+        * =============================================
+        * Layout & Component Styles
+        * =============================================
+        */
+
+        .wildcard-dropdown {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 0.5rem auto;
+        }
+
+        select {
+            width: 100%;
+            max-width: 200px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            color: var(--light);
+            background: rgba(0, 255, 136, 0.05);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            box-shadow: var(--glow);
+            outline: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            appearance: none;
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23e0ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M6 9l6 6 6-6"%3E%3C/path%3E%3C/svg%3E');
+            background-position: right 10px center;
+            background-repeat: no-repeat;
+            background-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        select:focus {
+            border-color: var(--secondary);
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px var(--secondary);
+        }
+
+        /* All Button & Input Common Styles */
+        .button-reset,
+        .button-search,
+        .input-search,
+        .button-style,
+        .copy-btn {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            outline: none;
+            border-radius: 0.375rem;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background-color: transparent;
+            padding: 0.3rem 0.75rem;
+        }
+
+        .button-style, .copy-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            padding: 0.6rem 1rem;
+            font-size: 0.6rem;
+            position: relative;
+            overflow: hidden;
+        }
         
-        <meta name="description" content="Akun Vless Gratis. Geo-VPN offers free Vless accounts with Cloudflare and Trojan support. Secure and fast VPN tunnel services.">
-        <meta name="keywords" content="Geo-VPN, Free Vless, Vless CF, Trojan CF, Cloudflare, VPN Tunnel, Akun Vless Gratis">
-        <meta name="author" content="Geo-VPN">
-        <meta name="robots" content="index, follow"> 
-        <meta name="robots" content="noarchive"> 
-        <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1"> 
+        /* Tambahan untuk tombol dark mode */
+        .toggle-dark-mode {
+            background-color: var(--primary);
+            color: var(--dark);
+            border-radius: 9999px;
+            border: 2px solid var(--dark);
+            padding: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .toggle-dark-mode:hover {
+            transform: scale(1.1);
+        }
+
+        .copy-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .button-search:hover,
+        .input-search:focus {
+            background-color: rgba(0, 255, 136, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .button-style::before, .copy-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .button-style:hover::before, .copy-btn:hover::before {
+            left: 100%;
+        }
+
+        .button-style:hover, .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .button-style:active, .copy-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 3px 10px rgba(0, 255, 136, 0.2);
+        }
+
+        .form-search {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            gap: 1rem;
+        }
+
+        .quantum-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            perspective: 1000px;
+        }
+
+        .quantum-card {
+            max-width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--glow);
+            transform-style: preserve-3d;
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0) rotateX(0); }
+            50% { transform: translateY(-10px) rotateX(2deg); }
+        }
+
+        .quantum-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            position: relative;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.02); filter: brightness(1.2); }
+        }
+
+        .search-quantum {
+            position: relative;
+            margin-top: 0.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            font-size: 0.6rem;
+            color: var(--light);
+            background: rgba(0, 255, 136, 0.05);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        #search-bar:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .quantum-table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .quantum-table th {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+            padding: 1.2rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--primary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .quantum-table td {
+            padding: 1rem;
+            background: rgba(0, 255, 136, 0.03);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .quantum-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .quantum-table tr:hover td {
+            background: rgba(0, 255, 136, 0.08);
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.1);
+        }
+
+        .btn-icon {
+            font-size: 1.2rem;
+        }
+
+        .quantum-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .quantum-pagination a {
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .quantum-pagination a:hover,
+        .quantum-pagination a.active {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .quantum-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: var(--dark);
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            transform: translateY(100%);
+            opacity: 0;
+            animation: toastSlide 0.3s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes toastSlide {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-height: calc(80vh - 200px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 1rem 0;
+            border-radius: 10px;
+            background: rgba(0, 255, 136, 0.02);
+        }
+
+        .table-wrapper:hover {
+            pointer-events: auto;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /*
+        * =============================================
+        * Mobile Responsiveness
+        * =============================================
+        */
+
+        @media (max-width: 768px) {
+            .quantum-container {
+                padding: 0.5rem;
+                margin: 0.5rem;
+            }
+            
+            .quantum-card {
+                padding: 1rem;
+                margin: 0;
+                width: 100%;
+                border-radius: 10px;
+                max-width: 100%;
+            }
+
+            .quantum-title {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            #search-bar {
+                padding: 0.6rem 1rem;
+                font-size: 0.6rem;
+            }
+
+            .table-wrapper {
+                margin: 0.5rem 0;
+                padding: 0;
+                border-radius: 10px;
+                max-height: 60vh;
+                overflow-y: auto;
+                background: rgba(0, 255, 136, 0.02);
+            }
+            
+            .quantum-table th,
+            .quantum-table td {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .copy-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .quantum-pagination {
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+            
+            .quantum-pagination a {
+                padding: 0.5rem 0.7rem;
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+            
+            .quantum-toast {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quantum-card {
+                padding: 0.5rem;
+                max-width: 100%;
+            }
+            
+            .quantum-title {
+                font-size: 1.5rem;
+            }
+            
+            .table-wrapper {
+                margin: 0.5rem -0.5rem;
+                padding: 0 0.5rem;
+            }
+            
+            .quantum-table {
+                font-size: 0.8rem;
+            }
+            
+            .copy-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        /*
+        * =============================================
+        * Animations & Special Styles
+        * =============================================
+        */
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-around {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(0deg); }
+        }
+
+        .loading-icon, .spinner {
+            width: 25px;
+            height: 25px;
+            border: 3px solid rgba(0, 255, 136, 0.2);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
         
-        <meta property="og:title" content="Geo-VPN | Free Vless & Trojan Accounts">
-        <meta property="og:description" content="Geo-VPN provides free Vless accounts and VPN tunnels via Cloudflare. Secure, fast, and easy setup.">
-        <meta property="og:image" content="https://geoproject.biz.id/circle-flags/bote.png">
-        <meta property="og:url" content="https://geoproject.biz.id/circle-flags/bote.png">
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="Geo-VPN">
-        <meta property="og:locale" content="en_US">
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, .1);
+            border-left-color: #3b82f6;
+            width: 24px;
+            height: 24px;
+        }
+
+        .loading-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .proxy-status.active { color: #00FF00; }
+        .proxy-status.dead { color: #FF3333; }
+        .proxy-status.unknown { color: #8C8C8C; }
+        .proxy-status.error { color: cyan; }
         
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Geo-VPN | Free Vless & Trojan Accounts">
-        <meta name="twitter:description" content="Get free Vless accounts and fast VPN services via Cloudflare with Geo-VPN. Privacy and security guaranteed.">
-        <meta name="twitter:image" content="https://geoproject.biz.id/circle-flags/bote.png"> 
-        <meta name="twitter:site" content="@sampiiiiu">
-        <meta name="twitter:creator" content="@sampiiiiu">
-        <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css/css/flag-icon.min.css">
-        <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.1/css/all.css">
-        
-        <meta property="og:image:type" content="image/jpeg"> 
-        <meta property="og:image:secure_url" content="https://geoproject.biz.id/circle-flags/bote.png">
-        <meta property="og:audio" content="URL-to-audio-if-any"> 
-        <meta property="og:video" content="URL-to-video-if-any"> 
-        
-        <meta name="theme-color" content="#000000"> 
-        <meta name="format-detection" content="telephone=no"> 
-        <meta name="generator" content="Geo-VPN">
-        <meta name="google-site-verification" content="google-site-verification-code">
-        
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="Geo-VPN Image Preview">
-        
-        <link rel="icon" href="https://geoproject.biz.id/circle-flags/bote.png">
-        <link rel="apple-touch-icon" href="https://geoproject.biz.id/circle-flags/bote.png">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://cdn.tailwindcss.com"></script>
-        
-        <style>
+        .active-icon-glow {
+            color: #10B981;
+            font-size: 1.8em;
+            animation: glow-blink 1.5s infinite alternate;
+        }
+
+        @keyframes glow-blink {
+            0% {
+                text-shadow: 0 0 5px rgba(16, 185, 129, 0.7);
+                opacity: 0.8;
+            }
+            50% {
+                text-shadow: 0 0 15px rgba(16, 185, 129, 1),
+                            0 0 25px rgba(16, 185, 129, 0.8);
+                opacity: 1;
+            }
+            100% {
+                text-shadow: 0 0 5px rgba(16, 185, 129, 0.7);
+                opacity: 0.8;
+            }
+        }
+
+        .text-red-500 { color: #EF4444; }
+        .text-cyan-500 { color: #06B6D4; }
+        .text-amber-400 { color: #F59E0B; }
+    </style>
+    
+    <style>
 /* =================================================================== */
 /* 1. VARIABEL & KEYFRAMES (Definitions) */
 /* =================================================================== */
@@ -3013,15 +3585,44 @@ select:focus {
     line-height: 1.2; 
 }
 </style>
-    </head>
+    <script>
+        tailwind.config = {
+            darkMode: 'selector',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-dark': '#1c1c20',
+                        'secondary-dark': '#2a2a2f',
+                        'text-light': '#f0f0f5',
+                        'accent-cyan': '#00e0b7',
+                        'accent-blue': '#4a90e2',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
     <body> 
-    <div class="mt-3">
-            <header>
-                    <h1 class="quantum-title">${namaWeb}</h1>
-                </header>
-                
-        <div class="mt-3">
-            <div class="quantum-container">
+    </head>
+<body class="bg-darker text-light">
+    <div class="quantum-container">
+        <div class="quantum-card">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="quantum-title">
+                <a href="${LINK_TELEGRAM}" target="_blank" rel="noopener noreferrer">
+                    ${NAMAWEB}
+                </a>
+            </h1>
+        </div>
+        
+            <div class="flex justify-around my-2 text-sm">
+    <span class="font-bold text-green-500">Active: <span id="active-count">0</span></span>
+    <span class="font-bold text-red-500">Dead: <span id="dead-count">0</span></span>
+  </div>
+  
     <div class="search-quantum" style="display: flex; align-items: center; flex-direction: column;">
         <div style="display: flex; width: 90%; align-items: center; gap: 10px;">
             <input type="text" id="search-bar" placeholder="Search by IP, CountryCode, or ISP" 
@@ -3078,16 +3679,16 @@ select:focus {
                     <table class="quantum-table">
                         <thead>
                             <tr>
-                                <th class="col-15">No.</th>
-                                <th class="col-22">IP:PORT</th>
-                                <th class="col-18">STATUS IP</th>
-                                <th class="col-17">COUNTRY</th>
-                                <th class="col-22">ISP</th>
-                                <th class="col-17">PATH</th>
-                                <th class="col-18">VLESS</th>
-                                <th class="col-18">TROJAN</th>
-                                <th class="col-22">SHADOWSOCKS</th>
-                            </tr>
+                            <th class="text-center">No.</th>
+                            <th class="text-center">IP:PORT</th>
+                            <th class="text-center">STATUS</th>
+                            <th class="text-center">COUNTRY</th>
+                            <th class="text-center">ISP</th>
+                            <th class="text-center">PATH</th>
+                            <th class="text-center">VLESS</th>
+                            <th class="text-center">TROJAN</th>
+                            <th class="text-center">Shadowsocks</th>
+                        </tr>
                         </thead>
                         <tbody>
                             ${tableRows}
@@ -3101,9 +3702,11 @@ select:focus {
                     ${nextPage}
                 </div>
                 
-                <div class="proxy-count-text">
+                <div class="flex justify-center mt-3 text-green-500">
+    <span class="text-xs">
     Showing ${startIndex + 1} to ${endIndex} of ${totalFilteredConfigs} Proxies
-</div>
+</span>
+  </div>
             </div>
         </div>
         <script>
@@ -3245,6 +3848,10 @@ select:focus {
                  type="number" 
                  placeholder="Input Nomor" 
                  class="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+          <input id="delete-domain-password" 
+                 type="password" 
+                 placeholder="Input Password" 
+                 class="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
           <button id="delete-domain-button" onclick="deleteDomainByNumber()" 
                   class="p-2 rounded-full bg-red-600 hover:bg-red-700 flex justify-center items-center text-white">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -3366,8 +3973,11 @@ select:focus {
         }
 
         async function deleteDomainByNumber() {
-            const input = document.getElementById('delete-domain-input');
-            const number = parseInt(input.value, 10);
+            const numberInput = document.getElementById('delete-domain-input');
+            const passwordInput = document.getElementById('delete-domain-password');
+            const number = parseInt(numberInput.value, 10);
+            const password = passwordInput.value;
+
             if (isNaN(number) || number < 1 || number > domains.length) {
                 alert('Invalid number');
                 return;
@@ -3380,11 +3990,12 @@ select:focus {
                 const response = await fetch('/api/v1/domains', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: domainToDelete.id }),
+                    body: JSON.stringify({ id: domainToDelete.id, password: password }),
                 });
 
                 if (response.ok) {
-                    input.value = '';
+                    numberInput.value = '';
+                    passwordInput.value = '';
                     await loadDomains();
                 } else {
                     alert('Failed to delete domain: ' + await response.text());
