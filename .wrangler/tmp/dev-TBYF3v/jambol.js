@@ -1,69 +1,58 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// jambol.js
 import { connect } from "cloudflare:sockets";
-
-const proxyListURL = 'https://fstore.web.id/ip3.txt';
-const namaWeb = 'FSTORE VPN'
-const telegrambot = 'https://t.me/VLTRSSbot'
-const channelku = 'https://t.me/testikuy_mang'
-const telegramku = 'https://t.me/FER1DEV'
-const whatsappku = 'https://geoproject.biz.id/circle-flags/whatsapp.png'
-const ope = 'https://geoproject.biz.id/circle-flags/options.png'
-// Variables
-const rootDomain = "gpj2.dpdns.org"; // Ganti dengan domain utama kalian
-const serviceName = "tes"; // Ganti dengan nama workers kalian
-const apiKey = "e1d2b64d4da5e42f24c88535f12f21bc84d06"; // Ganti dengan Global API key kalian (https://dash.cloudflare.com/profile/api-tokens)
-const apiEmail = "paoandest@gmail.com"; // Ganti dengan email yang kalian gunakan
-const accountID = "723b4d7d922c6af940791b5624a7cb05"; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
-const zoneID = "143d6f80528eae02e7a909f85e5320ab"; // Ganti dengan Zone ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
-const ownerPassword = ".";
-
-const wildcards = [];
-
-// CloudflareApi Class
-class CloudflareApi {
+var proxyListURL = "https://fstore.web.id/ip3.txt";
+var namaWeb = "FSTORE VPN";
+var telegramku = "https://t.me/FER1DEV";
+var rootDomain = "gpj2.dpdns.org";
+var serviceName = "tes";
+var apiKey = "e1d2b64d4da5e42f24c88535f12f21bc84d06";
+var apiEmail = "paoandest@gmail.com";
+var accountID = "723b4d7d922c6af940791b5624a7cb05";
+var zoneID = "143d6f80528eae02e7a909f85e5320ab";
+var ownerPassword = ".";
+var wildcards = [];
+var CloudflareApi = class {
+  static {
+    __name(this, "CloudflareApi");
+  }
   constructor() {
     this.bearer = `Bearer ${apiKey}`;
     this.accountID = accountID;
     this.zoneID = zoneID;
     this.apiEmail = apiEmail;
     this.apiKey = apiKey;
-
     this.headers = {
       Authorization: this.bearer,
       "X-Auth-Email": this.apiEmail,
       "X-Auth-Key": this.apiKey,
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     };
   }
-
   async getDomainList() {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains`;
     const res = await fetch(url, {
-      headers: this.headers,
+      headers: this.headers
     });
-
     if (res.status == 200) {
       const respJson = await res.json();
       return respJson.result.filter((data) => data.service == serviceName);
     }
     return [];
   }
-
   async registerDomain(domain) {
     domain = domain.toLowerCase();
     const suffix = `.${serviceName}.${rootDomain}`;
     let fullDomain = domain;
-
-    // If the user-provided domain doesn't already end with the suffix, append it.
     if (!domain.endsWith(suffix)) {
       fullDomain = domain + suffix;
     }
-
     const registeredDomains = await this.getDomainList();
-
-    if (registeredDomains.some(d => d.hostname === fullDomain)) {
-      return 409; // Conflict
+    if (registeredDomains.some((d) => d.hostname === fullDomain)) {
+      return 409;
     }
-
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains`;
     const res = await fetch(url, {
       method: "PUT",
@@ -71,181 +60,131 @@ class CloudflareApi {
         environment: "production",
         hostname: fullDomain,
         service: serviceName,
-        zone_id: this.zoneID,
+        zone_id: this.zoneID
       }),
-      headers: this.headers,
+      headers: this.headers
     });
-
     return res.status;
   }
-
   async deleteDomain(domainId) {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains/${domainId}`;
     const res = await fetch(url, {
       method: "DELETE",
-      headers: this.headers,
+      headers: this.headers
     });
     return res.status;
   }
-}
-
-// Global Variables
-let cachedProxyList = [];
-let proxyIP = "";
-
-// Constants
-const WS_READY_STATE_OPEN = 1;
-const WS_READY_STATE_CLOSING = 2;
-
+};
+var cachedProxyList = [];
+var proxyIP = "";
+var WS_READY_STATE_OPEN = 1;
+var WS_READY_STATE_CLOSING = 2;
 async function getProxyList(forceReload = false) {
   if (!cachedProxyList.length || forceReload) {
     if (!proxyListURL) {
       throw new Error("No Proxy List URL Provided!");
     }
-
     const proxyBank = await fetch(proxyListURL);
     if (proxyBank.status === 200) {
-      const proxyString = ((await proxyBank.text()) || "").split("\n").filter(Boolean);
-      cachedProxyList = proxyString
-        .map((entry) => {
-          const [proxyIP, proxyPort, country, org] = entry.split(",");
-          return {
-            proxyIP: proxyIP || "Unknown",
-            proxyPort: proxyPort || "Unknown",
-            country: country.toUpperCase() || "Unknown",
-            org: org || "Unknown Org",
-          };
-        })
-        .filter(Boolean);
+      const proxyString = (await proxyBank.text() || "").split("\n").filter(Boolean);
+      cachedProxyList = proxyString.map((entry) => {
+        const [proxyIP2, proxyPort, country, org] = entry.split(",");
+        return {
+          proxyIP: proxyIP2 || "Unknown",
+          proxyPort: proxyPort || "Unknown",
+          country: country.toUpperCase() || "Unknown",
+          org: org || "Unknown Org"
+        };
+      }).filter(Boolean);
     }
   }
-
   return cachedProxyList;
 }
-
-async function reverseProxy(request, target) {
-  const targetUrl = new URL(request.url);
-  targetUrl.hostname = target;
-
-  const modifiedRequest = new Request(targetUrl, request);
-  modifiedRequest.headers.set("X-Forwarded-Host", request.headers.get("Host"));
-
-  const response = await fetch(modifiedRequest);
-  const newResponse = new Response(response.body, response);
-  newResponse.headers.set("X-Proxied-By", "Cloudflare Worker");
-
-  return newResponse;
-}
-
-export default {
+__name(getProxyList, "getProxyList");
+var jambol_default = {
   async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
-
-      // API for wildcard management
-      if (url.pathname.startsWith('/api/v1/domains')) {
+      if (url.pathname.startsWith("/api/v1/domains")) {
         const cfApi = new CloudflareApi();
-
-        if (request.method === 'GET') {
+        if (request.method === "GET") {
           const domains = await cfApi.getDomainList();
           return new Response(JSON.stringify(domains), {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-Type": "application/json" }
           });
         }
-
-        if (request.method === 'POST') {
+        if (request.method === "POST") {
           try {
             const { domain } = await request.json();
             if (!domain) {
-              return new Response('Domain is required', { status: 400 });
+              return new Response("Domain is required", { status: 400 });
             }
             const status = await cfApi.registerDomain(domain);
             return new Response(null, { status });
           } catch (e) {
-            return new Response('Invalid JSON', { status: 400 });
+            return new Response("Invalid JSON", { status: 400 });
           }
         }
-
-        if (request.method === 'DELETE') {
+        if (request.method === "DELETE") {
           try {
             const { id, password } = await request.json();
             if (!id) {
-              return new Response('Domain ID is required', { status: 400 });
+              return new Response("Domain ID is required", { status: 400 });
             }
             if (password !== ownerPassword) {
-                return new Response('Invalid password', { status: 401 });
+              return new Response("Invalid password", { status: 401 });
             }
             const status = await cfApi.deleteDomain(id);
             return new Response(null, { status });
           } catch (e) {
-            return new Response('Invalid JSON', { status: 400 });
+            return new Response("Invalid JSON", { status: 400 });
           }
         }
-
-        return new Response('Method Not Allowed', { status: 405 });
+        return new Response("Method Not Allowed", { status: 405 });
       }
-
       const myurl = "geovpn.vercel.app";
       const upgradeHeader = request.headers.get("Upgrade");
       const CHECK_API_BASE = `https://${myurl}`;
       const CHECK_API = `${CHECK_API_BASE}/check?ip=`;
-      
-      // Handle IP check
       if (url.pathname === "/geo-ip") {
         const ip = url.searchParams.get("ip");
-
         if (!ip) {
           return new Response("IP parameter is required", { status: 400 });
         }
-
-        // Call external API using CHECK_API
         const apiResponse = await fetch(`${CHECK_API}${ip}`);
         if (!apiResponse.ok) {
           return new Response("Failed to fetch IP information", { status: apiResponse.status });
         }
-
         const data = await apiResponse.json();
         return new Response(JSON.stringify(data), {
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" }
         });
-      }      
-
-     const proxyState = new Map();
-
-async function updateProxies() {
-  const proxies = await getProxyList(env);
-  console.log("Proxy list updated (getProxyList called).");
-}
-
-ctx.waitUntil(
-        (async function periodicUpdate() {
+      }
+      const proxyState = /* @__PURE__ */ new Map();
+      async function updateProxies() {
+        const proxies = await getProxyList(env);
+        console.log("Proxy list updated (getProxyList called).");
+      }
+      __name(updateProxies, "updateProxies");
+      ctx.waitUntil(
+        (/* @__PURE__ */ __name(async function periodicUpdate() {
           await updateProxies();
-          setInterval(updateProxies, 60000); // Setiap 60 detik
-        })()
+          setInterval(updateProxies, 6e4);
+        }, "periodicUpdate"))()
       );
-
       if (upgradeHeader === "websocket") {
-        // Match path dengan format /CC atau /CCangka
         const pathMatch = url.pathname.match(/^\/([A-Z]{2})(\d+)?$/);
-
         if (pathMatch) {
           const countryCode = pathMatch[1];
           const index = pathMatch[2] ? parseInt(pathMatch[2], 10) - 1 : null;
-
           console.log(`Country Code: ${countryCode}, Index: ${index}`);
-
-          // Ambil proxy berdasarkan country code
           const proxies = await getProxyList(env);
           const filteredProxies = proxies.filter((proxy) => proxy.country === countryCode);
-
           if (filteredProxies.length === 0) {
             return new Response(`No proxies available for country: ${countryCode}`, { status: 404 });
           }
-
           let selectedProxy;
-
           if (index === null) {
-            // Ambil proxy acak dari state jika ada
             selectedProxy = proxyState.get(countryCode) || filteredProxies[0];
           } else if (index < 0 || index >= filteredProxies.length) {
             return new Response(
@@ -255,81 +194,65 @@ ctx.waitUntil(
           } else {
             selectedProxy = filteredProxies[index];
           }
-
           proxyIP = `${selectedProxy.proxyIP}:${selectedProxy.proxyPort}`;
           console.log(`Selected Proxy: ${proxyIP}`);
           return await websockerHandler(request);
         }
-
-        // Match path dengan format ip:port atau ip=port
         const ipPortMatch = url.pathname.match(/^\/(.+[:=-]\d+)$/);
-
         if (ipPortMatch) {
-          proxyIP = ipPortMatch[1].replace(/[=:-]/, ":"); // Standarisasi menjadi ip:port
+          proxyIP = ipPortMatch[1].replace(/[=:-]/, ":");
           console.log(`Direct Proxy IP: ${proxyIP}`);
           return await websockerHandler(request, proxyIP);
         }
       }
-      
       const bexx = url.hostname;
-      const type = url.searchParams.get('type') || 'mix';
-      const tls = url.searchParams.get('tls') !== 'true';
-      const wildcard = url.searchParams.get('wildcard') === 'true';
-      const bugs = url.searchParams.get('bug') || bexx;
+      const type = url.searchParams.get("type") || "mix";
+      const tls = url.searchParams.get("tls") !== "true";
+      const wildcard = url.searchParams.get("wildcard") === "true";
+      const bugs = url.searchParams.get("bug") || bexx;
       const bexnxx = wildcard ? `${bugs}.${bexx}` : bexx;
-      const country = url.searchParams.get('country');
-      const limit = parseInt(url.searchParams.get('limit'), 10); // Ambil nilai limit
+      const country = url.searchParams.get("country");
+      const limit = parseInt(url.searchParams.get("limit"), 10);
       let configs;
-
       switch (url.pathname) {
-        case '/sub/clash':
+        case "/sub/clash":
           configs = await generateClashSub(type, bugs, bexnxx, tls, country, limit);
           break;
-        case '/sub/surfboard':
+        case "/sub/surfboard":
           configs = await generateSurfboardSub(type, bugs, bexnxx, tls, country, limit);
           break;
-        case '/sub/singbox':
+        case "/sub/singbox":
           configs = await generateSingboxSub(type, bugs, bexnxx, tls, country, limit);
           break;
-        case '/sub/husi':
+        case "/sub/husi":
           configs = await generateHusiSub(type, bugs, bexnxx, tls, country, limit);
           break;
-        case '/sub/nekobox':
+        case "/sub/nekobox":
           configs = await generateNekoboxSub(type, bugs, bexnxx, tls, country, limit);
           break;
-        case '/sub/v2rayng':
+        case "/sub/v2rayng":
           configs = await generateV2rayngSub(type, bugs, bexnxx, tls, country, limit);
           break;
-        case '/sub/v2ray':
+        case "/sub/v2ray":
           configs = await generateV2raySub(type, bugs, bexnxx, tls, country, limit);
           break;
         case "/web":
           return await handleWebRequest(request);
           break;
         case "/sub":
-          return new Response(await handleSubRequest(url.hostname), { headers: { 'Content-Type': 'text/html' } })
+          return new Response(await handleSubRequest(url.hostname), { headers: { "Content-Type": "text/html" } });
           break;
         default:
           return await handleWebRequest(request);
       }
-
       return new Response(configs);
     } catch (err) {
       return new Response(`An error occurred: ${err.toString()}`, {
-        status: 500,
+        status: 500
       });
     }
-  },
+  }
 };
-
-// Helper function: Group proxies by country
-function groupBy(array, key) {
-  return array.reduce((result, currentValue) => {
-    (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-    return result;
-  }, {});
-}
-
 async function handleSubRequest(hostnem) {
   const html = `
 <!DOCTYPE html>
@@ -588,7 +511,7 @@ async function handleSubRequest(hostnem) {
             appSelect.addEventListener('change', () => {
                 const selectedApp = appSelect.value;
                 const shadowsocksOption = configTypeSelect.querySelector('option[value="shadowsocks"]');
-                
+
                 if (selectedApp === 'surfboard') {
                     configTypeSelect.value = 'trojan';
                     configTypeSelect.querySelector('option[value="trojan"]').selected = true;
@@ -601,7 +524,7 @@ async function handleSubRequest(hostnem) {
             // Form submission handler
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 // Reset previous states
                 loadingEl.style.display = 'block';
                 resultEl.style.display = 'none';
@@ -660,278 +583,237 @@ async function handleSubRequest(hostnem) {
                 }
             });
         });
-    </script>
+    <\/script>
 </body>
 </html>
- `
-return html
+ `;
+  return html;
 }
-
+__name(handleSubRequest, "handleSubRequest");
 async function handleWebRequest(request) {
-    const cfApi = new CloudflareApi();
-    const dynamicDomains = await cfApi.getDomainList();
-    const suffixToRemove = `.${serviceName}.${rootDomain}`;
-    // Pastikan untuk menangani domain yang mungkin tidak memiliki akhiran yang diharapkan
-    const dynamicWildcards = dynamicDomains.map(d => 
-        d.hostname.endsWith(suffixToRemove) 
-            ? d.hostname.slice(0, -suffixToRemove.length) 
-            : d.hostname
-    );
-    
-    // Gabungkan wildcard statis dan dinamis, lalu hapus duplikat
-    const allWildcards = [...new Set([...wildcards, ...dynamicWildcards])];
-    const apiUrl = proxyListURL;
-
-    const fetchConfigs = async () => {
-      try {
-        const response = await fetch(apiUrl);
-        const text = await response.text();
-        
-        let pathCounters = {};
-
-        const configs = text.trim().split('\n').map((line) => {
-          const [ip, port, countryCode, isp] = line.split(',');
-          
-          if (!pathCounters[countryCode]) {
-            pathCounters[countryCode] = 1;
-          }
-          
-          const path = `/${countryCode}${pathCounters[countryCode]}`;
-          pathCounters[countryCode]++;
-
-          return { ip, port, countryCode, isp, path };
-        });
-
-        return configs;
-      } catch (error) {
-        console.error('Error fetching configurations:', error);
-        return [];
-      }
-    };
-
-    const generateUUIDv4 = () => {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
-    };
-
-    const getFlagEmoji = (countryCode) => {
-      if (!countryCode) return '🏳️';
-      return countryCode
-        .toUpperCase()
-        .split('')
-        .map((char) => String.fromCodePoint(0x1f1e6 - 65 + char.charCodeAt(0)))
-        .join('');
-    };
-
-    const url = new URL(request.url);
-    const hostName = url.hostname;
-    const page = parseInt(url.searchParams.get('page')) || 1;
-    const searchQuery = url.searchParams.get('search') || '';
-    const selectedWildcard = url.searchParams.get('wildcard') || null;
-    const selectedConfigType = url.searchParams.get('configType') || 'tls'; // Ambil nilai 'configType' atau gunakan default 'tls'
-    const configsPerPage = 20;
-
-    const configs = await fetchConfigs();
-    const totalConfigs = configs.length;
-
-    let filteredConfigs = configs;
-    if (searchQuery.includes(':')) {
-        // Search by IP:PORT format
-        filteredConfigs = configs.filter((config) => 
-            `${config.ip}:${config.port}`.includes(searchQuery)
-        );
-    } else if (searchQuery.length === 2) {
-        // Search by country code (if it's two characters)
-        filteredConfigs = configs.filter((config) =>
-            config.countryCode.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    } else if (searchQuery.length > 2) {
-        // Search by IP, ISP, or country code
-        filteredConfigs = configs.filter((config) =>
-            config.ip.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (`${config.ip}:${config.port}`).includes(searchQuery.toLowerCase()) ||
-            config.isp.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }
-
-    const totalFilteredConfigs = filteredConfigs.length;
-    const totalPages = Math.ceil(totalFilteredConfigs / configsPerPage);
-    const startIndex = (page - 1) * configsPerPage;
-    const endIndex = Math.min(startIndex + configsPerPage, totalFilteredConfigs);
-    const visibleConfigs = filteredConfigs.slice(startIndex, endIndex);
-
-    const configType = url.searchParams.get('configType') || 'tls';
-
-    const tableRows = visibleConfigs
-      .map((config) => {
-        const uuid = generateUUIDv4();
-        const wildcard = selectedWildcard || hostName;
-        const modifiedHostName = selectedWildcard ? `${selectedWildcard}.${hostName}` : hostName;
-        const url = new URL(request.url);
-       const BASE_URL = `https://${url.hostname}`; 
-       const CHECK_API = `${BASE_URL}/geo-ip?ip=`; 
-        const ipPort = `${config.ip}:${config.port}`;
-        const healthCheckUrl = `${CHECK_API}${ipPort}`;
-        const path2 = encodeURIComponent(`/${config.ip}=${config.port}`);
-
-        if (configType === 'tls') {
-            return `
-                <tr class="config-row">
-                    <td class="ip-cell">${config.ip}:${config.port}</td>
-                    <td class="proxy-status" id="status-${ipPort}"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
-                    <td class="country-cell">${config.countryCode} ${getFlagEmoji(config.countryCode)}</td>
-                    <td class="isp-cell">${config.isp}</td>
-                    <td class="path-cell">${config.path}</td>
-                    <td class="button-cell">
-                        <button class="copy-btn vless" onclick="copy('${`vless://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`}')">
-                            <span class="btn-icon">📋</span> VLESS
-                        </button>
-                    </td>
-                    <td class="button-cell">
-                        <button class="copy-btn trojan" onclick="copy('${`trojan://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`}')">
-                            <span class="btn-icon">📋</span> TROJAN
-                        </button>
-                    </td>
-                    <td class="button-cell">
-                        <button class="copy-btn shadowsocks" onclick="copy('${`ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:443?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}&security=tls&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`}')">
-                            <span class="btn-icon">📋</span> Shadowsocks
-                        </button>
-                    </td>
-                </tr>
-<script>
-          fetch('${healthCheckUrl}')
-            .then(response => response.json())
-            .then(data => {
-              const statusElement = document.getElementById('status-${ipPort}');
-              const spinner = document.getElementById('ping-' + data.proxy + ':' + data.port);
-
-      // Ambil data status dan delay
-            const status = data.status || 'UNKNOWN';
-            let delay = parseFloat(data.delay) || 'N/A';
-
-            console.log("Status:", status);
-            console.log("Raw delay:", data.delay);
-            console.log("Parsed delay:", delay);
-
-            const divisor = 4; 
-
-            if (!isNaN(delay)) {
-                delay = Math.round(delay / divisor);
-                console.log("Processed delay:", delay);  // Debugging log
-            }
-
-            if (status === 'ACTIVE') {
-                statusElement.innerHTML = 'ACTIVE<br><span style="fas fa-bolt"></i>&nbsp;<span style="color: gold;">(' + delay + 'ms)</span>'; 
-                statusElement.style.color = '#00FF00';
-                statusElement.style.fontSize = '13px';
-                statusElement.style.fontWeight = 'bold';
-            } else if (status === 'DEAD') {
-                statusElement.innerHTML = '<strong><i class="fas fa-times-circle"></i> DEAD</strong>';
-                statusElement.style.color = '#FF3333';
-                statusElement.style.fontSize = '13px';
-                statusElement.style.fontWeight = 'bold';
-            }
-        })
-        .catch(error => {
-              const statusElement = document.getElementById('status-${ipPort}');
-              statusElement.textContent = 'Error';
-              statusElement.style.color = 'cyan';
-            });
-        </script>
-
-
-`;
-        } else {
-            return `
-                <tr class="config-row">
-                    <td class="ip-cell">${config.ip}:${config.port}</td>
-                    <td class="proxy-status" id="status-${ipPort}"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
-                    <td class="country-cell">${config.countryCode} ${getFlagEmoji(config.countryCode)}</td>
-                    <td class="isp-cell">${config.isp}</td>
-                    <td class="path-cell">${config.path}</td>
-                    <td class="button-cell">
-                        <button class="copy-btn vless" onclick="copy('${`vless://${uuid}@${wildcard}:80?path=${encodeURIComponent(config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`}')">
-                            <span class="btn-icon">📋</span> VLESS
-                        </button>
-                    </td>
-                    <td class="button-cell">
-                        <button class="copy-btn trojan" onclick="copy('${`trojan://${uuid}@${wildcard}:80?path=${encodeURIComponent(config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`}')">
-                            <span class="btn-icon">📋</span> TROJAN
-                        </button>
-                    </td>
-                    <td class="button-cell">
-                        <button class="copy-btn shadowsocks" onclick="copy('${`ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:80?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}&security=none&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g,'%20')}${getFlagEmoji(config.countryCode)}`}')">
-                            <span class="btn-icon">📋</span> Shadowsocks
-                        </button>
-                    </td>
-                </tr>
-<script>
-          fetch('${healthCheckUrl}')
-            .then(response => response.json())
-            .then(data => {
-              const statusElement = document.getElementById('status-${ipPort}');
-              const spinner = document.getElementById('ping-' + data.proxy + ':' + data.port);
-
-      // Ambil data status dan delay
-            const status = data.status || 'UNKNOWN';
-            let delay = parseFloat(data.delay) || 'N/A';
-
-            console.log("Status:", status);
-            console.log("Raw delay:", data.delay);
-            console.log("Parsed delay:", delay);
-
-            const divisor = 4; 
-
-            if (!isNaN(delay)) {
-                delay = Math.round(delay / divisor);
-                console.log("Processed delay:", delay);  // Debugging log
-            }
-
-            if (status === 'ACTIVE') {
-                statusElement.innerHTML = 'ACTIVE<br><span style="fas fa-bolt"></i>&nbsp;<span style="color: gold;">(' + delay + 'ms)</span>'; 
-                statusElement.style.color = '#00FF00';
-                statusElement.style.fontSize = '13px';
-                statusElement.style.fontWeight = 'bold';
-            } else if (status === 'DEAD') {
-                statusElement.innerHTML = '<strong><i class="fas fa-times-circle"></i> DEAD</strong>';
-                statusElement.style.color = '#FF3333';
-                statusElement.style.fontSize = '13px';
-                statusElement.style.fontWeight = 'bold';
-            }
-        })
-        .catch(error => {
-              const statusElement = document.getElementById('status-${ipPort}');
-              statusElement.textContent = 'Error';
-              statusElement.style.color = 'cyan';
-            });
-        </script>
-
-
-`;
+  const cfApi = new CloudflareApi();
+  const dynamicDomains = await cfApi.getDomainList();
+  const suffixToRemove = `.${serviceName}.${rootDomain}`;
+  const dynamicWildcards = dynamicDomains.map(
+    (d) => d.hostname.endsWith(suffixToRemove) ? d.hostname.slice(0, -suffixToRemove.length) : d.hostname
+  );
+  const allWildcards = [.../* @__PURE__ */ new Set([...wildcards, ...dynamicWildcards])];
+  const apiUrl = proxyListURL;
+  const fetchConfigs = /* @__PURE__ */ __name(async () => {
+    try {
+      const response = await fetch(apiUrl);
+      const text = await response.text();
+      let pathCounters = {};
+      const configs2 = text.trim().split("\n").map((line) => {
+        const [ip, port, countryCode, isp] = line.split(",");
+        if (!pathCounters[countryCode]) {
+          pathCounters[countryCode] = 1;
         }
-      })
-      .join('');
-
-    const paginationButtons = [];
-    const pageRange = 2;
-
-    for (let i = Math.max(1, page - pageRange); i <= Math.min(totalPages, page + pageRange); i++) {
-      paginationButtons.push(
-        `<a href="?page=${i}&wildcard=${encodeURIComponent(selectedWildcard)}&configType=${encodeURIComponent(selectedConfigType)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}" class="pagination-number ${i === page ? 'active' : ''}">${i}</a>`
-      );
+        const path = `/${countryCode}${pathCounters[countryCode]}`;
+        pathCounters[countryCode]++;
+        return { ip, port, countryCode, isp, path };
+      });
+      return configs2;
+    } catch (error) {
+      console.error("Error fetching configurations:", error);
+      return [];
     }
+  }, "fetchConfigs");
+  const generateUUIDv42 = /* @__PURE__ */ __name(() => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === "x" ? r : r & 3 | 8;
+      return v.toString(16);
+    });
+  }, "generateUUIDv4");
+  const getFlagEmoji = /* @__PURE__ */ __name((countryCode) => {
+    if (!countryCode) return "\u{1F3F3}\uFE0F";
+    return countryCode.toUpperCase().split("").map((char) => String.fromCodePoint(127462 - 65 + char.charCodeAt(0))).join("");
+  }, "getFlagEmoji");
+  const url = new URL(request.url);
+  const hostName = url.hostname;
+  const page = parseInt(url.searchParams.get("page")) || 1;
+  const searchQuery = url.searchParams.get("search") || "";
+  const selectedWildcard = url.searchParams.get("wildcard") || null;
+  const selectedConfigType = url.searchParams.get("configType") || "tls";
+  const configsPerPage = 20;
+  const configs = await fetchConfigs();
+  const totalConfigs = configs.length;
+  let filteredConfigs = configs;
+  if (searchQuery.includes(":")) {
+    filteredConfigs = configs.filter(
+      (config) => `${config.ip}:${config.port}`.includes(searchQuery)
+    );
+  } else if (searchQuery.length === 2) {
+    filteredConfigs = configs.filter(
+      (config) => config.countryCode.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  } else if (searchQuery.length > 2) {
+    filteredConfigs = configs.filter(
+      (config) => config.ip.toLowerCase().includes(searchQuery.toLowerCase()) || `${config.ip}:${config.port}`.includes(searchQuery.toLowerCase()) || config.isp.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+  const totalFilteredConfigs = filteredConfigs.length;
+  const totalPages = Math.ceil(totalFilteredConfigs / configsPerPage);
+  const startIndex = (page - 1) * configsPerPage;
+  const endIndex = Math.min(startIndex + configsPerPage, totalFilteredConfigs);
+  const visibleConfigs = filteredConfigs.slice(startIndex, endIndex);
+  const configType = url.searchParams.get("configType") || "tls";
+  const tableRows = visibleConfigs.map((config) => {
+    const uuid = generateUUIDv42();
+    const wildcard = selectedWildcard || hostName;
+    const modifiedHostName = selectedWildcard ? `${selectedWildcard}.${hostName}` : hostName;
+    const url2 = new URL(request.url);
+    const BASE_URL = `https://${url2.hostname}`;
+    const CHECK_API = `${BASE_URL}/geo-ip?ip=`;
+    const ipPort = `${config.ip}:${config.port}`;
+    const healthCheckUrl = `${CHECK_API}${ipPort}`;
+    const path2 = encodeURIComponent(`/${config.ip}=${config.port}`);
+    if (configType === "tls") {
+      return `
+                <tr class="config-row">
+                    <td class="ip-cell">${config.ip}:${config.port}</td>
+                    <td class="proxy-status" id="status-${ipPort}"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
+                    <td class="country-cell">${config.countryCode} ${getFlagEmoji(config.countryCode)}</td>
+                    <td class="isp-cell">${config.isp}</td>
+                    <td class="path-cell">${config.path}</td>
+                    <td class="button-cell">
+                        <button class="copy-btn vless" onclick="copy('${`vless://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}#(${config.countryCode})%20${config.isp.replace(/\s/g, "%20")}${getFlagEmoji(config.countryCode)}`}')">
+                            <span class="btn-icon">\u{1F4CB}</span> VLESS
+                        </button>
+                    </td>
+                    <td class="button-cell">
+                        <button class="copy-btn trojan" onclick="copy('${`trojan://${uuid}@${wildcard}:443?encryption=none&security=tls&sni=${modifiedHostName}&fp=randomized&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}#(${config.countryCode})%20${config.isp.replace(/\s/g, "%20")}${getFlagEmoji(config.countryCode)}`}')">
+                            <span class="btn-icon">\u{1F4CB}</span> TROJAN
+                        </button>
+                    </td>
+                    <td class="button-cell">
+                        <button class="copy-btn shadowsocks" onclick="copy('${`ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:443?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}&security=tls&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g, "%20")}${getFlagEmoji(config.countryCode)}`}')">
+                            <span class="btn-icon">\u{1F4CB}</span> Shadowsocks
+                        </button>
+                    </td>
+                </tr>
+<script>
+          fetch('${healthCheckUrl}')
+            .then(response => response.json())
+            .then(data => {
+              const statusElement = document.getElementById('status-${ipPort}');
+              const spinner = document.getElementById('ping-' + data.proxy + ':' + data.port);
 
-    const prevPage = page > 1
-      ? `<a href="?page=${page - 1}&wildcard=${encodeURIComponent(selectedWildcard)}&configType=${encodeURIComponent(selectedConfigType)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}" class="pagination-arrow">◁</a>`
-      : '';
+      // Ambil data status dan delay
+            const status = data.status || 'UNKNOWN';
+            let delay = parseFloat(data.delay) || 'N/A';
 
-    const nextPage = page < totalPages
-      ? `<a href="?page=${page + 1}&wildcard=${encodeURIComponent(selectedWildcard)}&configType=${encodeURIComponent(selectedConfigType)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}" class="pagination-arrow">▷</a>`
-      : '';
+            console.log("Status:", status);
+            console.log("Raw delay:", data.delay);
+            console.log("Parsed delay:", delay);
 
+            const divisor = 4;
+
+            if (!isNaN(delay)) {
+                delay = Math.round(delay / divisor);
+                console.log("Processed delay:", delay);  // Debugging log
+            }
+
+            if (status === 'ACTIVE') {
+                statusElement.innerHTML = 'ACTIVE<br><span style="fas fa-bolt"></i>&nbsp;<span style="color: gold;">(' + delay + 'ms)</span>';
+                statusElement.style.color = '#00FF00';
+                statusElement.style.fontSize = '13px';
+                statusElement.style.fontWeight = 'bold';
+            } else if (status === 'DEAD') {
+                statusElement.innerHTML = '<strong><i class="fas fa-times-circle"></i> DEAD</strong>';
+                statusElement.style.color = '#FF3333';
+                statusElement.style.fontSize = '13px';
+                statusElement.style.fontWeight = 'bold';
+            }
+        })
+        .catch(error => {
+              const statusElement = document.getElementById('status-${ipPort}');
+              statusElement.textContent = 'Error';
+              statusElement.style.color = 'cyan';
+            });
+        <\/script>
+
+
+`;
+    } else {
+      return `
+                <tr class="config-row">
+                    <td class="ip-cell">${config.ip}:${config.port}</td>
+                    <td class="proxy-status" id="status-${ipPort}"><strong><i class="fas fa-spinner fa-spin loading-icon"></i></td>
+                    <td class="country-cell">${config.countryCode} ${getFlagEmoji(config.countryCode)}</td>
+                    <td class="isp-cell">${config.isp}</td>
+                    <td class="path-cell">${config.path}</td>
+                    <td class="button-cell">
+                        <button class="copy-btn vless" onclick="copy('${`vless://${uuid}@${wildcard}:80?path=${encodeURIComponent(config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g, "%20")}${getFlagEmoji(config.countryCode)}`}')">
+                            <span class="btn-icon">\u{1F4CB}</span> VLESS
+                        </button>
+                    </td>
+                    <td class="button-cell">
+                        <button class="copy-btn trojan" onclick="copy('${`trojan://${uuid}@${wildcard}:80?path=${encodeURIComponent(config.path.toUpperCase())}&security=none&encryption=none&host=${modifiedHostName}&fp=randomized&type=ws&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g, "%20")}${getFlagEmoji(config.countryCode)}`}')">
+                            <span class="btn-icon">\u{1F4CB}</span> TROJAN
+                        </button>
+                    </td>
+                    <td class="button-cell">
+                        <button class="copy-btn shadowsocks" onclick="copy('${`ss://${btoa(`none:${uuid}`)}%3D@${wildcard}:80?encryption=none&type=ws&host=${modifiedHostName}&path=${encodeURIComponent(config.path.toUpperCase())}&security=none&sni=${modifiedHostName}#(${config.countryCode})%20${config.isp.replace(/\s/g, "%20")}${getFlagEmoji(config.countryCode)}`}')">
+                            <span class="btn-icon">\u{1F4CB}</span> Shadowsocks
+                        </button>
+                    </td>
+                </tr>
+<script>
+          fetch('${healthCheckUrl}')
+            .then(response => response.json())
+            .then(data => {
+              const statusElement = document.getElementById('status-${ipPort}');
+              const spinner = document.getElementById('ping-' + data.proxy + ':' + data.port);
+
+      // Ambil data status dan delay
+            const status = data.status || 'UNKNOWN';
+            let delay = parseFloat(data.delay) || 'N/A';
+
+            console.log("Status:", status);
+            console.log("Raw delay:", data.delay);
+            console.log("Parsed delay:", delay);
+
+            const divisor = 4;
+
+            if (!isNaN(delay)) {
+                delay = Math.round(delay / divisor);
+                console.log("Processed delay:", delay);  // Debugging log
+            }
+
+            if (status === 'ACTIVE') {
+                statusElement.innerHTML = 'ACTIVE<br><span style="fas fa-bolt"></i>&nbsp;<span style="color: gold;">(' + delay + 'ms)</span>';
+                statusElement.style.color = '#00FF00';
+                statusElement.style.fontSize = '13px';
+                statusElement.style.fontWeight = 'bold';
+            } else if (status === 'DEAD') {
+                statusElement.innerHTML = '<strong><i class="fas fa-times-circle"></i> DEAD</strong>';
+                statusElement.style.color = '#FF3333';
+                statusElement.style.fontSize = '13px';
+                statusElement.style.fontWeight = 'bold';
+            }
+        })
+        .catch(error => {
+              const statusElement = document.getElementById('status-${ipPort}');
+              statusElement.textContent = 'Error';
+              statusElement.style.color = 'cyan';
+            });
+        <\/script>
+
+
+`;
+    }
+  }).join("");
+  const paginationButtons = [];
+  const pageRange = 2;
+  for (let i = Math.max(1, page - pageRange); i <= Math.min(totalPages, page + pageRange); i++) {
+    paginationButtons.push(
+      `<a href="?page=${i}&wildcard=${encodeURIComponent(selectedWildcard)}&configType=${encodeURIComponent(selectedConfigType)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}" class="pagination-number ${i === page ? "active" : ""}">${i}</a>`
+    );
+  }
+  const prevPage = page > 1 ? `<a href="?page=${page - 1}&wildcard=${encodeURIComponent(selectedWildcard)}&configType=${encodeURIComponent(selectedConfigType)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}" class="pagination-arrow">\u25C1</a>` : "";
+  const nextPage = page < totalPages ? `<a href="?page=${page + 1}&wildcard=${encodeURIComponent(selectedWildcard)}&configType=${encodeURIComponent(selectedConfigType)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}" class="pagination-arrow">\u25B7</a>` : "";
   return new Response(`
 <!DOCTYPE html>
 <html lang="en">
@@ -940,7 +822,7 @@ async function handleWebRequest(request) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FSTORE VPN</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"><\/script>
     <style>
       :root {
         --primary: #00ff88;
@@ -964,7 +846,7 @@ async function handleWebRequest(request) {
         background: var(--darker);
         color: var(--light);
         min-height: 85vh;
-        background-image: 
+        background-image:
           radial-gradient(circle at 0% 0%, rgba(0, 255, 136, 0.1) 0, transparent 50%),
           radial-gradient(circle at 100% 100%, rgba(0, 255, 255, 0.1) 0, transparent 50%),
           url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300ff88' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
@@ -1277,7 +1159,7 @@ async function handleWebRequest(request) {
           padding: 0.5rem;
           margin: 0.5rem;
         }
-        
+
         .quantum-card {
           padding: 1rem;
           margin: 0;
@@ -1285,17 +1167,17 @@ async function handleWebRequest(request) {
           border-radius: 10px;
           max-width: 100%;
         }
-    
+
         .quantum-title {
           font-size: 2rem;
           margin-bottom: 1rem;
         }
-    
+
         #search-bar {
           padding: 0.6rem 1rem;
           font-size: 0.6rem;
         }
-    
+
         .table-wrapper {
           margin: 0.5rem 0;
           padding: 0;
@@ -1304,29 +1186,29 @@ async function handleWebRequest(request) {
           overflow-y: auto; /* Allow scrolling within the table */
           background: rgba(0, 255, 136, 0.02);
         }
-    
+
         .quantum-table th,
         .quantum-table td {
           padding: 0.8rem 0.5rem;
           font-size: 0.9rem;
         }
-    
+
         .copy-btn {
           padding: 0.6rem 1rem;
           font-size: 0.8rem;
         }
-     
+
         .quantum-pagination {
           gap: 0.5rem;
           flex-wrap: wrap;
         }
-    
+
         .quantum-pagination a {
           padding: 0.5rem 0.7rem;
           font-size: 0.7rem;
           min-width: 30px;
         }
-    
+
         .quantum-toast {
           left: 1rem;
           right: 1rem;
@@ -1340,20 +1222,20 @@ async function handleWebRequest(request) {
           padding: 0.5rem;
           max-width: 100%;
         }
-    
+
         .quantum-title {
           font-size: 1.5rem;
         }
-    
+
         .table-wrapper {
           margin: 0.5rem -0.5rem;
           padding: 0 0.5rem;
         }
-    
+
         .quantum-table {
           font-size: 0.8rem;
         }
-    
+
         .copy-btn {
           padding: 0.5rem 0.8rem;
           font-size: 0.7rem;
@@ -1403,38 +1285,36 @@ async function handleWebRequest(request) {
                 ${namaWeb}
               </a>
             </h1>
-            
+
             <div class="search-quantum" style="display: flex; align-items: center; flex-direction: column;">
               <div style="display: flex; width: 100%;">
-                <input type="text" 
-                  id="search-bar" 
+                <input type="text"
+                  id="search-bar"
                   placeholder="Search by IP, CountryCode, or ISP"
-                  value="${searchQuery}" 
+                  value="${searchQuery}"
                   style="flex: 1; padding: 8px;"/>
                 <button id="search-button" class="button-style">Search</button>
               </div>
-              ${searchQuery
-                ? `<button id="home-button" class="button-style" style="margin-top: 0.4rem;" onclick="goToHomePage('${hostName}')">
+              ${searchQuery ? `<button id="home-button" class="button-style" style="margin-top: 0.4rem;" onclick="goToHomePage('${hostName}')">
                   Home Page
-                </button>`
-                : ''}
+                </button>` : ""}
             </div>
-            
-            <div class="wildcard-dropdown"> 
+
+            <div class="wildcard-dropdown">
         <button onclick="toggleWildcardsWindow()" class="bg-gradient-to-r from-green-500 to-green-700 text-white rounded-full p-1.5 transition-colors duration-200 hover:from-green-700 hover:to-green-900 shadow-md">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
     </svg>
 </button>
               <select id="wildcard" name="wildcard" onchange="onWildcardChange(event)">
-                <option value="" ${!selectedWildcard ? 'selected' : ''}>No Wildcard</option>
+                <option value="" ${!selectedWildcard ? "selected" : ""}>No Wildcard</option>
                 {/* Perbaikan: Menggunakan allWildcards untuk memuat semua domain yang terdaftar */}
-                ${allWildcards.map(w => `<option value="${w}" ${selectedWildcard === w ? 'selected' : ''}>${w}</option>`).join('')}
+                ${allWildcards.map((w) => `<option value="${w}" ${selectedWildcard === w ? "selected" : ""}>${w}</option>`).join("")}
               </select>
 
               <select id="configType" name="configType" onchange="onConfigTypeChange(event)">
-                <option value="tls" ${selectedConfigType === 'tls' ? 'selected' : ''}>TLS</option>
-                <option value="non-tls" ${selectedConfigType === 'non-tls' ? 'selected' : ''}>NON TLS</option>
+                <option value="tls" ${selectedConfigType === "tls" ? "selected" : ""}>TLS</option>
+                <option value="non-tls" ${selectedConfigType === "non-tls" ? "selected" : ""}>NON TLS</option>
               </select>
             </div>
 
@@ -1460,7 +1340,7 @@ async function handleWebRequest(request) {
 
             <div class="quantum-pagination">
                 ${prevPage}
-                ${paginationButtons.join('')}
+                ${paginationButtons.join("")}
                 ${nextPage}
             </div>
           <!-- Showing X to Y of Z Proxies message -->
@@ -1471,17 +1351,17 @@ async function handleWebRequest(request) {
     </div>
 
 <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
-  <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg 
-              bg-blue-500 bg-opacity-20 backdrop-blur-md 
-              border border-blue-300 text-white"> 
-      
+  <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg
+              bg-blue-500 bg-opacity-20 backdrop-blur-md
+              border border-blue-300 text-white">
+
       <!-- Input add domain -->
       <div class="flex w-full h-full gap-2 justify-between">
-          <input id="new-domain-input" 
-                 type="text" 
-                 placeholder="Input wildcard" 
+          <input id="new-domain-input"
+                 type="text"
+                 placeholder="Input wildcard"
                  class="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-          <button id="add-domain-button" onclick="registerDomain()" 
+          <button id="add-domain-button" onclick="registerDomain()"
                   class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center text-white">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                   <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
@@ -1490,21 +1370,21 @@ async function handleWebRequest(request) {
       </div>
 
       <!-- Container list domain -->
-      <div id="container-domains" 
+      <div id="container-domains"
            class="w-full h-32 rounded-md flex flex-col gap-1 overflow-y-scroll scrollbar-hide p-2 bg-gray-900 text-white">
       </div>
-  
+
       <!-- Input delete domain -->
       <div class="flex w-full h-full gap-2 justify-between">
-          <input id="delete-domain-input" 
-                 type="number" 
-                 placeholder="Input Nomor" 
+          <input id="delete-domain-input"
+                 type="number"
+                 placeholder="Input Nomor"
                  class="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-          <input id="delete-domain-password" 
-                 type="password" 
-                 placeholder="Input Password" 
+          <input id="delete-domain-password"
+                 type="password"
+                 placeholder="Input Password"
                  class="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-          <button id="delete-domain-button" onclick="deleteDomainByNumber()" 
+          <button id="delete-domain-button" onclick="deleteDomainByNumber()"
                   class="p-2 rounded-full bg-red-600 hover:bg-red-700 flex justify-center items-center text-white">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                   <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
@@ -1521,7 +1401,7 @@ async function handleWebRequest(request) {
       </div>
 
       <!-- Close button -->
-      <button onclick="toggleWildcardsWindow()" 
+      <button onclick="toggleWildcardsWindow()"
               class="mt-1 p-3 rounded-lg bg-red-500 hover:bg-red-600 text-xs font-semibold transition-colors duration-300 flex items-center justify-center gap-1 px-6 py-2 text-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
               <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/>
@@ -1535,7 +1415,7 @@ async function handleWebRequest(request) {
         let domains = [];
         const wildcardsWindow = document.getElementById('wildcards-window');
         const domainsContainer = document.getElementById('container-domains');
-        
+
         async function loadDomains() {
             try {
                 const response = await fetch('/api/v1/domains');
@@ -1573,7 +1453,7 @@ async function handleWebRequest(request) {
                 addDomainButton.disabled = true;
                 deleteDomainInput.disabled = true;
                 deleteDomainButton.disabled = true;
-                
+
                 progressFill.style.width = '0%';
                 // Use a timeout to ensure the transition is applied after the initial width is set
                 setTimeout(() => {
@@ -1659,7 +1539,7 @@ async function handleWebRequest(request) {
                 setLoadingState(false);
             }
         }
-    </script>
+    <\/script>
     <script>
         const updateURL = (params) => {
           const url = new URL(window.location.href);
@@ -1684,7 +1564,7 @@ async function handleWebRequest(request) {
           const homeURL = \`https://\${hostName}/web\`;
           window.location.href = homeURL;
         }
-        
+
         function onWildcardChange(event) {
           updateURL([{ key: 'wildcard', value: event.target.value }]);
         }
@@ -1695,8 +1575,8 @@ async function handleWebRequest(request) {
 
         function copy(text) {
             navigator.clipboard.writeText(text)
-                .then(() => showToast('Configuration copied successfully! 🚀'))
-                .catch(() => showToast('Failed to copy configuration ❌', true));
+                .then(() => showToast('Configuration copied successfully! \u{1F680}'))
+                .catch(() => showToast('Failed to copy configuration \u274C', true));
         }
 
         function showToast(message, isError = false) {
@@ -1731,174 +1611,145 @@ async function handleWebRequest(request) {
         });
 
         document.getElementById('search-button').addEventListener('click', executeSearch);
-    </script>
+    <\/script>
 </body>
 </html>
-  `, { headers: { 'Content-Type': 'text/html' } });
+  `, { headers: { "Content-Type": "text/html" } });
 }
-
+__name(handleWebRequest, "handleWebRequest");
 async function websockerHandler(request) {
   const webSocketPair = new WebSocketPair();
   const [client, webSocket] = Object.values(webSocketPair);
-
   webSocket.accept();
-
   let addressLog = "";
   let portLog = "";
-  const log = (info, event) => {
+  const log = /* @__PURE__ */ __name((info, event) => {
     console.log(`[${addressLog}:${portLog}] ${info}`, event || "");
-  };
+  }, "log");
   const earlyDataHeader = request.headers.get("sec-websocket-protocol") || "";
-
   const readableWebSocketStream = makeReadableWebSocketStream(webSocket, earlyDataHeader, log);
-
   let remoteSocketWrapper = {
-    value: null,
+    value: null
   };
   let udpStreamWrite = null;
   let isDNS = false;
-
-  readableWebSocketStream
-    .pipeTo(
-      new WritableStream({
-        async write(chunk, controller) {
-          if (isDNS && udpStreamWrite) {
-            return udpStreamWrite(chunk);
-          }
-          if (remoteSocketWrapper.value) {
-            const writer = remoteSocketWrapper.value.writable.getWriter();
-            await writer.write(chunk);
-            writer.releaseLock();
-            return;
-          }
-
-          const protocol = await protocolSniffer(chunk);
-          let protocolHeader;
-
-          if (protocol === "Trojan") {
-            protocolHeader = parseTrojanHeader(chunk);
-          } else if (protocol === "VLESS") {
-            protocolHeader = parseVlessHeader(chunk);
-          } else if (protocol === "Shadowsocks") {
-            protocolHeader = parseShadowsocksHeader(chunk);
+  readableWebSocketStream.pipeTo(
+    new WritableStream({
+      async write(chunk, controller) {
+        if (isDNS && udpStreamWrite) {
+          return udpStreamWrite(chunk);
+        }
+        if (remoteSocketWrapper.value) {
+          const writer = remoteSocketWrapper.value.writable.getWriter();
+          await writer.write(chunk);
+          writer.releaseLock();
+          return;
+        }
+        const protocol = await protocolSniffer(chunk);
+        let protocolHeader;
+        if (protocol === "Trojan") {
+          protocolHeader = parseTrojanHeader(chunk);
+        } else if (protocol === "VLESS") {
+          protocolHeader = parseVlessHeader(chunk);
+        } else if (protocol === "Shadowsocks") {
+          protocolHeader = parseShadowsocksHeader(chunk);
+        } else {
+          parseVmessHeader(chunk);
+          throw new Error("Unknown Protocol!");
+        }
+        addressLog = protocolHeader.addressRemote;
+        portLog = `${protocolHeader.portRemote} -> ${protocolHeader.isUDP ? "UDP" : "TCP"}`;
+        if (protocolHeader.hasError) {
+          throw new Error(protocolHeader.message);
+        }
+        if (protocolHeader.isUDP) {
+          if (protocolHeader.portRemote === 53) {
+            isDNS = true;
           } else {
-            parseVmessHeader(chunk);
-            throw new Error("Unknown Protocol!");
+            throw new Error("UDP only support for DNS port 53");
           }
-
-          addressLog = protocolHeader.addressRemote;
-          portLog = `${protocolHeader.portRemote} -> ${protocolHeader.isUDP ? "UDP" : "TCP"}`;
-
-          if (protocolHeader.hasError) {
-            throw new Error(protocolHeader.message);
-          }
-
-          if (protocolHeader.isUDP) {
-            if (protocolHeader.portRemote === 53) {
-              isDNS = true;
-            } else {
-              throw new Error("UDP only support for DNS port 53");
-            }
-          }
-
-          if (isDNS) {
-            const { write } = await handleUDPOutbound(webSocket, protocolHeader.version, log);
-            udpStreamWrite = write;
-            udpStreamWrite(protocolHeader.rawClientData);
-            return;
-          }
-
-          handleTCPOutBound(
-            remoteSocketWrapper,
-            protocolHeader.addressRemote,
-            protocolHeader.portRemote,
-            protocolHeader.rawClientData,
-            webSocket,
-            protocolHeader.version,
-            log
-          );
-        },
-        close() {
-          log(`readableWebSocketStream is close`);
-        },
-        abort(reason) {
-          log(`readableWebSocketStream is abort`, JSON.stringify(reason));
-        },
-      })
-    )
-    .catch((err) => {
-      log("readableWebSocketStream pipeTo error", err);
-    });
-
+        }
+        if (isDNS) {
+          const { write } = await handleUDPOutbound(webSocket, protocolHeader.version, log);
+          udpStreamWrite = write;
+          udpStreamWrite(protocolHeader.rawClientData);
+          return;
+        }
+        handleTCPOutBound(
+          remoteSocketWrapper,
+          protocolHeader.addressRemote,
+          protocolHeader.portRemote,
+          protocolHeader.rawClientData,
+          webSocket,
+          protocolHeader.version,
+          log
+        );
+      },
+      close() {
+        log(`readableWebSocketStream is close`);
+      },
+      abort(reason) {
+        log(`readableWebSocketStream is abort`, JSON.stringify(reason));
+      }
+    })
+  ).catch((err) => {
+    log("readableWebSocketStream pipeTo error", err);
+  });
   return new Response(null, {
     status: 101,
-    webSocket: client,
+    webSocket: client
   });
 }
-
+__name(websockerHandler, "websockerHandler");
 async function protocolSniffer(buffer) {
   if (buffer.byteLength >= 62) {
     const trojanDelimiter = new Uint8Array(buffer.slice(56, 60));
-    if (trojanDelimiter[0] === 0x0d && trojanDelimiter[1] === 0x0a) {
-      if (trojanDelimiter[2] === 0x01 || trojanDelimiter[2] === 0x03 || trojanDelimiter[2] === 0x7f) {
-        if (trojanDelimiter[3] === 0x01 || trojanDelimiter[3] === 0x03 || trojanDelimiter[3] === 0x04) {
+    if (trojanDelimiter[0] === 13 && trojanDelimiter[1] === 10) {
+      if (trojanDelimiter[2] === 1 || trojanDelimiter[2] === 3 || trojanDelimiter[2] === 127) {
+        if (trojanDelimiter[3] === 1 || trojanDelimiter[3] === 3 || trojanDelimiter[3] === 4) {
           return "Trojan";
         }
       }
     }
   }
-
   const vlessDelimiter = new Uint8Array(buffer.slice(1, 17));
-  // Hanya mendukung UUID v4
   if (arrayBufferToHex(vlessDelimiter).match(/^\w{8}\w{4}4\w{3}[89ab]\w{3}\w{12}$/)) {
     return "VLESS";
   }
-
-  return "Shadowsocks"; // default
+  return "Shadowsocks";
 }
-
-async function handleTCPOutBound(
-  remoteSocket,
-  addressRemote,
-  portRemote,
-  rawClientData,
-  webSocket,
-  responseHeader,
-  log
-) {
+__name(protocolSniffer, "protocolSniffer");
+async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, responseHeader, log) {
   async function connectAndWrite(address, port) {
-    const tcpSocket = connect({
+    const tcpSocket2 = connect({
       hostname: address,
-      port: port,
+      port
     });
-    remoteSocket.value = tcpSocket;
+    remoteSocket.value = tcpSocket2;
     log(`connected to ${address}:${port}`);
-    const writer = tcpSocket.writable.getWriter();
+    const writer = tcpSocket2.writable.getWriter();
     await writer.write(rawClientData);
     writer.releaseLock();
-    return tcpSocket;
+    return tcpSocket2;
   }
-
+  __name(connectAndWrite, "connectAndWrite");
   async function retry() {
-    const tcpSocket = await connectAndWrite(
+    const tcpSocket2 = await connectAndWrite(
       proxyIP.split(/[:=-]/)[0] || addressRemote,
       proxyIP.split(/[:=-]/)[1] || portRemote
     );
-    tcpSocket.closed
-      .catch((error) => {
-        console.log("retry tcpSocket closed error", error);
-      })
-      .finally(() => {
-        safeCloseWebSocket(webSocket);
-      });
-    remoteSocketToWS(tcpSocket, webSocket, responseHeader, null, log);
+    tcpSocket2.closed.catch((error) => {
+      console.log("retry tcpSocket closed error", error);
+    }).finally(() => {
+      safeCloseWebSocket(webSocket);
+    });
+    remoteSocketToWS(tcpSocket2, webSocket, responseHeader, null, log);
   }
-
+  __name(retry, "retry");
   const tcpSocket = await connectAndWrite(addressRemote, portRemote);
-
   remoteSocketToWS(tcpSocket, webSocket, responseHeader, retry, log);
 }
-
+__name(handleTCPOutBound, "handleTCPOutBound");
 function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
   let readableStreamCancel = false;
   const stream = new ReadableStream({
@@ -1928,8 +1779,8 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
         controller.enqueue(earlyData);
       }
     },
-
-    pull(controller) {},
+    pull(controller) {
+    },
     cancel(reason) {
       if (readableStreamCancel) {
         return;
@@ -1937,24 +1788,20 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
       log(`ReadableStream was canceled, due to ${reason}`);
       readableStreamCancel = true;
       safeCloseWebSocket(webSocketServer);
-    },
+    }
   });
-
   return stream;
 }
-
+__name(makeReadableWebSocketStream, "makeReadableWebSocketStream");
 function parseVmessHeader(vmessBuffer) {
-  // https://xtls.github.io/development/protocols/vmess.html#%E6%8C%87%E4%BB%A4%E9%83%A8%E5%88%86
 }
-
+__name(parseVmessHeader, "parseVmessHeader");
 function parseShadowsocksHeader(ssBuffer) {
   const view = new DataView(ssBuffer);
-
   const addressType = view.getUint8(0);
   let addressLength = 0;
   let addressValueIndex = 1;
   let addressValue = "";
-
   switch (addressType) {
     case 1:
       addressLength = 4;
@@ -1977,38 +1824,34 @@ function parseShadowsocksHeader(ssBuffer) {
     default:
       return {
         hasError: true,
-        message: `Invalid addressType for Shadowsocks: ${addressType}`,
+        message: `Invalid addressType for Shadowsocks: ${addressType}`
       };
   }
-
   if (!addressValue) {
     return {
       hasError: true,
-      message: `Destination address empty, address type is: ${addressType}`,
+      message: `Destination address empty, address type is: ${addressType}`
     };
   }
-
   const portIndex = addressValueIndex + addressLength;
   const portBuffer = ssBuffer.slice(portIndex, portIndex + 2);
   const portRemote = new DataView(portBuffer).getUint16(0);
   return {
     hasError: false,
     addressRemote: addressValue,
-    addressType: addressType,
-    portRemote: portRemote,
+    addressType,
+    portRemote,
     rawDataIndex: portIndex + 2,
     rawClientData: ssBuffer.slice(portIndex + 2),
     version: null,
-    isUDP: portRemote == 53,
+    isUDP: portRemote == 53
   };
 }
-
+__name(parseShadowsocksHeader, "parseShadowsocksHeader");
 function parseVlessHeader(vlessBuffer) {
   const version = new Uint8Array(vlessBuffer.slice(0, 1));
   let isUDP = false;
-
   const optLength = new Uint8Array(vlessBuffer.slice(17, 18))[0];
-
   const cmd = new Uint8Array(vlessBuffer.slice(18 + optLength, 18 + optLength + 1))[0];
   if (cmd === 1) {
   } else if (cmd === 2) {
@@ -2016,31 +1859,29 @@ function parseVlessHeader(vlessBuffer) {
   } else {
     return {
       hasError: true,
-      message: `command ${cmd} is not support, command 01-tcp,02-udp,03-mux`,
+      message: `command ${cmd} is not support, command 01-tcp,02-udp,03-mux`
     };
   }
   const portIndex = 18 + optLength + 1;
   const portBuffer = vlessBuffer.slice(portIndex, portIndex + 2);
   const portRemote = new DataView(portBuffer).getUint16(0);
-
   let addressIndex = portIndex + 2;
   const addressBuffer = new Uint8Array(vlessBuffer.slice(addressIndex, addressIndex + 1));
-
   const addressType = addressBuffer[0];
   let addressLength = 0;
   let addressValueIndex = addressIndex + 1;
   let addressValue = "";
   switch (addressType) {
-    case 1: // For IPv4
+    case 1:
       addressLength = 4;
       addressValue = new Uint8Array(vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)).join(".");
       break;
-    case 2: // For Domain
+    case 2:
       addressLength = new Uint8Array(vlessBuffer.slice(addressValueIndex, addressValueIndex + 1))[0];
       addressValueIndex += 1;
       addressValue = new TextDecoder().decode(vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength));
       break;
-    case 3: // For IPv6
+    case 3:
       addressLength = 16;
       const dataView = new DataView(vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength));
       const ipv6 = [];
@@ -2052,37 +1893,35 @@ function parseVlessHeader(vlessBuffer) {
     default:
       return {
         hasError: true,
-        message: `invild  addressType is ${addressType}`,
+        message: `invild  addressType is ${addressType}`
       };
   }
   if (!addressValue) {
     return {
       hasError: true,
-      message: `addressValue is empty, addressType is ${addressType}`,
+      message: `addressValue is empty, addressType is ${addressType}`
     };
   }
-
   return {
     hasError: false,
     addressRemote: addressValue,
-    addressType: addressType,
-    portRemote: portRemote,
+    addressType,
+    portRemote,
     rawDataIndex: addressValueIndex + addressLength,
     rawClientData: vlessBuffer.slice(addressValueIndex + addressLength),
     version: new Uint8Array([version[0], 0]),
-    isUDP: isUDP,
+    isUDP
   };
 }
-
+__name(parseVlessHeader, "parseVlessHeader");
 function parseTrojanHeader(buffer) {
   const socks5DataBuffer = buffer.slice(58);
   if (socks5DataBuffer.byteLength < 6) {
     return {
       hasError: true,
-      message: "invalid SOCKS5 request data",
+      message: "invalid SOCKS5 request data"
     };
   }
-
   let isUDP = false;
   const view = new DataView(socks5DataBuffer);
   const cmd = view.getUint8(0);
@@ -2091,26 +1930,25 @@ function parseTrojanHeader(buffer) {
   } else if (cmd != 1) {
     throw new Error("Unsupported command type!");
   }
-
   let addressType = view.getUint8(1);
   let addressLength = 0;
   let addressValueIndex = 2;
   let addressValue = "";
   switch (addressType) {
-    case 1: // For IPv4
+    case 1:
       addressLength = 4;
       addressValue = new Uint8Array(socks5DataBuffer.slice(addressValueIndex, addressValueIndex + addressLength)).join(
         "."
       );
       break;
-    case 3: // For Domain
+    case 3:
       addressLength = new Uint8Array(socks5DataBuffer.slice(addressValueIndex, addressValueIndex + 1))[0];
       addressValueIndex += 1;
       addressValue = new TextDecoder().decode(
         socks5DataBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
       );
       break;
-    case 4: // For IPv6
+    case 4:
       addressLength = 16;
       const dataView = new DataView(socks5DataBuffer.slice(addressValueIndex, addressValueIndex + addressLength));
       const ipv6 = [];
@@ -2122,69 +1960,66 @@ function parseTrojanHeader(buffer) {
     default:
       return {
         hasError: true,
-        message: `invalid addressType is ${addressType}`,
+        message: `invalid addressType is ${addressType}`
       };
   }
-
   if (!addressValue) {
     return {
       hasError: true,
-      message: `address is empty, addressType is ${addressType}`,
+      message: `address is empty, addressType is ${addressType}`
     };
   }
-
   const portIndex = addressValueIndex + addressLength;
   const portBuffer = socks5DataBuffer.slice(portIndex, portIndex + 2);
   const portRemote = new DataView(portBuffer).getUint16(0);
   return {
     hasError: false,
     addressRemote: addressValue,
-    addressType: addressType,
-    portRemote: portRemote,
+    addressType,
+    portRemote,
     rawDataIndex: portIndex + 4,
     rawClientData: socks5DataBuffer.slice(portIndex + 4),
     version: null,
-    isUDP: isUDP,
+    isUDP
   };
 }
-
+__name(parseTrojanHeader, "parseTrojanHeader");
 async function remoteSocketToWS(remoteSocket, webSocket, responseHeader, retry, log) {
   let header = responseHeader;
   let hasIncomingData = false;
-  await remoteSocket.readable
-    .pipeTo(
-      new WritableStream({
-        start() {},
-        async write(chunk, controller) {
-          hasIncomingData = true;
-          if (webSocket.readyState !== WS_READY_STATE_OPEN) {
-            controller.error("webSocket.readyState is not open, maybe close");
-          }
-          if (header) {
-            webSocket.send(await new Blob([header, chunk]).arrayBuffer());
-            header = null;
-          } else {
-            webSocket.send(chunk);
-          }
-        },
-        close() {
-          log(`remoteConnection!.readable is close with hasIncomingData is ${hasIncomingData}`);
-        },
-        abort(reason) {
-          console.error(`remoteConnection!.readable abort`, reason);
-        },
-      })
-    )
-    .catch((error) => {
-      console.error(`remoteSocketToWS has exception `, error.stack || error);
-      safeCloseWebSocket(webSocket);
-    });
+  await remoteSocket.readable.pipeTo(
+    new WritableStream({
+      start() {
+      },
+      async write(chunk, controller) {
+        hasIncomingData = true;
+        if (webSocket.readyState !== WS_READY_STATE_OPEN) {
+          controller.error("webSocket.readyState is not open, maybe close");
+        }
+        if (header) {
+          webSocket.send(await new Blob([header, chunk]).arrayBuffer());
+          header = null;
+        } else {
+          webSocket.send(chunk);
+        }
+      },
+      close() {
+        log(`remoteConnection!.readable is close with hasIncomingData is ${hasIncomingData}`);
+      },
+      abort(reason) {
+        console.error(`remoteConnection!.readable abort`, reason);
+      }
+    })
+  ).catch((error) => {
+    console.error(`remoteSocketToWS has exception `, error.stack || error);
+    safeCloseWebSocket(webSocket);
+  });
   if (hasIncomingData === false && retry) {
     log(`retry`);
     retry();
   }
 }
-
+__name(remoteSocketToWS, "remoteSocketToWS");
 function base64ToArrayBuffer(base64Str) {
   if (!base64Str) {
     return { error: null };
@@ -2198,15 +2033,16 @@ function base64ToArrayBuffer(base64Str) {
     return { error };
   }
 }
-
+__name(base64ToArrayBuffer, "base64ToArrayBuffer");
 function arrayBufferToHex(buffer) {
   return [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, "0")).join("");
 }
-
+__name(arrayBufferToHex, "arrayBufferToHex");
 async function handleUDPOutbound(webSocket, responseHeader, log) {
   let isVlessHeaderSent = false;
   const transformStream = new TransformStream({
-    start(controller) {},
+    start(controller) {
+    },
     transform(chunk, controller) {
       for (let index = 0; index < chunk.byteLength; ) {
         const lengthBuffer = chunk.slice(index, index + 2);
@@ -2216,47 +2052,44 @@ async function handleUDPOutbound(webSocket, responseHeader, log) {
         controller.enqueue(udpData);
       }
     },
-    flush(controller) {},
+    flush(controller) {
+    }
   });
-  transformStream.readable
-    .pipeTo(
-      new WritableStream({
-        async write(chunk) {
-          const resp = await fetch("https://1.1.1.1/dns-query", {
-            method: "POST",
-            headers: {
-              "content-type": "application/dns-message",
-            },
-            body: chunk,
-          });
-          const dnsQueryResult = await resp.arrayBuffer();
-          const udpSize = dnsQueryResult.byteLength;
-          const udpSizeBuffer = new Uint8Array([(udpSize >> 8) & 0xff, udpSize & 0xff]);
-          if (webSocket.readyState === WS_READY_STATE_OPEN) {
-            log(`doh success and dns message length is ${udpSize}`);
-            if (isVlessHeaderSent) {
-              webSocket.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
-            } else {
-              webSocket.send(await new Blob([responseHeader, udpSizeBuffer, dnsQueryResult]).arrayBuffer());
-              isVlessHeaderSent = true;
-            }
+  transformStream.readable.pipeTo(
+    new WritableStream({
+      async write(chunk) {
+        const resp = await fetch("https://1.1.1.1/dns-query", {
+          method: "POST",
+          headers: {
+            "content-type": "application/dns-message"
+          },
+          body: chunk
+        });
+        const dnsQueryResult = await resp.arrayBuffer();
+        const udpSize = dnsQueryResult.byteLength;
+        const udpSizeBuffer = new Uint8Array([udpSize >> 8 & 255, udpSize & 255]);
+        if (webSocket.readyState === WS_READY_STATE_OPEN) {
+          log(`doh success and dns message length is ${udpSize}`);
+          if (isVlessHeaderSent) {
+            webSocket.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
+          } else {
+            webSocket.send(await new Blob([responseHeader, udpSizeBuffer, dnsQueryResult]).arrayBuffer());
+            isVlessHeaderSent = true;
           }
-        },
-      })
-    )
-    .catch((error) => {
-      log("dns udp has error" + error);
-    });
-
+        }
+      }
+    })
+  ).catch((error) => {
+    log("dns udp has error" + error);
+  });
   const writer = transformStream.writable.getWriter();
-
   return {
     write(chunk) {
       writer.write(chunk);
-    },
+    }
   };
 }
-
+__name(handleUDPOutbound, "handleUDPOutbound");
 function safeCloseWebSocket(socket) {
   try {
     if (socket.readyState === WS_READY_STATE_OPEN || socket.readyState === WS_READY_STATE_CLOSING) {
@@ -2266,26 +2099,22 @@ function safeCloseWebSocket(socket) {
     console.error("safeCloseWebSocket error", error);
   }
 }
-// Fungsi untuk mengonversi countryCode menjadi emoji bendera
-const getEmojiFlag = (countryCode) => {
-  if (!countryCode || countryCode.length !== 2) return ''; // Validasi input
+__name(safeCloseWebSocket, "safeCloseWebSocket");
+var getEmojiFlag = /* @__PURE__ */ __name((countryCode) => {
+  if (!countryCode || countryCode.length !== 2) return "";
   return String.fromCodePoint(
-    ...[...countryCode.toUpperCase()].map(char => 0x1F1E6 + char.charCodeAt(0) - 65)
+    ...[...countryCode.toUpperCase()].map((char) => 127462 + char.charCodeAt(0) - 65)
   );
-};
+}, "getEmojiFlag");
 async function generateClashSub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -2293,28 +2122,28 @@ async function generateClashSub(type, bug, bexnxx, tls, country = null, limit = 
       return false;
     });
   }
-  
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-  
-  let conf = '';
-  let bex = '';
+  let conf = "";
+  let bex = "";
   let count = 1;
-  
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
+    const emojiFlag = getEmojiFlag(line.split(",")[2]);
+    const sanitize = /* @__PURE__ */ __name((text) => text.replace(/[\n\r]+/g, "").trim(), "sanitize");
+    let ispName = sanitize(`${emojiFlag} (${line.split(",")[2]}) ${line.split(",")[3]} ${count++}`);
     const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '80' : '443';
-    const snio = tls ? `\n  servername: ${bexnxx}` : '';
-    const snioo = tls ? `\n  cipher: auto` : '';
-    if (type === 'vless') {
-      bex += `  - ${ispName}\n`
+    const ports = tls ? "80" : "443";
+    const snio = tls ? `
+  servername: ${bexnxx}` : "";
+    const snioo = tls ? `
+  cipher: auto` : "";
+    if (type === "vless") {
+      bex += `  - ${ispName}
+`;
       conf += `
 - name: ${ispName}
   server: ${bug}
@@ -2329,8 +2158,9 @@ async function generateClashSub(type, bug, bexnxx, tls, country = null, limit = 
     path: /${proxyHost}=${proxyPort}
     headers:
       Host: ${bexnxx}`;
-    } else if (type === 'trojan') {
-      bex += `  - ${ispName}\n`
+    } else if (type === "trojan") {
+      bex += `  - ${ispName}
+`;
       conf += `
 - name: ${ispName}
   server: ${bug}
@@ -2345,8 +2175,9 @@ async function generateClashSub(type, bug, bexnxx, tls, country = null, limit = 
     path: /${proxyHost}=${proxyPort}
     headers:
       Host: ${bexnxx}`;
-    } else if (type === 'ss') {
-      bex += `  - ${ispName}\n`
+    } else if (type === "ss") {
+      bex += `  - ${ispName}
+`;
       conf += `
 - name: ${ispName}
   type: ss
@@ -2365,8 +2196,11 @@ async function generateClashSub(type, bug, bexnxx, tls, country = null, limit = 
     mux: false
     headers:
       custom: ${bexnxx}`;
-    } else if (type === 'mix') {
-      bex += `  - ${ispName} vless\n  - ${ispName} trojan\n  - ${ispName} ss\n`;
+    } else if (type === "mix") {
+      bex += `  - ${ispName} vless
+  - ${ispName} trojan
+  - ${ispName} ss
+`;
       conf += `
 - name: ${ispName} vless
   server: ${bug}
@@ -2593,19 +2427,16 @@ rules:
 - RULE-SET,rule_privacy,ADS
 - MATCH,INTERNET`;
 }
+__name(generateClashSub, "generateClashSub");
 async function generateSurfboardSub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -2614,24 +2445,24 @@ async function generateSurfboardSub(type, bug, bexnxx, tls, country = null, limi
     });
   }
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-  let conf = '';
-  let bex = '';
+  let conf = "";
+  let bex = "";
   let count = 1;
-  
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
+    const emojiFlag = getEmojiFlag(line.split(",")[2]);
+    const sanitize = /* @__PURE__ */ __name((text) => text.replace(/[\n\r]+/g, "").trim(), "sanitize");
+    let ispName = sanitize(`${emojiFlag} (${line.split(",")[2]}) ${line.split(",")[3]} ${count++}`);
     const UUIDS = `${generateUUIDv4()}`;
-    if (type === 'trojan') {
-      bex += `${ispName},`
+    if (type === "trojan") {
+      bex += `${ispName},`;
       conf += `
-${ispName} = trojan, ${bug}, 443, password = ${UUIDS}, udp-relay = true, skip-cert-verify = true, sni = ${bexnxx}, ws = true, ws-path = /${proxyHost}:${proxyPort}, ws-headers = Host:"${bexnxx}"\n`;
+${ispName} = trojan, ${bug}, 443, password = ${UUIDS}, udp-relay = true, skip-cert-verify = true, sni = ${bexnxx}, ws = true, ws-path = /${proxyHost}:${proxyPort}, ws-headers = Host:"${bexnxx}"
+`;
     }
   }
   return `#### CREATED BY : t.me/FER1DEV ####
@@ -2962,19 +2793,16 @@ DOMAIN-SUFFIX,weather-analytics-events.apple.com, AdBlock
 DOMAIN-SUFFIX,notes-analytics-events.apple.com, AdBlock
 FINAL,Select Group`;
 }
+__name(generateSurfboardSub, "generateSurfboardSub");
 async function generateHusiSub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -2983,24 +2811,30 @@ async function generateHusiSub(type, bug, bexnxx, tls, country = null, limit = n
     });
   }
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-  let conf = '';
-  let bex = '';
+  let conf = "";
+  let bex = "";
   let count = 1;
-  
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
+    const emojiFlag = getEmojiFlag(line.split(",")[2]);
+    const sanitize = /* @__PURE__ */ __name((text) => text.replace(/[\n\r]+/g, "").trim(), "sanitize");
+    let ispName = sanitize(`${emojiFlag} (${line.split(",")[2]}) ${line.split(",")[3]} ${count++}`);
     const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '80' : '443';
-    const snio = tls ? `\n      "tls": {\n        "disable_sni": false,\n        "enabled": true,\n        "insecure": true,\n        "server_name": "${bexnxx}"\n      },` : '';
-    if (type === 'vless') {
-      bex += `        "${ispName}",\n`
+    const ports = tls ? "80" : "443";
+    const snio = tls ? `
+      "tls": {
+        "disable_sni": false,
+        "enabled": true,
+        "insecure": true,
+        "server_name": "${bexnxx}"
+      },` : "";
+    if (type === "vless") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -3026,8 +2860,9 @@ async function generateHusiSub(type, bug, bexnxx, tls, country = null, limit = n
       "type": "vless",
       "uuid": "${UUIDS}"
     },`;
-    } else if (type === 'trojan') {
-      bex += `        "${ispName}",\n`
+    } else if (type === "trojan") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -3051,8 +2886,9 @@ async function generateHusiSub(type, bug, bexnxx, tls, country = null, limit = n
       },
       "type": "trojan"
     },`;
-    } else if (type === 'ss') {
-      bex += `        "${ispName}",\n`
+    } else if (type === "ss") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "type": "shadowsocks",
@@ -3064,8 +2900,11 @@ async function generateHusiSub(type, bug, bexnxx, tls, country = null, limit = n
       "plugin": "v2ray-plugin",
       "plugin_opts": "mux=0;path=/${proxyHost}=${proxyPort};host=${bexnxx};tls=1"
     },`;
-    } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
+    } else if (type === "mix") {
+      bex += `        "${ispName} vless",
+        "${ispName} trojan",
+        "${ispName} ss",
+`;
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -3301,19 +3140,16 @@ ${conf}
   }
 }`;
 }
+__name(generateHusiSub, "generateHusiSub");
 async function generateSingboxSub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -3322,24 +3158,29 @@ async function generateSingboxSub(type, bug, bexnxx, tls, country = null, limit 
     });
   }
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-  let conf = '';
-  let bex = '';
+  let conf = "";
+  let bex = "";
   let count = 1;
-  
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
+    const emojiFlag = getEmojiFlag(line.split(",")[2]);
+    const sanitize = /* @__PURE__ */ __name((text) => text.replace(/[\n\r]+/g, "").trim(), "sanitize");
+    let ispName = sanitize(`${emojiFlag} (${line.split(",")[2]}) ${line.split(",")[3]} ${count++}`);
     const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '80' : '443';
-    const snio = tls ? `\n      "tls": {\n        "enabled": true,\n        "server_name": "${bexnxx}",\n        "insecure": true\n      },` : '';
-    if (type === 'vless') {
-      bex += `        "${ispName}",\n`
+    const ports = tls ? "80" : "443";
+    const snio = tls ? `
+      "tls": {
+        "enabled": true,
+        "server_name": "${bexnxx}",
+        "insecure": true
+      },` : "";
+    if (type === "vless") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "type": "vless",
@@ -3362,8 +3203,9 @@ async function generateSingboxSub(type, bug, bexnxx, tls, country = null, limit 
       },
       "packet_encoding": "xudp"
     },`;
-    } else if (type === 'trojan') {
-      bex += `        "${ispName}",\n`
+    } else if (type === "trojan") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "type": "trojan",
@@ -3385,8 +3227,9 @@ async function generateSingboxSub(type, bug, bexnxx, tls, country = null, limit 
         "early_data_header_name": "Sec-WebSocket-Protocol"
       }
     },`;
-    } else if (type === 'ss') {
-      bex += `        "${ispName}",\n`
+    } else if (type === "ss") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "type": "shadowsocks",
@@ -3398,8 +3241,11 @@ async function generateSingboxSub(type, bug, bexnxx, tls, country = null, limit 
       "plugin": "v2ray-plugin",
       "plugin_opts": "mux=0;path=/${proxyHost}=${proxyPort};host=${bexnxx};tls=1"
     },`;
-    } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
+    } else if (type === "mix") {
+      bex += `        "${ispName} vless",
+        "${ispName} trojan",
+        "${ispName} ss",
+`;
       conf += `
     {
       "type": "vless",
@@ -3594,19 +3440,16 @@ ${conf}
   }
 }`;
 }
+__name(generateSingboxSub, "generateSingboxSub");
 async function generateNekoboxSub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -3615,24 +3458,30 @@ async function generateNekoboxSub(type, bug, bexnxx, tls, country = null, limit 
     });
   }
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-  let conf = '';
-  let bex = '';
+  let conf = "";
+  let bex = "";
   let count = 1;
-  
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
-    const sanitize = (text) => text.replace(/[\n\r]+/g, "").trim(); // Hapus newline dan spasi ekstra
-    let ispName = sanitize(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]} ${count ++}`);
+    const emojiFlag = getEmojiFlag(line.split(",")[2]);
+    const sanitize = /* @__PURE__ */ __name((text) => text.replace(/[\n\r]+/g, "").trim(), "sanitize");
+    let ispName = sanitize(`${emojiFlag} (${line.split(",")[2]}) ${line.split(",")[3]} ${count++}`);
     const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '80' : '443';
-    const snio = tls ? `\n      "tls": {\n        "disable_sni": false,\n        "enabled": true,\n        "insecure": true,\n        "server_name": "${bexnxx}"\n      },` : '';
-    if (type === 'vless') {
-      bex += `        "${ispName}",\n`
+    const ports = tls ? "80" : "443";
+    const snio = tls ? `
+      "tls": {
+        "disable_sni": false,
+        "enabled": true,
+        "insecure": true,
+        "server_name": "${bexnxx}"
+      },` : "";
+    if (type === "vless") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -3658,8 +3507,9 @@ async function generateNekoboxSub(type, bug, bexnxx, tls, country = null, limit 
       "type": "vless",
       "uuid": "${UUIDS}"
     },`;
-    } else if (type === 'trojan') {
-      bex += `        "${ispName}",\n`
+    } else if (type === "trojan") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -3683,8 +3533,9 @@ async function generateNekoboxSub(type, bug, bexnxx, tls, country = null, limit 
       },
       "type": "trojan"
     },`;
-    } else if (type === 'ss') {
-      bex += `        "${ispName}",\n`
+    } else if (type === "ss") {
+      bex += `        "${ispName}",
+`;
       conf += `
     {
       "type": "shadowsocks",
@@ -3696,8 +3547,11 @@ async function generateNekoboxSub(type, bug, bexnxx, tls, country = null, limit 
       "plugin": "v2ray-plugin",
       "plugin_opts": "mux=0;path=/${proxyHost}=${proxyPort};host=${bexnxx};tls=1"
     },`;
-    } else if (type === 'mix') {
-      bex += `        "${ispName} vless",\n        "${ispName} trojan",\n        "${ispName} ss",\n`
+    } else if (type === "mix") {
+      bex += `        "${ispName} vless",
+        "${ispName} trojan",
+        "${ispName} ss",
+`;
       conf += `
     {
       "domain_strategy": "ipv4_only",
@@ -3924,24 +3778,20 @@ ${conf}
   }
 }`;
 }
+__name(generateNekoboxSub, "generateNekoboxSub");
 async function utf8ToBase64(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-    }
-
+  return btoa(unescape(encodeURIComponent(str)));
+}
+__name(utf8ToBase64, "utf8ToBase64");
 async function generateV2rayngSub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean);
-
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -3949,74 +3799,75 @@ async function generateV2rayngSub(type, bug, bexnxx, tls, country = null, limit 
       return false;
     });
   }
-  
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-
-  let conf = '';
-
+  let conf = "";
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const countryCode = parts[2]; // Kode negara ISO
-    const isp = parts[3]; // Informasi ISP
-
-    // Gunakan teks Latin-1 untuk menggantikan emoji flag
-    const countryText = `[${countryCode}]`; // Format bendera ke teks Latin-1
+    const countryCode = parts[2];
+    const isp = parts[3];
+    const countryText = `[${countryCode}]`;
     const ispInfo = `${countryText} ${isp}`;
     const UUIDS = `${generateUUIDv4()}`;
-    const ports = tls ? '80' : '443';
-
-    if (type === 'vless') {
+    const ports = tls ? "80" : "443";
+    if (type === "vless") {
       if (tls) {
-        conf += `vless://${UUIDS}\u0040${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}
+`;
       } else {
-        conf += `vless://${UUIDS}\u0040${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}
+`;
       }
-    } else if (type === 'trojan') {
+    } else if (type === "trojan") {
       if (tls) {
-        conf += `trojan://${UUIDS}\u0040${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}
+`;
       } else {
-        conf += `trojan://${UUIDS}\u0040${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}\n`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}
+`;
       }
-    } else if (type === 'ss') {
+    } else if (type === "ss") {
       if (tls) {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${ispInfo}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${ispInfo}
+`;
       } else {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${ispInfo}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${ispInfo}
+`;
       }
-    } else if (type === 'mix') {
+    } else if (type === "mix") {
       if (tls) {
-        conf += `vless://${UUIDS}\u0040${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-        conf += `trojan://${UUIDS}\u0040${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${ispInfo}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}
+`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${ispInfo}
+`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${ispInfo}
+`;
       } else {
-        conf += `vless://${UUIDS}\u0040${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}\n`;
-        conf += `trojan://${UUIDS}\u0040${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${ispInfo}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}
+`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${ispInfo}
+`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${ispInfo}
+`;
       }
     }
   }
-
-  const base64Conf = utf8ToBase64(conf.replace(/ /g, '%20'));
-
+  const base64Conf = utf8ToBase64(conf.replace(/ /g, "%20"));
   return base64Conf;
 }
+__name(generateV2rayngSub, "generateV2rayngSub");
 async function generateV2raySub(type, bug, bexnxx, tls, country = null, limit = null) {
   const proxyListResponse = await fetch(proxyListURL);
   const proxyList = await proxyListResponse.text();
-  let ips = proxyList
-    .split('\n')
-    .filter(Boolean)
-  if (country && country.toLowerCase() === 'random') {
-    // Pilih data secara acak jika country=random
-    ips = ips.sort(() => Math.random() - 0.5); // Acak daftar proxy
+  let ips = proxyList.split("\n").filter(Boolean);
+  if (country && country.toLowerCase() === "random") {
+    ips = ips.sort(() => Math.random() - 0.5);
   } else if (country) {
-    // Filter berdasarkan country jika bukan "random"
-    ips = ips.filter(line => {
-      const parts = line.split(',');
+    ips = ips.filter((line) => {
+      const parts = line.split(",");
       if (parts.length > 1) {
         const lineCountry = parts[2].toUpperCase();
         return lineCountry === country.toUpperCase();
@@ -4025,70 +3876,258 @@ async function generateV2raySub(type, bug, bexnxx, tls, country = null, limit = 
     });
   }
   if (limit && !isNaN(limit)) {
-    ips = ips.slice(0, limit); // Batasi jumlah proxy berdasarkan limit
+    ips = ips.slice(0, limit);
   }
-  let conf = '';
+  let conf = "";
   for (let line of ips) {
-    const parts = line.split(',');
+    const parts = line.split(",");
     const proxyHost = parts[0];
     const proxyPort = parts[1] || 443;
-    const emojiFlag = getEmojiFlag(line.split(',')[2]); // Konversi ke emoji bendera
+    const emojiFlag = getEmojiFlag(line.split(",")[2]);
     const UUIDS = generateUUIDv4();
-    const ports = tls ? '80' : '443';
-    const information = encodeURIComponent(`${emojiFlag} (${line.split(',')[2]}) ${line.split(',')[3]}`);
-    if (type === 'vless') {
+    const ports = tls ? "80" : "443";
+    const information = encodeURIComponent(`${emojiFlag} (${line.split(",")[2]}) ${line.split(",")[3]}`);
+    if (type === "vless") {
       if (tls) {
-        conf += `vless://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}
+`;
       } else {
-        conf += `vless://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}
+`;
       }
-    } else if (type === 'trojan') {
+    } else if (type === "trojan") {
       if (tls) {
-        conf += `trojan://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}\n`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}
+`;
       } else {
-        conf += `trojan://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}\n`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}
+`;
       }
-    } else if (type === 'ss') {
+    } else if (type === "ss") {
       if (tls) {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${information}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${information}
+`;
       } else {
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${information}\n`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${information}
+`;
       }
-    } else if (type === 'mix') {
+    } else if (type === "mix") {
       if (tls) {
-        conf += `vless://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}\n`;
-        conf += `trojan://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${information}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}
+`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?path=%2F${proxyHost}%3D${proxyPort}&security=none&encryption=none&host=${bexnxx}&fp=randomized&type=ws&sni=${bexnxx}#${information}
+`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=none&sni=${bexnxx}#${information}
+`;
       } else {
-        conf += `vless://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-        conf += `trojan://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}\n`;
-        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${information}\n`;
+        conf += `vless://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}
+`;
+        conf += `trojan://${UUIDS}@${bug}:${ports}?encryption=none&security=tls&sni=${bexnxx}&fp=randomized&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}#${information}
+`;
+        conf += `ss://${btoa(`none:${UUIDS}`)}%3D@${bug}:${ports}?encryption=none&type=ws&host=${bexnxx}&path=%2F${proxyHost}%3D${proxyPort}&security=tls&sni=${bexnxx}#${information}
+`;
       }
     }
   }
-  
   return conf;
 }
+__name(generateV2raySub, "generateV2raySub");
 function generateUUIDv4() {
   const randomValues = crypto.getRandomValues(new Uint8Array(16));
-  randomValues[6] = (randomValues[6] & 0x0f) | 0x40;
-  randomValues[8] = (randomValues[8] & 0x3f) | 0x80;
+  randomValues[6] = randomValues[6] & 15 | 64;
+  randomValues[8] = randomValues[8] & 63 | 128;
   return [
-    randomValues[0].toString(16).padStart(2, '0'),
-    randomValues[1].toString(16).padStart(2, '0'),
-    randomValues[2].toString(16).padStart(2, '0'),
-    randomValues[3].toString(16).padStart(2, '0'),
-    randomValues[4].toString(16).padStart(2, '0'),
-    randomValues[5].toString(16).padStart(2, '0'),
-    randomValues[6].toString(16).padStart(2, '0'),
-    randomValues[7].toString(16).padStart(2, '0'),
-    randomValues[8].toString(16).padStart(2, '0'),
-    randomValues[9].toString(16).padStart(2, '0'),
-    randomValues[10].toString(16).padStart(2, '0'),
-    randomValues[11].toString(16).padStart(2, '0'),
-    randomValues[12].toString(16).padStart(2, '0'),
-    randomValues[13].toString(16).padStart(2, '0'),
-    randomValues[14].toString(16).padStart(2, '0'),
-    randomValues[15].toString(16).padStart(2, '0'),
-  ].join('').replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
+    randomValues[0].toString(16).padStart(2, "0"),
+    randomValues[1].toString(16).padStart(2, "0"),
+    randomValues[2].toString(16).padStart(2, "0"),
+    randomValues[3].toString(16).padStart(2, "0"),
+    randomValues[4].toString(16).padStart(2, "0"),
+    randomValues[5].toString(16).padStart(2, "0"),
+    randomValues[6].toString(16).padStart(2, "0"),
+    randomValues[7].toString(16).padStart(2, "0"),
+    randomValues[8].toString(16).padStart(2, "0"),
+    randomValues[9].toString(16).padStart(2, "0"),
+    randomValues[10].toString(16).padStart(2, "0"),
+    randomValues[11].toString(16).padStart(2, "0"),
+    randomValues[12].toString(16).padStart(2, "0"),
+    randomValues[13].toString(16).padStart(2, "0"),
+    randomValues[14].toString(16).padStart(2, "0"),
+    randomValues[15].toString(16).padStart(2, "0")
+  ].join("").replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
 }
+__name(generateUUIDv4, "generateUUIDv4");
+
+// ../home/jules/.nvm/versions/node/v22.17.1/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default = drainBody;
+
+// ../home/jules/.nvm/versions/node/v22.17.1/lib/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError(e.cause)
+  };
+}
+__name(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default = jsonError;
+
+// .wrangler/tmp/bundle-9hSXaz/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
+  middleware_ensure_req_body_drained_default,
+  middleware_miniflare3_json_error_default
+];
+var middleware_insertion_facade_default = jambol_default;
+
+// ../home/jules/.nvm/versions/node/v22.17.1/lib/node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__ = [];
+function __facade_register__(...args) {
+  __facade_middleware__.push(...args.flat());
+}
+__name(__facade_register__, "__facade_register__");
+function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__, "__facade_invokeChain__");
+function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__(request, env, ctx, dispatch, [
+    ...__facade_middleware__,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-9hSXaz/middleware-loader.entry.ts
+var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  static {
+    __name(this, "__Facade_ScheduledController__");
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof ___Facade_ScheduledController__)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
+};
+function wrapExportedHandler(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler, "wrapExportedHandler");
+function wrapWorkerEntrypoint(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    }, "#fetchDispatcher");
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    }, "#dispatcher");
+    fetch(request) {
+      return __facade_invoke__(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY;
+if (typeof middleware_insertion_facade_default === "object") {
+  WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
+} else if (typeof middleware_insertion_facade_default === "function") {
+  WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
+}
+var middleware_loader_entry_default = WRAPPED_ENTRY;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default as default
+};
+//# sourceMappingURL=jambol.js.map
