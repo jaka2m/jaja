@@ -2469,6 +2469,120 @@ let baseHTML = `
             },
         };
     </script>
+    <style>
+    .card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(99, 102, 241, 0.03) 100%);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Garis Api Merah - Kiri ke Kanan */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ff0000, #ff5500, #ff0000, transparent);
+      animation: fireLine 3s ease-in-out infinite;
+      filter: blur(1px);
+      z-index: 2;
+    }
+    
+    /* Garis Api Biru - Kanan ke Kiri */
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ffff, #00aaff, #00ffff, transparent);
+      animation: fireLine 4s ease-in-out infinite reverse;
+      filter: blur(1px);
+      z-index: 2;
+    }
+    
+    @keyframes fireLine {
+      0% { 
+        left: -100%;
+        opacity: 0;
+      }
+      50% { 
+        opacity: 1;
+      }
+      100% { 
+        left: 100%;
+        opacity: 0;
+      }
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 20px;
+      color: white;
+    }
+    
+    .card-header h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--light);
+    }
+    
+    /* Info Grid Modern */
+    .info-grid {
+      display: grid;
+      gap: 18px;
+    }
+    
+    .slide-up {
+      animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    </style>
 </head>
 <body
     class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
@@ -2515,6 +2629,7 @@ let baseHTML = `
             <div class="flex flex-col items-center relative z-10">
                 <div class="glass-effect-light dark:glass-effect w-full mb-6 rounded-xl p-4 shadow-lg">
                     <div class="info-container flex flex-wrap items-center justify-center gap-3 text-sm font-semibold">
+                    <div class="card slide-up">
                         <p id="container-info-ip" class="flex items-center gap-1 text-blue-500 dark:text-blue-300">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M5.5 13a4.5 4.5 0 011.692-3.377l1.72-1.725A4.5 4.5 0 0113 5.5V6a.5.5 0 001 0V5.5A4.5 4.5 0 009.377 2.308L7.653 4.032A4.5 4.5 0 005 8.5v.5a.5.5 0 001 0V8.5A3.5 3.5 0 017.377 5.79l.995.996a.5.5 0 00.707-.707l-.996-.995A4.5 4.5 0 008.5 2.5a.5.5 0 000-1z" />
@@ -2572,12 +2687,15 @@ let baseHTML = `
                         </div>
                     </div>
                 </div>
-
+                </div>
+                
+                <div class="card slide-up">
                 <div class="filter-container w-full max-w-5xl mb-6 p-6 bg-gray-800 rounded-xl shadow-xl grid grid-cols-2 md:grid-cols-4 gap-4" style="box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);">
                     PLACEHOLDER_PROTOCOL_DROPDOWN
                     PLACEHOLDER_COUNTRY_DROPDOWN
                     PLACEHOLDER_HOST_DROPDOWN
                     PLACEHOLDER_PORT_DROPDOWN
+                </div>
                 </div>
                 <br>
                 <div class="flex flex-col md:flex-row gap-4 w-full max-w-7xl justify-center">
@@ -3319,10 +3437,8 @@ setTitle(title) {
         }
 
         const table = `
-            <div class="overflow-x-auto w-full max-w-full" style="max-height: 500px; overflow-y: auto;">    
-    <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-base" style="box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-        
-        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10" style="box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);">
+        <div class="card slide-up">
+            <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10" style="box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);">
             <tr>
                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 50px;">No.</th>
                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 120px;">IP</th>
@@ -3332,7 +3448,7 @@ setTitle(title) {
                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 100px;">Action</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody>
             ${tableRows}
         </tbody>
     </table>
