@@ -1,8 +1,8 @@
 import { connect } from "cloudflare:sockets";
 
 // Variables
-const rootDomain = "foolvpn.me"; // Ganti dengan domain utama kalian
-const serviceName = "nautica"; // Ganti dengan nama workers kalian
+const rootDomain = "gpj2.dpdns.org"; // Ganti dengan domain utama kalian
+const serviceName = "tos"; // Ganti dengan nama workers kalian
 const apiKey = ""; // Ganti dengan Global API key kalian (https://dash.cloudflare.com/profile/api-tokens)
 const apiEmail = ""; // Ganti dengan email yang kalian gunakan
 const accountID = ""; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
@@ -24,7 +24,7 @@ const KV_PRX_URL = "https://raw.githubusercontent.com/FoolVPN-ID/Nautica/refs/he
 const PRX_BANK_URL = "https://raw.githubusercontent.com/FoolVPN-ID/Nautica/refs/heads/main/proxyList.txt";
 const DNS_SERVER_ADDRESS = "8.8.8.8";
 const DNS_SERVER_PORT = 53;
-const PRX_HEALTH_CHECK_API = "https://id1.foolvpn.me/api/v1/check";
+const PRX_HEALTH_CHECK_API = "geovpn.vercel.app/check";
 const CONVERTER_URL = "https://api.foolvpn.me/convert";
 const DONATE_LINK = "https://trakteer.id/dickymuliafiqri/tip";
 const BAD_WORDS_LIST =
@@ -78,242 +78,96 @@ class Document {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${this.title.replace(/<[^>]*>/g, '')} - Nautica VPN</title>
+    <title>${this.title.replace(/<[^>]*>/g, '')}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe);
-            background-size: 400% 400%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 8s ease infinite;
-        }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
-        }
         .copy-btn {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px -8px rgba(102, 126, 234, 0.4);
-        }
-        .copy-btn.copied {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-        .prx-card {
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .prx-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .fade-in {
-            animation: fadeInUp 0.8s ease-out;
-        }
-        .stagger-animation > * {
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-        @keyframes floating {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        .pulse-glow {
-            animation: pulseGlow 2s ease-in-out infinite alternate;
-        }
-        @keyframes pulseGlow {
-            from { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
-            to { box-shadow: 0 0 30px rgba(102, 126, 234, 0.8); }
-        }
-        .config-input {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
-        .config-input:focus {
-            border-color: rgba(102, 126, 234, 0.8);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .copy-btn:hover {
+            transform: scale(1.05);
         }
-        .nav-btn {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .copy-btn.copied {
+            background-color: #10B981 !important;
         }
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .prx-card {
+            transition: all 0.3s ease;
+        }
+        .prx-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            pointer-events: none;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen text-white overflow-x-hidden">
-    <!-- Animated Background Particles -->
-    <div id="particles-container" class="fixed inset-0 pointer-events-none"></div>
-    
-    <!-- Main Content -->
-    <div class="relative z-10 container mx-auto px-4 py-8">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
         <!-- Header -->
-        <header class="text-center mb-16 fade-in">
-            <div class="floating mb-6">
-                <div class="glass-effect inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 pulse-glow">
-                    <i class="fas fa-shield-alt text-3xl gradient-text"></i>
-                </div>
-            </div>
-            <h1 class="text-5xl md:text-6xl font-bold mb-6 gradient-text">${this.title}</h1>
-            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Premium VPN service with advanced security and blazing fast speeds
-            </p>
-            
-            <div class="flex flex-wrap justify-center gap-6 mb-8">
-                ${this.infos.map((info, index) => `
-                    <div class="glass-card px-6 py-3 rounded-2xl fade-in" style="animation-delay: ${index * 0.1 + 0.5}s">
-                        <span class="font-semibold text-lg">${info}</span>
-                    </div>
+        <header class="text-center mb-12 fade-in">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">${this.title}</h1>
+            <div class="flex flex-wrap justify-center gap-4 mb-6">
+                ${this.infos.map(info => `
+                    <span class="bg-white px-4 py-2 rounded-lg shadow-md text-gray-700 font-medium">
+                        ${info}
+                    </span>
                 `).join('')}
             </div>
-
-            <div class="flex flex-wrap justify-center gap-4 mt-8 stagger-animation">
-                <a href="/sub/0" class="nav-btn px-8 py-4 rounded-2xl font-semibold text-lg flex items-center space-x-3">
-                    <i class="fas fa-list text-purple-300"></i>
-                    <span>All Configurations</span>
+            <div class="flex justify-center gap-4 mt-6">
+                <a href="/sub/0" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-list mr-2"></i>All Configs
                 </a>
-                <a href="/api/v1/myip" class="nav-btn px-8 py-4 rounded-2xl font-semibold text-lg flex items-center space-x-3">
-                    <i class="fas fa-network-wired text-blue-300"></i>
-                    <span>Check My IP</span>
+                <a href="/api/v1/myip" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-network-wired mr-2"></i>My IP
                 </a>
-                <a href="${DONATE_LINK}" target="_blank" class="nav-btn px-8 py-4 rounded-2xl font-semibold text-lg flex items-center space-x-3">
-                    <i class="fas fa-heart text-red-300"></i>
-                    <span>Support Us</span>
+                <a href="${DONATE_LINK}" target="_blank" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-heart mr-2"></i>Donate
                 </a>
             </div>
         </header>
 
         <!-- Proxy List -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16 stagger-animation">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             ${this.prxs.map((prx, index) => `
-                <div class="prx-card rounded-3xl p-8" style="animation-delay: ${index * 0.1}s">
-                    <!-- Header -->
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center space-x-4">
-                            <div class="status-dot"></div>
-                            <div>
-                                <h3 class="text-xl font-bold">${prx.info.prxIP}:${prx.info.prxPort}</h3>
-                                <p class="text-sm opacity-80">Online & Secure</p>
-                            </div>
+                <div class="prx-card bg-white rounded-xl shadow-lg p-6 fade-in" style="animation-delay: ${index * 0.1}s">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <h3 class="text-lg font-semibold text-gray-800">${prx.info.prxIP}:${prx.info.prxPort}</h3>
                         </div>
-                        <span class="text-3xl">${getFlagEmoji(prx.info.country)}</span>
+                        <span class="text-2xl">${getFlagEmoji(prx.info.country)}</span>
                     </div>
                     
-                    <!-- Info Grid -->
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="glass-effect rounded-xl p-4 text-center">
-                            <i class="fas fa-globe text-blue-300 mb-2"></i>
-                            <p class="font-semibold">${prx.info.country}</p>
-                            <p class="text-xs opacity-80">Country</p>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-globe mr-2"></i>
+                            <span>${prx.info.country}</span>
                         </div>
-                        <div class="glass-effect rounded-xl p-4 text-center">
-                            <i class="fas fa-building text-purple-300 mb-2"></i>
-                            <p class="font-semibold truncate">${prx.info.org}</p>
-                            <p class="text-xs opacity-80">Provider</p>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-building mr-2"></i>
+                            <span class="truncate">${prx.info.org}</span>
                         </div>
                     </div>
 
-                    <!-- Configuration URIs -->
-                    <div class="space-y-3">
-                        <h4 class="font-semibold text-lg mb-4 flex items-center space-x-2">
-                            <i class="fas fa-code text-green-300"></i>
-                            <span>Configuration Links</span>
-                        </h4>
+                    <div class="space-y-2">
                         ${prx.uris.map((uri, uriIndex) => `
-                            <div class="flex group relative">
+                            <div class="flex group">
                                 <input type="text" 
                                        value="${uri}" 
                                        readonly 
-                                       class="config-input flex-1 px-4 py-3 rounded-l-2xl text-sm font-mono truncate pr-12">
+                                       class="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-l-lg text-sm font-mono truncate">
                                 <button onclick="copyConfig('${uri.replace(/'/g, "\\'")}', this)" 
-                                        class="copy-btn px-6 rounded-r-2xl font-semibold transition-all duration-400 flex items-center space-x-2">
+                                        class="copy-btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-lg transition-colors">
                                     <i class="fas fa-copy"></i>
-                                    <span class="hidden sm:inline">Copy</span>
                                 </button>
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <i class="fas fa-bolt text-yellow-300 text-sm"></i>
-                                </div>
                             </div>
                         `).join('')}
-                    </div>
-
-                    <!-- Speed Indicator -->
-                    <div class="mt-6 pt-4 border-t border-white/10">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="opacity-80">Connection Speed</span>
-                            <div class="flex items-center space-x-2">
-                                <div class="flex space-x-1">
-                                    <div class="w-2 h-4 bg-green-400 rounded-full animate-pulse"></div>
-                                    <div class="w-2 h-6 bg-green-400 rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
-                                    <div class="w-2 h-3 bg-green-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                                </div>
-                                <span class="font-semibold text-green-300">Fast</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             `).join('')}
@@ -321,225 +175,60 @@ class Document {
 
         <!-- Pagination -->
         ${this.pageButtons.length > 0 ? `
-            <div class="flex justify-center space-x-6 mb-16 fade-in">
-                ${this.pageButtons.map((button, index) => `
+            <div class="flex justify-center space-x-4 mb-12">
+                ${this.pageButtons.map(button => `
                     <a href="${button.href}" 
-                       class="${button.disabled ? 
-                         'glass-effect opacity-50 cursor-not-allowed' : 
-                         'nav-btn hover:scale-105 transform transition-all duration-300'} 
-                         px-8 py-4 rounded-2xl font-semibold text-lg flex items-center space-x-3"
-                         style="animation-delay: ${index * 0.2 + 0.5}s">
-                        <i class="fas fa-${button.text.toLowerCase() === 'prev' ? 'arrow-left' : 'arrow-right'}"></i>
-                        <span>${button.text}</span>
+                       class="${button.disabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} 
+                              text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                        ${button.text}
                     </a>
                 `).join('')}
             </div>
         ` : ''}
 
-        <!-- Stats Section -->
-        <div class="glass-card rounded-3xl p-8 mb-16 fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-                <div>
-                    <div class="text-3xl font-bold gradient-text mb-2">${this.prxs.length * 3}</div>
-                    <div class="opacity-80">Total Configs</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold gradient-text mb-2">${new Set(this.prxs.map(p => p.info.country)).size}</div>
-                    <div class="opacity-80">Countries</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold gradient-text mb-2">24/7</div>
-                    <div class="opacity-80">Uptime</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold gradient-text mb-2">∞</div>
-                    <div class="opacity-80">Bandwidth</div>
-                </div>
-            </div>
-        </div>
-
         <!-- Footer -->
-        <footer class="text-center border-t border-white/10 pt-12 fade-in">
-            <div class="glass-card rounded-3xl p-8 max-w-4xl mx-auto">
-                <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
-                    <div class="text-left">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-10 h-10 rounded-xl glass-effect flex items-center justify-center">
-                                <i class="fas fa-shield-alt gradient-text"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-xl gradient-text">Nautica VPN</h3>
-                                <p class="text-sm opacity-80">Secure & Fast VPN Service</p>
-                            </div>
-                        </div>
-                        <p class="text-sm opacity-70 max-w-md">
-                            Experience the next generation of VPN technology with advanced security features and lightning-fast connections.
-                        </p>
-                    </div>
-                    <div class="flex space-x-6">
-                        <a href="/api/v1/myip" class="w-12 h-12 rounded-xl glass-effect flex items-center justify-center hover:scale-110 transition-transform">
-                            <i class="fas fa-network-wired text-blue-300"></i>
-                        </a>
-                        <a href="${DONATE_LINK}" target="_blank" class="w-12 h-12 rounded-xl glass-effect flex items-center justify-center hover:scale-110 transition-transform">
-                            <i class="fas fa-heart text-red-300"></i>
-                        </a>
-                        <a href="https://github.com/FoolVPN-ID" target="_blank" class="w-12 h-12 rounded-xl glass-effect flex items-center justify-center hover:scale-110 transition-transform">
-                            <i class="fab fa-github text-purple-300"></i>
-                        </a>
-                    </div>
+        <footer class="text-center text-gray-600 mt-12 border-t border-gray-200 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center max-w-4xl mx-auto">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm">
+                        Powered by <span class="font-semibold text-blue-500">Nautica</span>
+                    </p>
                 </div>
-                <div class="mt-8 pt-6 border-t border-white/10 text-sm opacity-60">
-                    <p>© 2024 Nautica VPN. All rights reserved. Powered by Cloudflare Workers.</p>
+                <div class="flex space-x-6">
+                    <a href="/api/v1/myip" class="text-gray-500 hover:text-blue-500 transition-colors">
+                        <i class="fas fa-network-wired"></i>
+                    </a>
+                    <a href="${DONATE_LINK}" target="_blank" class="text-gray-500 hover:text-red-500 transition-colors">
+                        <i class="fas fa-heart"></i>
+                    </a>
+                    <a href="https://github.com/FoolVPN-ID" target="_blank" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
                 </div>
             </div>
         </footer>
     </div>
 
     <script>
-        // Particle Background Animation
-        function createParticles() {
-            const container = document.getElementById('particles-container');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                const size = Math.random() * 4 + 1;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const delay = Math.random() * 5;
-                const duration = Math.random() * 10 + 10;
-                
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${posX}%`;
-                particle.style.top = `${posY}%`;
-                particle.style.animation = `floating ${duration}s ease-in-out ${delay}s infinite`;
-                particle.style.opacity = Math.random() * 0.3 + 0.1;
-                
-                container.appendChild(particle);
-            }
-        }
-
-        // Copy Configuration Function
         function copyConfig(text, button) {
             navigator.clipboard.writeText(text).then(() => {
-                const originalText = button.innerHTML;
+                const originalBg = button.style.backgroundColor;
+                const originalHtml = button.innerHTML;
                 
                 button.classList.add('copied');
-                button.innerHTML = '<i class="fas fa-check"></i><span class="hidden sm:inline">Copied!</span>';
-                
-                // Add confetti effect
-                createConfetti(button);
+                button.innerHTML = '<i class="fas fa-check"></i>';
                 
                 setTimeout(() => {
                     button.classList.remove('copied');
-                    button.innerHTML = originalText;
+                    button.innerHTML = originalHtml;
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy: ', err);
-                showNotification('Failed to copy configuration', 'error');
+                alert('Failed to copy configuration');
             });
         }
 
-        // Confetti Effect
-        function createConfetti(element) {
-            const rect = element.getBoundingClientRect();
-            const count = 20;
-            
-            for (let i = 0; i < count; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'particle';
-                confetti.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                confetti.style.width = '6px';
-                confetti.style.height = '6px';
-                confetti.style.left = `${rect.left + rect.width / 2}px`;
-                confetti.style.top = `${rect.top + rect.height / 2}px`;
-                confetti.style.position = 'fixed';
-                confetti.style.zIndex = '1000';
-                
-                document.body.appendChild(confetti);
-                
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = 2 + Math.random() * 2;
-                const vx = Math.cos(angle) * velocity;
-                const vy = Math.sin(angle) * velocity;
-                
-                let posX = rect.left + rect.width / 2;
-                let posY = rect.top + rect.height / 2;
-                
-                function animate() {
-                    posX += vx;
-                    posY += vy;
-                    vy += 0.1; // gravity
-                    
-                    confetti.style.left = `${posX}px`;
-                    confetti.style.top = `${posY}px`;
-                    confetti.style.opacity = 1 - (posY - rect.top) / 300;
-                    
-                    if (posY < window.innerHeight && confetti.style.opacity > 0) {
-                        requestAnimationFrame(animate);
-                    } else {
-                        confetti.remove();
-                    }
-                }
-                
-                animate();
-            }
-        }
-
-        // Notification System
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 glass-card px-6 py-4 rounded-2xl font-semibold transform translate-x-full transition-transform duration-300 z-50 ${
-                type === 'error' ? 'text-red-300' : 'text-green-300'
-            }`;
-            notification.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Stagger animation for cards
-        function initializeAnimations() {
-            const staggerElements = document.querySelectorAll('.stagger-animation > *');
-            staggerElements.forEach((el, index) => {
-                el.style.animationDelay = `${index * 0.1}s`;
-            });
-        }
-
-        // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            createParticles();
-            initializeAnimations();
-            
-            // Add hover effects to cards
-            const cards = document.querySelectorAll('.prx-card');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    card.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-        });
-
-        // Intersection Observer for fade-in animations
+        // Add fade-in animation to elements as they come into view
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -554,19 +243,18 @@ class Document {
         }, observerOptions);
 
         // Observe all fade-in elements
-        document.querySelectorAll('.fade-in').forEach(el => {
-            el.style.animationPlayState = 'paused';
-            observer.observe(el);
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
         });
     </script>
 </body>
 </html>`;
   }
 }
-
-// ... (rest of the code remains exactly the same as previous version)
-// [All the other functions: getKVPrxList, getPrxList, reverseWeb, getAllConfig, export default, websocketHandler, protocolSniffer, handleTCPOutBound, handleUDPOutbound, makeReadableWebSocketStream, readSsHeader, readFlashHeader, readHorseHeader, remoteSocketToWS, safeCloseWebSocket, checkPrxHealth, base64ToArrayBuffer, arrayBufferToHex, shuffleArray, reverse, getFlagEmoji, CloudflareApi class]
-// ... (semua fungsi lainnya tetap sama persis dengan versi sebelumnya)
 
 async function getKVPrxList(kvPrxUrl = KV_PRX_URL) {
   if (!kvPrxUrl) {
