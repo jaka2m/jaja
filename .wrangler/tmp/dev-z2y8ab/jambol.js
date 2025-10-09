@@ -1,51 +1,45 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// jambol.js
 import { connect } from "cloudflare:sockets";
-
-// Variables
-const rootDomain = "gpj1.dpdns.org"; // Ganti dengan domain utama kalian
-const serviceName = "tos"; // Ganti dengan nama workers kalian
-const apiKey = "e1d2b64d4da5e42f24c88535f12f21bc84d06"; // Ganti dengan Global API key kalian (https://dash.cloudflare.com/profile/api-tokens)
-const apiEmail = "paoandest@gmail.com"; // Ganti dengan email yang kalian gunakan
-const accountID = "723b4d7d922c6af940791b5624a7cb05"; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
-const zoneID = "c812fcb5da2a06fa1b03cac6f8e2fe06"; // Ganti dengan Zone ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
-const ownerPassword = ".";
-let isApiReady = false;
-let prxIP = "";
-let cachedPrxList = [];
-
-// Constant
-const WHATSAPP_NUMBER = "082339191527";
-const TELEGRAM_USERNAME = "sampiiii";
-const horse = "dHJvamFu";
-const flash = "dmxlc3M=";
-const v2 = "djJyYXk=";
-const neko = "Y2xhc2g=";
-
-const APP_DOMAIN = `${serviceName}.${rootDomain}`;
-const PORTS = [443, 80];
-const PROTOCOLS = [atob(horse), atob(flash), "ss"];
-const PRX_BANK_URL = "https://raw.githubusercontent.com/jaka2m/botak/refs/heads/main/cek/proxyList.txt";
-// const DOH_URL = "https://1.1.1.1/dns-query";
-// const DOH_URL = "https://8.8.8.8/dns-query";
-const DOH_URL = "https://1.1.1.1/dns-query";
-const PRX_HEALTH_CHECK_API = "https://geovpn1.vercel.app/check";
-const CONVERTER_URL = "https://api.foolvpn.me/convert";
-const DONATE_LINK = "https://github.com/jaka1m/project/raw/main/BAYAR.jpg";
-const BAD_WORDS_LIST =
-  "https://gist.githubusercontent.com/adierebel/a69396d79b787b84d89b45002cb37cd6/raw/6df5f8728b18699496ad588b3953931078ab9cf1/kata-kasar.txt";
-const PRX_PER_PAGE = 24;
-const WS_READY_STATE_OPEN = 1;
-const WS_READY_STATE_CLOSING = 2;
-const CORS_HEADER_OPTIONS = {
+var rootDomain = "gpj1.dpdns.org";
+var serviceName = "tos";
+var apiKey = "e1d2b64d4da5e42f24c88535f12f21bc84d06";
+var apiEmail = "paoandest@gmail.com";
+var accountID = "723b4d7d922c6af940791b5624a7cb05";
+var zoneID = "c812fcb5da2a06fa1b03cac6f8e2fe06";
+var ownerPassword = ".";
+var isApiReady = false;
+var prxIP = "";
+var cachedPrxList = [];
+var WHATSAPP_NUMBER = "082339191527";
+var TELEGRAM_USERNAME = "sampiiii";
+var horse = "dHJvamFu";
+var flash = "dmxlc3M=";
+var v2 = "djJyYXk=";
+var neko = "Y2xhc2g=";
+var APP_DOMAIN = `${serviceName}.${rootDomain}`;
+var PORTS = [443, 80];
+var PROTOCOLS = [atob(horse), atob(flash), "ss"];
+var PRX_BANK_URL = "https://raw.githubusercontent.com/jaka2m/botak/refs/heads/main/cek/proxyList.txt";
+var DOH_URL = "https://1.1.1.1/dns-query";
+var PRX_HEALTH_CHECK_API = "https://geovpn1.vercel.app/check";
+var CONVERTER_URL = "https://api.foolvpn.me/convert";
+var DONATE_LINK = "https://github.com/jaka1m/project/raw/main/BAYAR.jpg";
+var BAD_WORDS_LIST = "https://gist.githubusercontent.com/adierebel/a69396d79b787b84d89b45002cb37cd6/raw/6df5f8728b18699496ad588b3953931078ab9cf1/kata-kasar.txt";
+var PRX_PER_PAGE = 24;
+var WS_READY_STATE_OPEN = 1;
+var WS_READY_STATE_CLOSING = 2;
+var CORS_HEADER_OPTIONS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-  "Access-Control-Max-Age": "86400",
+  "Access-Control-Max-Age": "86400"
 };
-
 async function getKVPrxList(kvPrxUrl) {
   if (!kvPrxUrl) {
     return {};
   }
-
   const kvPrx = await fetch(kvPrxUrl);
   if (kvPrx.status == 200) {
     return await kvPrx.json();
@@ -53,257 +47,169 @@ async function getKVPrxList(kvPrxUrl) {
     return {};
   }
 }
-
+__name(getKVPrxList, "getKVPrxList");
 async function getPrxList(prxBankUrl = PRX_BANK_URL) {
-  /**
-   * Format:
-   *
-   * <IP>,<Port>,<Country ID>,<ORG>
-   * Contoh:
-   * 1.1.1.1,443,SG,Cloudflare Inc.
-   */
   if (!prxBankUrl) {
     throw new Error("No URL Provided!");
   }
-
   const prxBank = await fetch(prxBankUrl);
   if (prxBank.status == 200) {
-    const text = (await prxBank.text()) || "";
-
+    const text = await prxBank.text() || "";
     const prxString = text.split("\n").filter(Boolean);
-    cachedPrxList = prxString
-      .map((entry) => {
-        const [prxIP, prxPort, country, org] = entry.split(",").map(item => item.trim());
-        return {
-          prxIP: prxIP || "Unknown",
-          prxPort: prxPort || "Unknown",
-          country: country || "Unknown",
-          org: org || "Unknown Org",
-        };
-      })
-      .filter(Boolean);
+    cachedPrxList = prxString.map((entry) => {
+      const [prxIP2, prxPort, country, org] = entry.split(",").map((item) => item.trim());
+      return {
+        prxIP: prxIP2 || "Unknown",
+        prxPort: prxPort || "Unknown",
+        country: country || "Unknown",
+        org: org || "Unknown Org"
+      };
+    }).filter(Boolean);
   }
-
   return cachedPrxList;
 }
-
-async function reverseWeb(request, target, targetPath) {
-  const targetUrl = new URL(request.url);
-  const targetChunk = target.split(":");
-
-  targetUrl.hostname = targetChunk[0];
-  targetUrl.port = targetChunk[1]?.toString() || "443";
-  targetUrl.pathname = targetPath || targetUrl.pathname;
-
-  const modifiedRequest = new Request(targetUrl, request);
-
-  modifiedRequest.headers.set("X-Forwarded-Host", request.headers.get("Host"));
-
-  const response = await fetch(modifiedRequest);
-
-  const newResponse = new Response(response.body, response);
-  for (const [key, value] of Object.entries(CORS_HEADER_OPTIONS)) {
-    newResponse.headers.set(key, value);
-  }
-  newResponse.headers.set("X-Proxied-By", "Cloudflare Worker");
-
-  return newResponse;
-}
-
-async function generateSubscription(
-  {
-    countryCodes = [],
-    limit = 10,
-    vpnType = null,
-    ports = null,
-    bug = null,
-    useWildcard = false,
-    prxBankUrl = null,
-    domain = null
-  }
-) {
-    const filterVPN = vpnType ? [vpnType] : PROTOCOLS;
-    const filterPort = ports || PORTS;
-    const filterCC = countryCodes;
-    const filterLimit = limit;
-    
-    const baseHost = domain || APP_DOMAIN;
-    const address = bug || baseHost;
-    const sniHost = useWildcard && bug ? `${bug}.${baseHost}` : baseHost;
-
-    const prxList = await getPrxList(prxBankUrl || PRX_BANK_URL)
-        .then((prxs) => {
-          if (filterCC.length) {
-            return prxs.filter((prx) => filterCC.includes(prx.country));
-          }
-          return prxs;
-        })
-        .then((prxs) => {
-          shuffleArray(prxs);
-          return prxs;
-        });
-
-    const uuid = crypto.randomUUID();
-    const result = [];
-    for (const prx of prxList) {
-        const uri = new URL(`${atob(horse)}://${address}`);
-        uri.searchParams.set("encryption", "none");
-        uri.searchParams.set("type", "ws");
-        uri.searchParams.set("host", sniHost);
-
-        for (const port of filterPort) {
-          for (const protocol of filterVPN) {
-            if (result.length >= filterLimit) break;
-
-            uri.protocol = protocol;
-            uri.port = port.toString();
-            if (protocol == "ss") {
-              uri.username = btoa(`none:${uuid}`);
-              uri.searchParams.set(
-                "plugin",
-                `${atob(v2)}-plugin${port == 80 ? "" : ";tls"};mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prx.prxIP}-${
-                  prx.prxPort
-                };host=${sniHost}`
-              );
-            } else {
-              uri.username = uuid;
-              uri.searchParams.delete("plugin");
-            }
-
-            uri.searchParams.set("security", port == 443 ? "tls" : "none");
-            uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : sniHost);
-            uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prx.prxIP}-${prx.prxPort}`);
-
-            uri.hash = `${result.length + 1} ${getFlagEmoji(prx.country)} ${prx.org} WS ${
-              port == 443 ? "TLS" : "NTLS"
-            } [${serviceName}]`;
-            result.push(uri.toString());
-          }
-          if (result.length >= filterLimit) break;
-        }
+__name(getPrxList, "getPrxList");
+async function generateSubscription({
+  countryCodes = [],
+  limit = 10,
+  vpnType = null,
+  ports = null,
+  bug = null,
+  useWildcard = false,
+  prxBankUrl = null,
+  domain = null
+}) {
+  const filterVPN = vpnType ? [vpnType] : PROTOCOLS;
+  const filterPort = ports || PORTS;
+  const filterCC = countryCodes;
+  const filterLimit = limit;
+  const baseHost = domain || APP_DOMAIN;
+  const address = bug || baseHost;
+  const sniHost = useWildcard && bug ? `${bug}.${baseHost}` : baseHost;
+  const prxList = await getPrxList(prxBankUrl || PRX_BANK_URL).then((prxs) => {
+    if (filterCC.length) {
+      return prxs.filter((prx) => filterCC.includes(prx.country));
+    }
+    return prxs;
+  }).then((prxs) => {
+    shuffleArray(prxs);
+    return prxs;
+  });
+  const uuid = crypto.randomUUID();
+  const result = [];
+  for (const prx of prxList) {
+    const uri = new URL(`${atob(horse)}://${address}`);
+    uri.searchParams.set("encryption", "none");
+    uri.searchParams.set("type", "ws");
+    uri.searchParams.set("host", sniHost);
+    for (const port of filterPort) {
+      for (const protocol of filterVPN) {
         if (result.length >= filterLimit) break;
-    }
-    
-    return result;
-}
-
-function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = null, selectedPort = null, wildcardDomains = [], rootDomain) {
-    const startIndex = PRX_PER_PAGE * page;
-    const totalProxies = prxList.length;
-    const totalPages = Math.ceil(totalProxies / PRX_PER_PAGE) || 1;
-
-    try {
-        const uuid = crypto.randomUUID();
-
-        // If a custom host is selected, the host/SNI will be a combination.
-        // Otherwise, it's just the application's domain.
-        const effectiveHost = hostName === APP_DOMAIN ? APP_DOMAIN : `${hostName}.${APP_DOMAIN}`;
-
-        // Build URI
-        // The address is the selected host (e.g., ava.game.naver.com or the app domain)
-        const uri = new URL(`${atob(horse)}://${hostName}`);
-        uri.searchParams.set("encryption", "none");
-        uri.searchParams.set("type", "ws");
-        uri.searchParams.set("host", effectiveHost);
-
-        // Build HTML
-        const document = new Document(request, wildcardDomains, rootDomain, startIndex);
-        document.setTitle("Free Vless Trojan SS");
-        document.setTotalProxy(totalProxies);
-        document.setPage(page + 1, totalPages);
-
-        for (let i = startIndex; i < startIndex + PRX_PER_PAGE; i++) {
-            const prx = prxList[i];
-            if (!prx) break;
-
-            const { prxIP, prxPort, country, org } = prx;
-
-            uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prxPort}`);
-
-            const protocolsToUse = selectedProtocol && selectedProtocol !== 'all' ? [selectedProtocol] : PROTOCOLS;
-            const portsToUse = selectedPort && selectedPort !== 'all' ? [parseInt(selectedPort)] : PORTS;
-
-            const prxs = [];
-            for (const port of portsToUse) {
-                uri.port = port.toString();
-                uri.hash = `${i + 1} ${getFlagEmoji(country)} ${org} WS ${port == 443 ? "TLS" : "NTLS"} [${serviceName}]`;
-                for (const protocol of protocolsToUse) {
-                    // Special exceptions
-                    if (protocol === "ss") {
-                        uri.username = btoa(`none:${uuid}`);
-                        uri.searchParams.set(
-                            "plugin",
-                            `${atob(v2)}-plugin${
-                                port == 80 ? "" : ";tls"
-                            };mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${effectiveHost}`
-                        );
-                    } else {
-                        uri.username = uuid;
-                        uri.searchParams.delete("plugin");
-                    }
-
-                    uri.protocol = protocol;
-                    uri.searchParams.set("security", port == 443 ? "tls" : "none");
-                    uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : effectiveHost);
-
-                    // Build VPN URI
-                    prxs.push(uri.toString());
-                }
-            }
-            document.registerProxies(
-                {
-                    prxIP,
-                    prxPort,
-                    country,
-                    org,
-                },
-                prxs
-            );
+        uri.protocol = protocol;
+        uri.port = port.toString();
+        if (protocol == "ss") {
+          uri.username = btoa(`none:${uuid}`);
+          uri.searchParams.set(
+            "plugin",
+            `${atob(v2)}-plugin${port == 80 ? "" : ";tls"};mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prx.prxIP}-${prx.prxPort};host=${sniHost}`
+          );
+        } else {
+          uri.username = uuid;
+          uri.searchParams.delete("plugin");
         }
-
-        // Build pagination
-        const showingFrom = totalProxies > 0 ? startIndex + 1 : 0;
-        const showingTo = Math.min(startIndex + PRX_PER_PAGE, totalProxies);
-        document.setPaginationInfo(`Showing ${showingFrom} to ${showingTo} of ${totalProxies} Proxies`);
-
-        // Prev button
-        document.addPageButton("Prev", `/sub/${page > 0 ? page - 1 : 0}`, page === 0);
-
-
-        // Numbered buttons
-
-        // Next button
-        document.addPageButton("Next", `/sub/${page < totalPages - 1 ? page + 1 : page}`, page >= totalPages - 1);
-
-        return document.build();
-    } catch (error) {
-        return `An error occurred while generating the ${atob(flash).toUpperCase()} configurations. ${error}`;
+        uri.searchParams.set("security", port == 443 ? "tls" : "none");
+        uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : sniHost);
+        uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prx.prxIP}-${prx.prxPort}`);
+        uri.hash = `${result.length + 1} ${getFlagEmoji(prx.country)} ${prx.org} WS ${port == 443 ? "TLS" : "NTLS"} [${serviceName}]`;
+        result.push(uri.toString());
+      }
+      if (result.length >= filterLimit) break;
     }
+    if (result.length >= filterLimit) break;
+  }
+  return result;
 }
-
-export default {
+__name(generateSubscription, "generateSubscription");
+function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = null, selectedPort = null, wildcardDomains = [], rootDomain2) {
+  const startIndex = PRX_PER_PAGE * page;
+  const totalProxies = prxList.length;
+  const totalPages = Math.ceil(totalProxies / PRX_PER_PAGE) || 1;
+  try {
+    const uuid = crypto.randomUUID();
+    const effectiveHost = hostName === APP_DOMAIN ? APP_DOMAIN : `${hostName}.${APP_DOMAIN}`;
+    const uri = new URL(`${atob(horse)}://${hostName}`);
+    uri.searchParams.set("encryption", "none");
+    uri.searchParams.set("type", "ws");
+    uri.searchParams.set("host", effectiveHost);
+    const document = new Document(request, wildcardDomains, rootDomain2, startIndex);
+    document.setTitle("Free Vless Trojan SS");
+    document.setTotalProxy(totalProxies);
+    document.setPage(page + 1, totalPages);
+    for (let i = startIndex; i < startIndex + PRX_PER_PAGE; i++) {
+      const prx = prxList[i];
+      if (!prx) break;
+      const { prxIP: prxIP2, prxPort, country, org } = prx;
+      uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP2}-${prxPort}`);
+      const protocolsToUse = selectedProtocol && selectedProtocol !== "all" ? [selectedProtocol] : PROTOCOLS;
+      const portsToUse = selectedPort && selectedPort !== "all" ? [parseInt(selectedPort)] : PORTS;
+      const prxs = [];
+      for (const port of portsToUse) {
+        uri.port = port.toString();
+        uri.hash = `${i + 1} ${getFlagEmoji(country)} ${org} WS ${port == 443 ? "TLS" : "NTLS"} [${serviceName}]`;
+        for (const protocol of protocolsToUse) {
+          if (protocol === "ss") {
+            uri.username = btoa(`none:${uuid}`);
+            uri.searchParams.set(
+              "plugin",
+              `${atob(v2)}-plugin${port == 80 ? "" : ";tls"};mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP2}-${prxPort};host=${effectiveHost}`
+            );
+          } else {
+            uri.username = uuid;
+            uri.searchParams.delete("plugin");
+          }
+          uri.protocol = protocol;
+          uri.searchParams.set("security", port == 443 ? "tls" : "none");
+          uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : effectiveHost);
+          prxs.push(uri.toString());
+        }
+      }
+      document.registerProxies(
+        {
+          prxIP: prxIP2,
+          prxPort,
+          country,
+          org
+        },
+        prxs
+      );
+    }
+    const showingFrom = totalProxies > 0 ? startIndex + 1 : 0;
+    const showingTo = Math.min(startIndex + PRX_PER_PAGE, totalProxies);
+    document.setPaginationInfo(`Showing ${showingFrom} to ${showingTo} of ${totalProxies} Proxies`);
+    document.addPageButton("Prev", `/sub/${page > 0 ? page - 1 : 0}`, page === 0);
+    document.addPageButton("Next", `/sub/${page < totalPages - 1 ? page + 1 : page}`, page >= totalPages - 1);
+    return document.build();
+  } catch (error) {
+    return `An error occurred while generating the ${atob(flash).toUpperCase()} configurations. ${error}`;
+  }
+}
+__name(getAllConfig, "getAllConfig");
+var jambol_default = {
   async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
       const upgradeHeader = request.headers.get("Upgrade");
-
-      // Gateway check
       if (apiKey && apiEmail && accountID && zoneID) {
         isApiReady = true;
       }
-
-      // Handle prx client
       if (upgradeHeader === "websocket") {
         const prxMatch = url.pathname.match(
           /^\/Free-VPN-Geo-Project\/(.+[:=-]\d+)$/
         );
-
         if (url.pathname.length == 3 || url.pathname.match(",")) {
-          // Contoh: /ID, /SG, dll
           const prxKeys = url.pathname.replace("/", "").toUpperCase().split(",");
           const prxKey = prxKeys[Math.floor(Math.random() * prxKeys.length)];
           const kvPrx = await getKVPrxList(env.KV_PRX_URL);
-
           prxIP = kvPrx[prxKey][Math.floor(Math.random() * kvPrx[prxKey].length)];
         } else if (prxMatch) {
           prxIP = prxMatch[1];
@@ -312,7 +218,6 @@ export default {
         }
         return await websocketHandler(request);
       }
-
       if (url.pathname.startsWith("/sub/v2rayng")) {
         const vpnType = url.searchParams.get("type");
         const bug = url.searchParams.get("bug");
@@ -320,88 +225,80 @@ export default {
         const countryCodes = url.searchParams.get("country")?.toUpperCase().split(",");
         const limit = parseInt(url.searchParams.get("limit")) || 10;
         const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
-
         let ports;
         if (url.searchParams.has("tls")) {
-            ports = useTls ? [443] : [80];
+          ports = useTls ? [443] : [80];
         } else {
-            ports = PORTS;
+          ports = PORTS;
         }
-
         const result = await generateSubscription({
-            countryCodes: countryCodes || [],
-            limit: limit,
-            vpnType: vpnType,
-            ports: ports,
-            bug: bug,
-            prxBankUrl: prxBankUrl
+          countryCodes: countryCodes || [],
+          limit,
+          vpnType,
+          ports,
+          bug,
+          prxBankUrl
         });
-        
         return new Response(result.join("\n"), {
-            status: 200,
-            headers: { ...CORS_HEADER_OPTIONS, "Content-Type": "text/plain;charset=utf-8" },
+          status: 200,
+          headers: { ...CORS_HEADER_OPTIONS, "Content-Type": "text/plain;charset=utf-8" }
         });
       } else if (url.pathname.startsWith("/api/v1/sub")) {
         const filterCC = url.searchParams.get("cc")?.split(",") || [];
-        const filterPort = url.searchParams.get("port")?.split(",").map(p => parseInt(p)) || PORTS;
+        const filterPort = url.searchParams.get("port")?.split(",").map((p) => parseInt(p)) || PORTS;
         const filterVPN = url.searchParams.get("vpn")?.split(",") || PROTOCOLS;
         const filterLimit = parseInt(url.searchParams.get("limit")) || 10;
         const filterFormat = url.searchParams.get("format") || "raw";
         const bug = url.searchParams.get("bug");
-        const useWildcard = url.searchParams.get("wc") === 'true';
+        const useWildcard = url.searchParams.get("wc") === "true";
         const domain = url.searchParams.get("domain") || APP_DOMAIN;
         const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
-
         const result = await generateSubscription({
-            countryCodes: filterCC,
-            limit: filterLimit,
-            vpnType: filterVPN,
-            ports: filterPort,
-            bug: bug,
-            useWildcard: useWildcard,
-            domain: domain,
-            prxBankUrl: prxBankUrl
+          countryCodes: filterCC,
+          limit: filterLimit,
+          vpnType: filterVPN,
+          ports: filterPort,
+          bug,
+          useWildcard,
+          domain,
+          prxBankUrl
         });
-
         let finalResult = "";
         switch (filterFormat) {
-            case "raw":
-                finalResult = result.join("\n");
-                break;
-            case atob(v2):
-                finalResult = btoa(result.join("\n"));
-                break;
-            case atob(neko):
-            case "sfa":
-            case "bfr":
-                const res = await fetch(CONVERTER_URL, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        url: result.join(","),
-                        format: filterFormat,
-                        template: "cf",
-                    }),
-                });
-                if (res.status == 200) {
-                    finalResult = await res.text();
-                } else {
-                    return new Response(res.statusText, {
-                        status: res.status,
-                        headers: { ...CORS_HEADER_OPTIONS },
-                    });
-                }
-                break;
+          case "raw":
+            finalResult = result.join("\n");
+            break;
+          case atob(v2):
+            finalResult = btoa(result.join("\n"));
+            break;
+          case atob(neko):
+          case "sfa":
+          case "bfr":
+            const res = await fetch(CONVERTER_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                url: result.join(","),
+                format: filterFormat,
+                template: "cf"
+              })
+            });
+            if (res.status == 200) {
+              finalResult = await res.text();
+            } else {
+              return new Response(res.statusText, {
+                status: res.status,
+                headers: { ...CORS_HEADER_OPTIONS }
+              });
+            }
+            break;
         }
-
         return new Response(finalResult, {
-            status: 200,
-            headers: { ...CORS_HEADER_OPTIONS },
+          status: 200,
+          headers: { ...CORS_HEADER_OPTIONS }
         });
       } else if (url.pathname.startsWith("/sub")) {
         const page = url.pathname.match(/^\/sub\/(\d+)$/);
         const pageIndex = parseInt(page ? page[1] : "0");
-
-        // Queries
         const hostname = url.searchParams.get("host") || APP_DOMAIN;
         const countrySelect = url.searchParams.get("cc")?.toUpperCase();
         const selectedProtocol = url.searchParams.get("vpn");
@@ -409,134 +306,112 @@ export default {
         const searchKeywords = url.searchParams.get("search")?.toLowerCase() || "";
         const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
         let prxList = (await getPrxList(prxBankUrl)).filter((prx) => {
-          // Filter prxs by Country
-          if (countrySelect && countrySelect !== 'ALL') {
+          if (countrySelect && countrySelect !== "ALL") {
             if (prx.country !== countrySelect) return false;
           }
-
-          // Filter by search keywords
           if (searchKeywords) {
-              const { prxIP, prxPort, country, org } = prx;
-              if (
-                  !prxIP.toLowerCase().includes(searchKeywords) &&
-                  !prxPort.toLowerCase().includes(searchKeywords) &&
-                  !country.toLowerCase().includes(searchKeywords) &&
-                  !org.toLowerCase().includes(searchKeywords)
-              ) {
-                  return false;
-              }
+            const { prxIP: prxIP2, prxPort, country, org } = prx;
+            if (!prxIP2.toLowerCase().includes(searchKeywords) && !prxPort.toLowerCase().includes(searchKeywords) && !country.toLowerCase().includes(searchKeywords) && !org.toLowerCase().includes(searchKeywords)) {
+              return false;
+            }
           }
-
           return true;
         });
-
         const cloudflareApi = new CloudflareApi();
         const wildcardDomains = await cloudflareApi.getDomainList();
-
         const result = getAllConfig(request, hostname, prxList, pageIndex, selectedProtocol, selectedPort, wildcardDomains, rootDomain);
         return new Response(result, {
           status: 200,
-          headers: { "Content-Type": "text/html;charset=utf-8" },
+          headers: { "Content-Type": "text/html;charset=utf-8" }
         });
       } else if (url.pathname.startsWith("/check")) {
         const target = url.searchParams.get("target").split(":");
         const result = await checkPrxHealth(target[0], target[1] || "443");
-
         return new Response(JSON.stringify(result), {
           status: 200,
           headers: {
             ...CORS_HEADER_OPTIONS,
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
       } else if (url.pathname.startsWith("/api/v1")) {
         const apiPath = url.pathname.replace("/api/v1", "");
-
         if (apiPath.startsWith("/domains")) {
           if (!isApiReady) {
             return new Response("Api not ready", {
-              status: 500,
+              status: 500
             });
           }
-
           const wildcardApiPath = apiPath.replace("/domains", "");
           const cloudflareApi = new CloudflareApi();
-
           if (wildcardApiPath == "/get") {
             const domains = await cloudflareApi.getDomainList();
             return new Response(JSON.stringify(domains), {
               headers: {
-                ...CORS_HEADER_OPTIONS,
-              },
+                ...CORS_HEADER_OPTIONS
+              }
             });
           } else if (wildcardApiPath == "/put") {
             const domain = url.searchParams.get("domain");
             const register = await cloudflareApi.registerDomain(domain);
-
             return new Response(register.toString(), {
               status: register,
               headers: {
-                ...CORS_HEADER_OPTIONS,
-              },
+                ...CORS_HEADER_OPTIONS
+              }
             });
           } else if (wildcardApiPath.startsWith("/delete")) {
             const domainId = url.searchParams.get("id");
             const password = url.searchParams.get("password");
-
             if (password !== ownerPassword) {
               return new Response("Unauthorized", {
                 status: 401,
-                headers: { ...CORS_HEADER_OPTIONS },
+                headers: { ...CORS_HEADER_OPTIONS }
               });
             }
-
             if (!domainId) {
               return new Response("Domain ID is required", {
                 status: 400,
-                headers: { ...CORS_HEADER_OPTIONS },
+                headers: { ...CORS_HEADER_OPTIONS }
               });
             }
-
             const result = await cloudflareApi.deleteDomain(domainId);
             return new Response(result.toString(), {
               status: result,
-              headers: { ...CORS_HEADER_OPTIONS },
+              headers: { ...CORS_HEADER_OPTIONS }
             });
           }
         } else if (apiPath.startsWith("/myip")) {
           return new Response(
             JSON.stringify({
-              ip:
-                request.headers.get("cf-connecting-ipv6") ||
-                request.headers.get("cf-connecting-ip") ||
-                request.headers.get("x-real-ip"),
+              ip: request.headers.get("cf-connecting-ipv6") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip"),
               colo: request.headers.get("cf-ray")?.split("-")[1],
-              ...request.cf,
+              ...request.cf
             }),
             {
               headers: {
-                ...CORS_HEADER_OPTIONS,
-              },
+                ...CORS_HEADER_OPTIONS
+              }
             }
           );
         } else if (apiPath.startsWith("/stats")) {
           if (!isApiReady) {
-              return new Response("API not ready", { status: 500 });
+            return new Response("API not ready", { status: 500 });
           }
           const cloudflareApi = new CloudflareApi();
           const stats = await cloudflareApi.getStats();
           if (stats) {
-              return new Response(JSON.stringify(stats), {
-                  headers: { ...CORS_HEADER_OPTIONS, 'Content-Type': 'application/json' },
-              });
+            return new Response(JSON.stringify(stats), {
+              headers: { ...CORS_HEADER_OPTIONS, "Content-Type": "application/json" }
+            });
           }
           return new Response("Could not fetch stats", { status: 500 });
         } else if (apiPath.startsWith("/countries")) {
-            await getPrxList(env.PRX_BANK_URL);
-            const countries = [...new Set(cachedPrxList.map(p => p.country))].filter(Boolean);
-            return new Response(JSON.stringify(countries.sort()), {
-                headers: { ...CORS_HEADER_OPTIONS, 'Content-Type': 'application/json' },
-            });
+          await getPrxList(env.PRX_BANK_URL);
+          const countries = [...new Set(cachedPrxList.map((p) => p.country))].filter(Boolean);
+          return new Response(JSON.stringify(countries.sort()), {
+            headers: { ...CORS_HEADER_OPTIONS, "Content-Type": "application/json" }
+          });
         }
       }
     } catch (e) {
@@ -545,162 +420,134 @@ export default {
     }
   }
 };
-
 async function websocketHandler(request) {
-	const webSocketPair = new WebSocketPair();
-	const [client, webSocket] = Object.values(webSocketPair);
-
-	webSocket.accept();
-
-	let addressLog = '';
-	let portLog = '';
-	const log = (info, event) => {
-		console.log(`[${addressLog}:${portLog}] ${info}`, event || '');
-	};
-	const earlyDataHeader = request.headers.get('sec-websocket-protocol') || '';
-
-	const readableWebSocketStream = makeReadableWebSocketStream(webSocket, earlyDataHeader, log);
-
-	let remoteSocketWrapper = {
-		value: null,
-	};
-	let udpOutboundWriter = null;
-	let isDNS = false;
-
-	// process readableWebSocketStream
-	readableWebSocketStream.pipeTo(new WritableStream({
-		async write(chunk, controller) {
-			if (isDNS) {
-				if (udpOutboundWriter) {
-					return udpOutboundWriter(chunk);
-				}
-				// It should not reach here.
-				return;
-			}
-			if (remoteSocketWrapper.value) {
-				const writer = remoteSocketWrapper.value.writable.getWriter();
-				await writer.write(chunk);
-				writer.releaseLock();
-				return;
-			}
-
-			const protocol = await protocolSniffer(chunk);
-			let protocolHeader;
-
-			if (protocol === atob(horse)) {
-				protocolHeader = readHorseHeader(chunk);
-			} else if (protocol === atob(flash)) {
-				protocolHeader = readFlashHeader(chunk);
-			} else if (protocol === 'ss') {
-				protocolHeader = readSsHeader(chunk);
-			} else {
-				throw new Error('Unknown Protocol!');
-			}
-
-			addressLog = protocolHeader.addressRemote;
-			portLog = `${protocolHeader.portRemote} -> ${protocolHeader.isUDP ? 'UDP' : 'TCP'}`;
-
-			if (protocolHeader.hasError) {
-				throw new Error(protocolHeader.message);
-			}
-
-			if (protocolHeader.isUDP) {
-				if (protocolHeader.portRemote === 53) {
-					isDNS = true;
-					const udpOutbound = await handleUDPOutbound(webSocket, protocolHeader.version, log);
-					udpOutboundWriter = udpOutbound.write;
-					udpOutboundWriter(protocolHeader.rawClientData);
-					return;
-				} else {
-					throw new Error('UDP only support for DNS port 53');
-				}
-			}
-			handleTCPOutBound(remoteSocketWrapper, protocolHeader.addressRemote, protocolHeader.portRemote, protocolHeader.rawClientData, webSocket, protocolHeader.version, log);
-		},
-		close() {
-			log(`readableWebSocketStream is close`);
-		},
-		abort(reason) {
-			log(`readableWebSocketStream is abort`, JSON.stringify(reason));
-		},
-	})).catch((err) => {
-		log('readableWebSocketStream pipeTo error', err);
-	});
-
-	return new Response(null, {
-		status: 101,
-		webSocket: client,
-	});
+  const webSocketPair = new WebSocketPair();
+  const [client, webSocket] = Object.values(webSocketPair);
+  webSocket.accept();
+  let addressLog = "";
+  let portLog = "";
+  const log = /* @__PURE__ */ __name((info, event) => {
+    console.log(`[${addressLog}:${portLog}] ${info}`, event || "");
+  }, "log");
+  const earlyDataHeader = request.headers.get("sec-websocket-protocol") || "";
+  const readableWebSocketStream = makeReadableWebSocketStream(webSocket, earlyDataHeader, log);
+  let remoteSocketWrapper = {
+    value: null
+  };
+  let udpOutboundWriter = null;
+  let isDNS = false;
+  readableWebSocketStream.pipeTo(new WritableStream({
+    async write(chunk, controller) {
+      if (isDNS) {
+        if (udpOutboundWriter) {
+          return udpOutboundWriter(chunk);
+        }
+        return;
+      }
+      if (remoteSocketWrapper.value) {
+        const writer = remoteSocketWrapper.value.writable.getWriter();
+        await writer.write(chunk);
+        writer.releaseLock();
+        return;
+      }
+      const protocol = await protocolSniffer(chunk);
+      let protocolHeader;
+      if (protocol === atob(horse)) {
+        protocolHeader = readHorseHeader(chunk);
+      } else if (protocol === atob(flash)) {
+        protocolHeader = readFlashHeader(chunk);
+      } else if (protocol === "ss") {
+        protocolHeader = readSsHeader(chunk);
+      } else {
+        throw new Error("Unknown Protocol!");
+      }
+      addressLog = protocolHeader.addressRemote;
+      portLog = `${protocolHeader.portRemote} -> ${protocolHeader.isUDP ? "UDP" : "TCP"}`;
+      if (protocolHeader.hasError) {
+        throw new Error(protocolHeader.message);
+      }
+      if (protocolHeader.isUDP) {
+        if (protocolHeader.portRemote === 53) {
+          isDNS = true;
+          const udpOutbound = await handleUDPOutbound(webSocket, protocolHeader.version, log);
+          udpOutboundWriter = udpOutbound.write;
+          udpOutboundWriter(protocolHeader.rawClientData);
+          return;
+        } else {
+          throw new Error("UDP only support for DNS port 53");
+        }
+      }
+      handleTCPOutBound(remoteSocketWrapper, protocolHeader.addressRemote, protocolHeader.portRemote, protocolHeader.rawClientData, webSocket, protocolHeader.version, log);
+    },
+    close() {
+      log(`readableWebSocketStream is close`);
+    },
+    abort(reason) {
+      log(`readableWebSocketStream is abort`, JSON.stringify(reason));
+    }
+  })).catch((err) => {
+    log("readableWebSocketStream pipeTo error", err);
+  });
+  return new Response(null, {
+    status: 101,
+    webSocket: client
+  });
 }
-
+__name(websocketHandler, "websocketHandler");
 async function protocolSniffer(buffer) {
   if (buffer.byteLength >= 62) {
     const horseDelimiter = new Uint8Array(buffer.slice(56, 60));
-    if (horseDelimiter[0] === 0x0d && horseDelimiter[1] === 0x0a) {
-      if (horseDelimiter[2] === 0x01 || horseDelimiter[2] === 0x03 || horseDelimiter[2] === 0x7f) {
-        if (horseDelimiter[3] === 0x01 || horseDelimiter[3] === 0x03 || horseDelimiter[3] === 0x04) {
+    if (horseDelimiter[0] === 13 && horseDelimiter[1] === 10) {
+      if (horseDelimiter[2] === 1 || horseDelimiter[2] === 3 || horseDelimiter[2] === 127) {
+        if (horseDelimiter[3] === 1 || horseDelimiter[3] === 3 || horseDelimiter[3] === 4) {
           return atob(horse);
         }
       }
     }
   }
-
   const flashDelimiter = new Uint8Array(buffer.slice(1, 17));
-  // Hanya mendukung UUID v4
   if (arrayBufferToHex(flashDelimiter).match(/^[0-9a-f]{8}[0-9a-f]{4}4[0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i)) {
     return atob(flash);
   }
-
-  return "ss"; // default
+  return "ss";
 }
-
-async function handleTCPOutBound(
-  remoteSocket,
-  addressRemote,
-  portRemote,
-  rawClientData,
-  webSocket,
-  responseHeader,
-  log
-) {
+__name(protocolSniffer, "protocolSniffer");
+async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, responseHeader, log) {
   async function connectAndWrite(address, port) {
-    const tcpSocket = connect({
+    const tcpSocket2 = connect({
       hostname: address,
-      port: port,
+      port
     });
-    remoteSocket.value = tcpSocket;
+    remoteSocket.value = tcpSocket2;
     log(`connected to ${address}:${port}`);
-    const writer = tcpSocket.writable.getWriter();
+    const writer = tcpSocket2.writable.getWriter();
     await writer.write(rawClientData);
     writer.releaseLock();
-
-    return tcpSocket;
+    return tcpSocket2;
   }
-
+  __name(connectAndWrite, "connectAndWrite");
   async function retry() {
-    const tcpSocket = await connectAndWrite(
+    const tcpSocket2 = await connectAndWrite(
       prxIP.split(/[:=-]/)[0] || addressRemote,
       prxIP.split(/[:=-]/)[1] || portRemote
     );
-    tcpSocket.closed
-      .catch((error) => {
-        console.log("retry tcpSocket closed error", error);
-      })
-      .finally(() => {
-        safeCloseWebSocket(webSocket);
-      });
-    remoteSocketToWS(tcpSocket, webSocket, responseHeader, null, log);
+    tcpSocket2.closed.catch((error) => {
+      console.log("retry tcpSocket closed error", error);
+    }).finally(() => {
+      safeCloseWebSocket(webSocket);
+    });
+    remoteSocketToWS(tcpSocket2, webSocket, responseHeader, null, log);
   }
-
+  __name(retry, "retry");
   const tcpSocket = await connectAndWrite(addressRemote, portRemote);
-
   remoteSocketToWS(tcpSocket, webSocket, responseHeader, retry, log);
 }
-
+__name(handleTCPOutBound, "handleTCPOutBound");
 async function handleUDPOutbound(webSocket, responseHeader, log) {
   let isVlessHeaderSent = false;
   const transformStream = new TransformStream({
-    start(controller) {},
+    start(controller) {
+    },
     transform(chunk, controller) {
       for (let index = 0; index < chunk.byteLength; ) {
         const lengthBuffer = chunk.slice(index, index + 2);
@@ -710,47 +557,44 @@ async function handleUDPOutbound(webSocket, responseHeader, log) {
         controller.enqueue(udpData);
       }
     },
-    flush(controller) {},
+    flush(controller) {
+    }
   });
-  transformStream.readable
-    .pipeTo(
-      new WritableStream({
-        async write(chunk) {
-          const resp = await fetch(DOH_URL, {
-            method: "POST",
-            headers: {
-              "content-type": "application/dns-message",
-            },
-            body: chunk,
-          });
-          const dnsQueryResult = await resp.arrayBuffer();
-          const udpSize = dnsQueryResult.byteLength;
-          const udpSizeBuffer = new Uint8Array([(udpSize >> 8) & 0xff, udpSize & 0xff]);
-          if (webSocket.readyState === WS_READY_STATE_OPEN) {
-            log(`doh success and dns message length is ${udpSize}`);
-            if (isVlessHeaderSent) {
-              webSocket.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
-            } else {
-              webSocket.send(await new Blob([responseHeader, udpSizeBuffer, dnsQueryResult]).arrayBuffer());
-              isVlessHeaderSent = true;
-            }
+  transformStream.readable.pipeTo(
+    new WritableStream({
+      async write(chunk) {
+        const resp = await fetch(DOH_URL, {
+          method: "POST",
+          headers: {
+            "content-type": "application/dns-message"
+          },
+          body: chunk
+        });
+        const dnsQueryResult = await resp.arrayBuffer();
+        const udpSize = dnsQueryResult.byteLength;
+        const udpSizeBuffer = new Uint8Array([udpSize >> 8 & 255, udpSize & 255]);
+        if (webSocket.readyState === WS_READY_STATE_OPEN) {
+          log(`doh success and dns message length is ${udpSize}`);
+          if (isVlessHeaderSent) {
+            webSocket.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
+          } else {
+            webSocket.send(await new Blob([responseHeader, udpSizeBuffer, dnsQueryResult]).arrayBuffer());
+            isVlessHeaderSent = true;
           }
-        },
-      })
-    )
-    .catch((error) => {
-      log("dns udp has error" + error);
-    });
-
+        }
+      }
+    })
+  ).catch((error) => {
+    log("dns udp has error" + error);
+  });
   const writer = transformStream.writable.getWriter();
-
   return {
     write(chunk) {
       writer.write(chunk);
-    },
+    }
   };
 }
-
+__name(handleUDPOutbound, "handleUDPOutbound");
 function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
   let readableStreamCancel = false;
   const stream = new ReadableStream({
@@ -780,8 +624,8 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
         controller.enqueue(earlyData);
       }
     },
-
-    pull(controller) {},
+    pull(controller) {
+    },
     cancel(reason) {
       if (readableStreamCancel) {
         return;
@@ -789,20 +633,17 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
       log(`ReadableStream was canceled, due to ${reason}`);
       readableStreamCancel = true;
       safeCloseWebSocket(webSocketServer);
-    },
+    }
   });
-
   return stream;
 }
-
+__name(makeReadableWebSocketStream, "makeReadableWebSocketStream");
 function readSsHeader(ssBuffer) {
   const view = new DataView(ssBuffer);
-
   const addressType = view.getUint8(0);
   let addressLength = 0;
   let addressValueIndex = 1;
   let addressValue = "";
-
   switch (addressType) {
     case 1:
       addressLength = 4;
@@ -825,38 +666,34 @@ function readSsHeader(ssBuffer) {
     default:
       return {
         hasError: true,
-        message: `Invalid addressType for SS: ${addressType}`,
+        message: `Invalid addressType for SS: ${addressType}`
       };
   }
-
   if (!addressValue) {
     return {
       hasError: true,
-      message: `Destination address empty, address type is: ${addressType}`,
+      message: `Destination address empty, address type is: ${addressType}`
     };
   }
-
   const portIndex = addressValueIndex + addressLength;
   const portBuffer = ssBuffer.slice(portIndex, portIndex + 2);
   const portRemote = new DataView(portBuffer).getUint16(0);
   return {
     hasError: false,
     addressRemote: addressValue,
-    addressType: addressType,
-    portRemote: portRemote,
+    addressType,
+    portRemote,
     rawDataIndex: portIndex + 2,
     rawClientData: ssBuffer.slice(portIndex + 2),
     version: null,
-    isUDP: portRemote == 53,
+    isUDP: portRemote == 53
   };
 }
-
+__name(readSsHeader, "readSsHeader");
 function readFlashHeader(buffer) {
   const version = new Uint8Array(buffer.slice(0, 1));
   let isUDP = false;
-
   const optLength = new Uint8Array(buffer.slice(17, 18))[0];
-
   const cmd = new Uint8Array(buffer.slice(18 + optLength, 18 + optLength + 1))[0];
   if (cmd === 1) {
   } else if (cmd === 2) {
@@ -864,31 +701,29 @@ function readFlashHeader(buffer) {
   } else {
     return {
       hasError: true,
-      message: `command ${cmd} is not supported`,
+      message: `command ${cmd} is not supported`
     };
   }
   const portIndex = 18 + optLength + 1;
   const portBuffer = buffer.slice(portIndex, portIndex + 2);
   const portRemote = new DataView(portBuffer).getUint16(0);
-
   let addressIndex = portIndex + 2;
   const addressBuffer = new Uint8Array(buffer.slice(addressIndex, addressIndex + 1));
-
   const addressType = addressBuffer[0];
   let addressLength = 0;
   let addressValueIndex = addressIndex + 1;
   let addressValue = "";
   switch (addressType) {
-    case 1: // For IPv4
+    case 1:
       addressLength = 4;
       addressValue = new Uint8Array(buffer.slice(addressValueIndex, addressValueIndex + addressLength)).join(".");
       break;
-    case 2: // For Domain
+    case 2:
       addressLength = new Uint8Array(buffer.slice(addressValueIndex, addressValueIndex + 1))[0];
       addressValueIndex += 1;
       addressValue = new TextDecoder().decode(buffer.slice(addressValueIndex, addressValueIndex + addressLength));
       break;
-    case 3: // For IPv6
+    case 3:
       addressLength = 16;
       const dataView = new DataView(buffer.slice(addressValueIndex, addressValueIndex + addressLength));
       const ipv6 = [];
@@ -900,37 +735,35 @@ function readFlashHeader(buffer) {
     default:
       return {
         hasError: true,
-        message: `invild  addressType is ${addressType}`,
+        message: `invild  addressType is ${addressType}`
       };
   }
   if (!addressValue) {
     return {
       hasError: true,
-      message: `addressValue is empty, addressType is ${addressType}`,
+      message: `addressValue is empty, addressType is ${addressType}`
     };
   }
-
   return {
     hasError: false,
     addressRemote: addressValue,
-    addressType: addressType,
-    portRemote: portRemote,
+    addressType,
+    portRemote,
     rawDataIndex: addressValueIndex + addressLength,
     rawClientData: buffer.slice(addressValueIndex + addressLength),
     version: new Uint8Array([version[0], 0]),
-    isUDP: isUDP,
+    isUDP
   };
 }
-
+__name(readFlashHeader, "readFlashHeader");
 function readHorseHeader(buffer) {
   const dataBuffer = buffer.slice(58);
   if (dataBuffer.byteLength < 6) {
     return {
       hasError: true,
-      message: "invalid request data",
+      message: "invalid request data"
     };
   }
-
   let isUDP = false;
   const view = new DataView(dataBuffer);
   const cmd = view.getUint8(0);
@@ -939,22 +772,21 @@ function readHorseHeader(buffer) {
   } else if (cmd != 1) {
     throw new Error("Unsupported command type!");
   }
-
   let addressType = view.getUint8(1);
   let addressLength = 0;
   let addressValueIndex = 2;
   let addressValue = "";
   switch (addressType) {
-    case 1: // For IPv4
+    case 1:
       addressLength = 4;
       addressValue = new Uint8Array(dataBuffer.slice(addressValueIndex, addressValueIndex + addressLength)).join(".");
       break;
-    case 3: // For Domain
+    case 3:
       addressLength = new Uint8Array(dataBuffer.slice(addressValueIndex, addressValueIndex + 1))[0];
       addressValueIndex += 1;
       addressValue = new TextDecoder().decode(dataBuffer.slice(addressValueIndex, addressValueIndex + addressLength));
       break;
-    case 4: // For IPv6
+    case 4:
       addressLength = 16;
       const dataView = new DataView(dataBuffer.slice(addressValueIndex, addressValueIndex + addressLength));
       const ipv6 = [];
@@ -966,86 +798,77 @@ function readHorseHeader(buffer) {
     default:
       return {
         hasError: true,
-        message: `invalid addressType is ${addressType}`,
+        message: `invalid addressType is ${addressType}`
       };
   }
-
   if (!addressValue) {
     return {
       hasError: true,
-      message: `address is empty, addressType is ${addressType}`,
+      message: `address is empty, addressType is ${addressType}`
     };
   }
-
   const portIndex = addressValueIndex + addressLength;
   const portBuffer = dataBuffer.slice(portIndex, portIndex + 2);
   const portRemote = new DataView(portBuffer).getUint16(0);
-  
   let rawClientData;
   if (isUDP) {
-      // For UDP, Trojan packet is: [DST.PORT | 2] [LENGTH | 2] [CRLF | 2] [PAYLOAD]
-      // The new handler expects a stream of [LENGTH | 2] [PAYLOAD]
-      // We need to extract the payload and prepend the length.
-      const payloadLength = new DataView(dataBuffer.slice(portIndex + 2, portIndex + 4)).getUint16(0);
-      const payload = dataBuffer.slice(portIndex + 6, portIndex + 6 + payloadLength);
-      
-      const packet = new Uint8Array(2 + payload.byteLength);
-      new DataView(packet.buffer).setUint16(0, payload.byteLength);
-      packet.set(new Uint8Array(payload), 2);
-      rawClientData = packet.buffer;
+    const payloadLength = new DataView(dataBuffer.slice(portIndex + 2, portIndex + 4)).getUint16(0);
+    const payload = dataBuffer.slice(portIndex + 6, portIndex + 6 + payloadLength);
+    const packet = new Uint8Array(2 + payload.byteLength);
+    new DataView(packet.buffer).setUint16(0, payload.byteLength);
+    packet.set(new Uint8Array(payload), 2);
+    rawClientData = packet.buffer;
   } else {
     rawClientData = dataBuffer.slice(portIndex + 4);
   }
-
   return {
     hasError: false,
     addressRemote: addressValue,
-    addressType: addressType,
-    portRemote: portRemote,
+    addressType,
+    portRemote,
     rawDataIndex: portIndex + 4,
-    rawClientData: rawClientData,
+    rawClientData,
     version: null,
-    isUDP: isUDP,
+    isUDP
   };
 }
-
+__name(readHorseHeader, "readHorseHeader");
 async function remoteSocketToWS(remoteSocket, webSocket, responseHeader, retry, log) {
   let header = responseHeader;
   let hasIncomingData = false;
-  await remoteSocket.readable
-    .pipeTo(
-      new WritableStream({
-        start() {},
-        async write(chunk, controller) {
-          hasIncomingData = true;
-          if (webSocket.readyState !== WS_READY_STATE_OPEN) {
-            controller.error("webSocket.readyState is not open, maybe close");
-          }
-          if (header) {
-            webSocket.send(await new Blob([header, chunk]).arrayBuffer());
-            header = null;
-          } else {
-            webSocket.send(chunk);
-          }
-        },
-        close() {
-          log(`remoteConnection!.readable is close with hasIncomingData is ${hasIncomingData}`);
-        },
-        abort(reason) {
-          console.error(`remoteConnection!.readable abort`, reason);
-        },
-      })
-    )
-    .catch((error) => {
-      console.error(`remoteSocketToWS has exception `, error.stack || error);
-      safeCloseWebSocket(webSocket);
-    });
+  await remoteSocket.readable.pipeTo(
+    new WritableStream({
+      start() {
+      },
+      async write(chunk, controller) {
+        hasIncomingData = true;
+        if (webSocket.readyState !== WS_READY_STATE_OPEN) {
+          controller.error("webSocket.readyState is not open, maybe close");
+        }
+        if (header) {
+          webSocket.send(await new Blob([header, chunk]).arrayBuffer());
+          header = null;
+        } else {
+          webSocket.send(chunk);
+        }
+      },
+      close() {
+        log(`remoteConnection!.readable is close with hasIncomingData is ${hasIncomingData}`);
+      },
+      abort(reason) {
+        console.error(`remoteConnection!.readable abort`, reason);
+      }
+    })
+  ).catch((error) => {
+    console.error(`remoteSocketToWS has exception `, error.stack || error);
+    safeCloseWebSocket(webSocket);
+  });
   if (hasIncomingData === false && retry) {
     log(`retry`);
     retry();
   }
 }
-
+__name(remoteSocketToWS, "remoteSocketToWS");
 function safeCloseWebSocket(socket) {
   try {
     if (socket.readyState === WS_READY_STATE_OPEN || socket.readyState === WS_READY_STATE_CLOSING) {
@@ -1055,13 +878,12 @@ function safeCloseWebSocket(socket) {
     console.error("safeCloseWebSocket error", error);
   }
 }
-
-async function checkPrxHealth(prxIP, prxPort) {
-  const req = await fetch(`${PRX_HEALTH_CHECK_API}?ip=${prxIP}:${prxPort}`);
+__name(safeCloseWebSocket, "safeCloseWebSocket");
+async function checkPrxHealth(prxIP2, prxPort) {
+  const req = await fetch(`${PRX_HEALTH_CHECK_API}?ip=${prxIP2}:${prxPort}`);
   return await req.json();
 }
-
-// Helpers
+__name(checkPrxHealth, "checkPrxHealth");
 function base64ToArrayBuffer(base64Str) {
   if (!base64Str) {
     return { error: null };
@@ -1075,83 +897,62 @@ function base64ToArrayBuffer(base64Str) {
     return { error };
   }
 }
-
+__name(base64ToArrayBuffer, "base64ToArrayBuffer");
 function arrayBufferToHex(buffer) {
   return [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, "0")).join("");
 }
-
+__name(arrayBufferToHex, "arrayBufferToHex");
 function shuffleArray(array) {
   let currentIndex = array.length;
-
-  // While there remain elements to shuffle...
   while (currentIndex != 0) {
-    // Pick a remaining element...
     let randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
-
-    // And swap it with the current element.
     [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
   }
 }
-
-function reverse(s) {
-  return s.split("").reverse().join("");
-}
-
+__name(shuffleArray, "shuffleArray");
 function getFlagEmoji(isoCode) {
-  const codePoints = isoCode
-    .toUpperCase()
-    .split("")
-    .map((char) => 127397 + char.charCodeAt(0));
+  const codePoints = isoCode.toUpperCase().split("").map((char) => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
 }
-
-// CloudflareApi Class
-class CloudflareApi {
+__name(getFlagEmoji, "getFlagEmoji");
+var CloudflareApi = class {
+  static {
+    __name(this, "CloudflareApi");
+  }
   constructor() {
     this.bearer = `Bearer ${apiKey}`;
     this.accountID = accountID;
     this.zoneID = zoneID;
     this.apiEmail = apiEmail;
     this.apiKey = apiKey;
-
     this.headers = {
       Authorization: this.bearer,
       "X-Auth-Email": this.apiEmail,
-      "X-Auth-Key": this.apiKey,
+      "X-Auth-Key": this.apiKey
     };
   }
-
   async getDomainList() {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains`;
     const res = await fetch(url, {
       headers: {
-        ...this.headers,
-      },
+        ...this.headers
+      }
     });
-
     if (res.status == 200) {
       const respJson = await res.json();
-
-      return respJson.result
-        .filter((data) => data.service == serviceName)
-        .map((data) => ({ id: data.id, hostname: data.hostname }));
+      return respJson.result.filter((data) => data.service == serviceName).map((data) => ({ id: data.id, hostname: data.hostname }));
     }
-
     return [];
   }
-
   async registerDomain(domain) {
     domain = domain.toLowerCase();
     const registeredDomains = await this.getDomainList();
-
     if (!domain.endsWith(rootDomain)) return 400;
     if (registeredDomains.includes(domain)) return 409;
-
     try {
       const domainTest = await fetch(`https://${domain.replaceAll("." + APP_DOMAIN, "")}`);
       if (domainTest.status == 530) return domainTest.status;
-
       const badWordsListRes = await fetch(BAD_WORDS_LIST);
       if (badWordsListRes.status == 200) {
         const badWordsList = (await badWordsListRes.text()).split("\n");
@@ -1166,7 +967,6 @@ class CloudflareApi {
     } catch (e) {
       return 400;
     }
-
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains`;
     const res = await fetch(url, {
       method: "PUT",
@@ -1174,30 +974,26 @@ class CloudflareApi {
         environment: "production",
         hostname: domain,
         service: serviceName,
-        zone_id: this.zoneID,
+        zone_id: this.zoneID
       }),
       headers: {
-        ...this.headers,
-      },
+        ...this.headers
+      }
     });
-
     return res.status;
   }
-
   async deleteDomain(domainId) {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains/${domainId}`;
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
-        ...this.headers,
-      },
+        ...this.headers
+      }
     });
-
     return res.status;
   }
-
   async getStats() {
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1e3).toISOString().split("T")[0];
     const query = `
     query {
       viewer {
@@ -1211,30 +1007,26 @@ class CloudflareApi {
         }
       }
     }`;
-
     const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
-        method: 'POST',
-        headers: {
-            ...this.headers,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query }),
+      method: "POST",
+      headers: {
+        ...this.headers,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ query })
     });
-
     if (res.status === 200) {
-        const respJson = await res.json();
-        const data = respJson.data.viewer.accounts[0].httpRequests1dGroups[0].sum;
-        return {
-            requests: data.requests,
-            bandwidth: data.bytes,
-        };
+      const respJson = await res.json();
+      const data = respJson.data.viewer.accounts[0].httpRequests1dGroups[0].sum;
+      return {
+        requests: data.requests,
+        bandwidth: data.bytes
+      };
     }
     return null;
   }
-}
-
-
-let baseHTML = `
+};
+var baseHTML = `
 <!DOCTYPE html>
 <html lang="en" id="html" class="scroll-auto scrollbar-hide dark">
 <head>
@@ -1306,7 +1098,7 @@ let baseHTML = `
           document.getElementById('html').classList.add('dark');
         }
       })();
-    </script>
+    <\/script>
     <div
       id="loading-screen"
       class="fixed inset-0 z-50 flex justify-center items-center bg-gray-900 bg-opacity-80 transition-opacity duration-500"
@@ -1425,7 +1217,7 @@ let baseHTML = `
         </div>
 
         <div id="output-window" class="fixed z-30 inset-0 flex justify-center items-center p-2 hidden">
-    
+
     <div class="w-full max-w-xs flex flex-col gap-2 p-4 text-center rounded-xl backdrop-blur-md bg-blue-900/40 border border-sky-700 shadow-lg animate-zoom-in">
 
         <div class="flex flex-col items-center gap-1 mb-1">
@@ -1465,10 +1257,10 @@ let baseHTML = `
         </div>
     </div>
     <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
-    <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg 
-                 bg-blue-500 bg-opacity-20 backdrop-blur-md 
-                 border border-blue-300"> 
-        
+    <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg
+                 bg-blue-500 bg-opacity-20 backdrop-blur-md
+                 border border-blue-300">
+
         <div class="flex w-full h-full gap-2 justify-between">
             <input id="new-domain-input" type="text" placeholder="Input wildcard" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2"/>
             <button onclick="registerDomain()" class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center">
@@ -1479,7 +1271,7 @@ let baseHTML = `
         </div>
 
         <div id="container-domains" class="w-full h-32 rounded-md flex flex-col gap-1 overflow-y-scroll scrollbar-hide p-2 bg-gray-900 w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2"></div>
-    
+
             <div class="flex w-full h-full gap-2 justify-between">
                 <input id="delete-domain-input" type="number" placeholder="Input Nomor" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2"/>
                 <button onclick="deleteDomainByNumber()" class="p-2 rounded-full bg-red-600 hover:bg-red-700 flex justify-center items-center">
@@ -1506,7 +1298,7 @@ let baseHTML = `
     </button>
 
         <div id="dropdown-menu" class="hidden flex flex-col gap-3">
-            
+
             <a href="/kuota">
                 <button class="bg-teal-500 hover:bg-teal-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200" title="Cek Kuota">
                     <img src="https://raw.githubusercontent.com/jaka9m/vless/refs/heads/main/sidompul.jpg" alt="Cek Kuota Icon" class="footer-icon-img">
@@ -1524,7 +1316,7 @@ let baseHTML = `
             PLACEHOLDER_WHATSAPP_BUTTON
 
             PLACEHOLDER_TELEGRAM_BUTTON
-            
+
             <button onclick="toggleWildcardsWindow()" class="bg-indigo-500 hover:bg-indigo-600 rounded-full border-2 border-gray-900 p-2 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
@@ -1549,7 +1341,7 @@ let baseHTML = `
                 <img src="https://geoproject.biz.id/social/linksub.png" alt="menu" width="40" class="mt-1">
             </a>
         </span>
-        
+
         <span>
             <a href="/kuota">
                 <button class="bg-teal-500 hover:bg-teal-600 rounded-full border-1 border-gray-900 p-2 block transition-colors duration-200" title="Cek Kuota">
@@ -1557,13 +1349,13 @@ let baseHTML = `
                 </button>
             </a>
         </span>
-        
+
         <span>
             <a href="https://t.me/VLTRSSbot" target="_blank" rel="noopener noreferrer">
                 <img src="https://geoproject.biz.id/social/bot.png" alt="menu" width="40" class="mt-1">
             </a>
         </span>
-        
+
         <span>
             <a href="/sub" target="_self" rel="noopener noreferrer">
                 <img src="https://geoproject.biz.id/social/home.png" alt="menu" width="40" class="mt-1">
@@ -1576,10 +1368,10 @@ let baseHTML = `
         const dropdownMenu = document.getElementById('dropdown-menu');
         dropdownMenu.classList.toggle('hidden');
     }
-</script>
+<\/script>
 
      <script>
-  
+
       // Shared
       const rootDomain = "PLACEHOLDER_ROOT_DOMAIN";
       const notification = document.getElementById("notification-badge");
@@ -1853,7 +1645,7 @@ let baseHTML = `
           localStorage.setItem('theme', 'dark');
         }
       }
-  
+
 function checkProxy() {
     for (let i = 0; ; i++) {
         const pingElement = document.getElementById("ping-" + i);
@@ -1862,7 +1654,7 @@ function checkProxy() {
         const target = pingElement.textContent.split(" ").filter((ipPort) => ipPort.match(":"))[0];
         if (target) {
             // Gunakan innerHTML untuk menampilkan multi-baris
-            pingElement.innerHTML = "Checking..."; 
+            pingElement.innerHTML = "Checking...";
         } else {
             continue;
         }
@@ -1875,7 +1667,7 @@ function checkProxy() {
                     if (res.status == 200) {
                         pingElement.classList.remove("dark:text-white");
                         const jsonResp = await res.json();
-                        
+
                         // Periksa status dari JSON
                         if (jsonResp.status === "ACTIVE") {
                             isActive = true;
@@ -1885,15 +1677,15 @@ function checkProxy() {
 
                             // MODIFIKASI: Menampilkan Active berkedip dan Delay/Colo KUNING
                             pingElement.innerHTML = '<span class="blink-text">Active</span><br><span class="text-xs font-normal text-yellow-400">' + delay + ' (' + colo + ')</span>';
-                            
+
                             // Tambahkan kelas untuk warna hijau pada elemen utama (untuk Active)
                             pingElement.classList.add("text-green-600");
-                            pingElement.classList.remove("text-red-600"); 
+                            pingElement.classList.remove("text-red-600");
 
                         } else {
                             pingElement.textContent = "Inactive";
                             pingElement.classList.add("text-red-600");
-                            pingElement.classList.remove("text-green-600"); 
+                            pingElement.classList.remove("text-green-600");
                         }
                     } else {
                         pingElement.textContent = "Check Failed!";
@@ -2008,62 +1800,58 @@ setInterval(updateTime, 1000);
           paginationContainer.classList.add("-translate-y-6");
         }
       };
-    </script>
+    <\/script>
   </body>
 </html>
 `;
-
-class Document {
-    proxies = [];
-    wildcardDomains = [];
-    rootDomain = "";
-    startIndex = 0;
-
-    constructor(request, wildcardDomains = [], rootDomain = "", startIndex = 0) {
-        this.html = baseHTML;
-        this.request = request;
-        this.url = new URL(this.request.url);
-        this.wildcardDomains = wildcardDomains;
-        this.rootDomain = rootDomain;
-        this.startIndex = startIndex;
-    }
-
-    setTotalProxy(total) {
-        this.html = this.html.replace(
-            '<strong id="total-proxy-value" class="font-semibold">0</strong>',
-            `<strong id="total-proxy-value" class="font-semibold">${total}</strong>`
-        );
-    }
-    
-    setPage(current, total) {
-        this.html = this.html.replace(
-            '<strong id="page-info-value" class="font-semibold">0/0</strong>',
-            `<strong id="page-info-value" class="font-semibold">${current}/${total}</strong>`
-        );
-    }
-
-setTitle(title) {
+var Document = class {
+  static {
+    __name(this, "Document");
+  }
+  proxies = [];
+  wildcardDomains = [];
+  rootDomain = "";
+  startIndex = 0;
+  constructor(request, wildcardDomains = [], rootDomain2 = "", startIndex = 0) {
+    this.html = baseHTML;
+    this.request = request;
+    this.url = new URL(this.request.url);
+    this.wildcardDomains = wildcardDomains;
+    this.rootDomain = rootDomain2;
+    this.startIndex = startIndex;
+  }
+  setTotalProxy(total) {
+    this.html = this.html.replace(
+      '<strong id="total-proxy-value" class="font-semibold">0</strong>',
+      `<strong id="total-proxy-value" class="font-semibold">${total}</strong>`
+    );
+  }
+  setPage(current, total) {
+    this.html = this.html.replace(
+      '<strong id="page-info-value" class="font-semibold">0/0</strong>',
+      `<strong id="page-info-value" class="font-semibold">${current}/${total}</strong>`
+    );
+  }
+  setTitle(title) {
     this.html = this.html.replaceAll("PLACEHOLDER_JUDUL", title.replace("text-blue-500", "text-indigo-500"));
   }
-
   addInfo(text) {
     text = `<span>${text}</span>`;
-    this.html = this.html.replaceAll("PLACEHOLDER_INFO", `${text}\nPLACEHOLDER_INFO`);
+    this.html = this.html.replaceAll("PLACEHOLDER_INFO", `${text}
+PLACEHOLDER_INFO`);
   }
-
-    registerProxies(data, proxies) {
-        this.proxies.push({
-            ...data,
-            list: proxies,
-        });
-    }
-
-    buildProxyGroup() {
-        let tableRows = "";
-        for (let i = 0; i < this.proxies.length; i++) {
-            const prx = this.proxies[i];
-            const proxyConfigs = prx.list.join('\\n');
-            tableRows += `
+  registerProxies(data, proxies) {
+    this.proxies.push({
+      ...data,
+      list: proxies
+    });
+  }
+  buildProxyGroup() {
+    let tableRows = "";
+    for (let i = 0; i < this.proxies.length; i++) {
+      const prx = this.proxies[i];
+      const proxyConfigs = prx.list.join("\\n");
+      tableRows += `
                 <tr>
      <td class="px-3 py-3 text-base text-center">${this.startIndex + i + 1}.</td>
      <td class="px-3 py-3 text-base font-mono text-center">${prx.prxIP}:${prx.prxPort}</td>
@@ -2079,12 +1867,11 @@ setTitle(title) {
     </td>
 </tr>
             `;
-        }
-
-        const table = `
-            <div class="overflow-x-auto w-full max-w-full" style="max-height: 500px; overflow-y: auto;">    
+    }
+    const table = `
+            <div class="overflow-x-auto w-full max-w-full" style="max-height: 500px; overflow-y: auto;">
     <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-base" style="box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-        
+
         <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10" style="box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);">
             <tr>
                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 50px;">No.</th>
@@ -2101,108 +1888,82 @@ setTitle(title) {
     </table>
 </div>
         `;
-
-        this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", table);
+    this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", table);
+  }
+  buildCountryFlag() {
+    const prxBankUrl = this.url.searchParams.get("prx-list");
+    const selectedCC = this.url.searchParams.get("cc");
+    const flagList = [];
+    for (const proxy of cachedPrxList) {
+      flagList.push(proxy.country);
     }
-
-    buildCountryFlag() {
-        const prxBankUrl = this.url.searchParams.get("prx-list");
-        const selectedCC = this.url.searchParams.get("cc");
-        const flagList = [];
-        for (const proxy of cachedPrxList) {
-            flagList.push(proxy.country);
-        }
-
-        let flagElement = "";
-        for (const flag of new Set(flagList)) {
-            const isSelected = selectedCC === flag;
-            // Apply different classes based on selection state
-            const linkClasses = isSelected 
-                ? 'border-2 border-blue-400 rounded-lg p-0.5' // Classes for selected flag
-                : 'py-1';                                     // Classes for non-selected flag
-
-            flagElement += `<a href="/sub?cc=${flag}${prxBankUrl ? "&prx-list=" + prxBankUrl : ""
-                }" class="flex items-center justify-center ${linkClasses}" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/${flag.toLowerCase()}.svg" /></a>`;
-        }
-
-        this.html = this.html.replaceAll("PLACEHOLDER_BENDERA_NEGARA", flagElement);
+    let flagElement = "";
+    for (const flag of new Set(flagList)) {
+      const isSelected = selectedCC === flag;
+      const linkClasses = isSelected ? "border-2 border-blue-400 rounded-lg p-0.5" : "py-1";
+      flagElement += `<a href="/sub?cc=${flag}${prxBankUrl ? "&prx-list=" + prxBankUrl : ""}" class="flex items-center justify-center ${linkClasses}" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/${flag.toLowerCase()}.svg" /></a>`;
     }
-
-    addPageButton(text, link, isDisabled) {
-        const pageButton = `<li><button ${
-            isDisabled ? "disabled" : ""
-        } class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-glow hover:opacity-80 transition-opacity" onclick=navigateTo('${link}')>${text}</button></li>`;
-
-        this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", `${pageButton}\nPLACEHOLDER_PAGE_BUTTON`);
-    }
-
-
-    setPaginationInfo(info) {
-        this.html = this.html.replace("PLACEHOLDER_PAGINATION_INFO", info);
-    }
-
-    build() {
-        this.buildProxyGroup();
-        this.buildCountryFlag();
-
-        this.html = this.html.replaceAll("PLACEHOLDER_API_READY", isApiReady ? "block" : "hidden");
-
-        let whatsappButton = '';
-        if (WHATSAPP_NUMBER) {
-            whatsappButton = `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank">
+    this.html = this.html.replaceAll("PLACEHOLDER_BENDERA_NEGARA", flagElement);
+  }
+  addPageButton(text, link, isDisabled) {
+    const pageButton = `<li><button ${isDisabled ? "disabled" : ""} class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-glow hover:opacity-80 transition-opacity" onclick=navigateTo('${link}')>${text}</button></li>`;
+    this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", `${pageButton}
+PLACEHOLDER_PAGE_BUTTON`);
+  }
+  setPaginationInfo(info) {
+    this.html = this.html.replace("PLACEHOLDER_PAGINATION_INFO", info);
+  }
+  build() {
+    this.buildProxyGroup();
+    this.buildCountryFlag();
+    this.html = this.html.replaceAll("PLACEHOLDER_API_READY", isApiReady ? "block" : "hidden");
+    let whatsappButton = "";
+    if (WHATSAPP_NUMBER) {
+      whatsappButton = `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank">
                               <button class="bg-green-500 hover:bg-green-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
                                 <img src="https://geoproject.biz.id/circle-flags/whatsapp.png" alt="WhatsApp Icon" class="size-6">
                               </button>
                             </a>`;
-        }
-        this.html = this.html.replace('PLACEHOLDER_WHATSAPP_BUTTON', whatsappButton);
-
-        let telegramButton = '';
-        if (TELEGRAM_USERNAME) {
-            telegramButton = `<a href="https://t.me/${TELEGRAM_USERNAME}" target="_blank">
+    }
+    this.html = this.html.replace("PLACEHOLDER_WHATSAPP_BUTTON", whatsappButton);
+    let telegramButton = "";
+    if (TELEGRAM_USERNAME) {
+      telegramButton = `<a href="https://t.me/${TELEGRAM_USERNAME}" target="_blank">
                               <button class="bg-blue-500 hover:bg-blue-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
                                 <img src="https://geoproject.biz.id/circle-flags/telegram.png" alt="Telegram Icon" class="size-6">
                               </button>
                             </a>`;
-        }
-        this.html = this.html.replace('PLACEHOLDER_TELEGRAM_BUTTON', telegramButton);
-
-        this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', `https://${serviceName}.${rootDomain}/check?target=`);
-        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', `${serviceName}.${rootDomain}`);
-        this.html = this.html.replaceAll('PLACEHOLDER_CONVERTER_URL', CONVERTER_URL);
-        this.html = this.html.replaceAll('PLACEHOLDER_DONATE_LINK', DONATE_LINK);
-
-        this.buildDropdowns();
-
-        return this.html.replaceAll(/PLACEHOLDER_\w+/gim, "");
     }
-
-buildDropdowns() {
-    const selectedProtocol = this.url.searchParams.get('vpn') || 'all';
-    const selectedCountry = this.url.searchParams.get('cc') || 'all';
-    const selectedHost = this.url.searchParams.get('host') || APP_DOMAIN;
-    const selectedPort = this.url.searchParams.get('port') || 'all';
-
-    // Protocol Dropdown
+    this.html = this.html.replace("PLACEHOLDER_TELEGRAM_BUTTON", telegramButton);
+    this.html = this.html.replaceAll("PLACEHOLDER_CHECK_PROXY_URL", `https://${serviceName}.${rootDomain}/check?target=`);
+    this.html = this.html.replaceAll("PLACEHOLDER_ROOT_DOMAIN", `${serviceName}.${rootDomain}`);
+    this.html = this.html.replaceAll("PLACEHOLDER_CONVERTER_URL", CONVERTER_URL);
+    this.html = this.html.replaceAll("PLACEHOLDER_DONATE_LINK", DONATE_LINK);
+    this.buildDropdowns();
+    return this.html.replaceAll(/PLACEHOLDER_\w+/gim, "");
+  }
+  buildDropdowns() {
+    const selectedProtocol = this.url.searchParams.get("vpn") || "all";
+    const selectedCountry = this.url.searchParams.get("cc") || "all";
+    const selectedHost = this.url.searchParams.get("host") || APP_DOMAIN;
+    const selectedPort = this.url.searchParams.get("port") || "all";
     const protocols = [{
-        value: 'all',
-        label: 'All Protocols'
+      value: "all",
+      label: "All Protocols"
     }, {
-        value: 'vless',
-        label: 'VLESS'
+      value: "vless",
+      label: "VLESS"
     }, {
-        value: 'trojan',
-        label: 'TROJAN'
+      value: "trojan",
+      label: "TROJAN"
     }, {
-        value: 'ss',
-        label: 'SHADOWSOCKS'
+      value: "ss",
+      label: "SHADOWSOCKS"
     }];
-
-    let protocolOptions = protocols.map(proto =>
-        `<option value="${proto.value}" ${selectedProtocol === proto.value ? 'selected' : ''}>${proto.label}</option>`
-    ).join('');
-
-    this.html = this.html.replace('PLACEHOLDER_PROTOCOL_DROPDOWN', `
+    let protocolOptions = protocols.map(
+      (proto) => `<option value="${proto.value}" ${selectedProtocol === proto.value ? "selected" : ""}>${proto.label}</option>`
+    ).join("");
+    this.html = this.html.replace("PLACEHOLDER_PROTOCOL_DROPDOWN", `
         <div class="relative max-w-xs mx-auto">
             <label for="protocol-select" class="block font-medium mb-2 text-gray-300 text-sm text-center">Protocol</label>
             <select onchange="applyFilters()" id="protocol-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
@@ -2210,16 +1971,12 @@ buildDropdowns() {
             </select>
         </div>
     `);
-
-    // Country Dropdown
-    const countries = new Set(cachedPrxList.map(p => p.country));
-    let countryOptions = `<option value="all" ${'all' === selectedCountry ? 'selected' : ''}>All Countries</option>`;
-
-    countryOptions += [...countries].sort().map(country =>
-        `<option value="${country}" ${selectedCountry === country ? 'selected' : ''}>${getFlagEmoji(country)} ${country}</option>`
-    ).join('');
-
-    this.html = this.html.replace('PLACEHOLDER_COUNTRY_DROPDOWN', `
+    const countries = new Set(cachedPrxList.map((p) => p.country));
+    let countryOptions = `<option value="all" ${"all" === selectedCountry ? "selected" : ""}>All Countries</option>`;
+    countryOptions += [...countries].sort().map(
+      (country) => `<option value="${country}" ${selectedCountry === country ? "selected" : ""}>${getFlagEmoji(country)} ${country}</option>`
+    ).join("");
+    this.html = this.html.replace("PLACEHOLDER_COUNTRY_DROPDOWN", `
         <div class="relative max-w-xs mx-auto">
             <label for="country-select" class="block font-medium mb-2 text-gray-300 text-sm text-center">Country</label>
             <select onchange="applyFilters()" id="country-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
@@ -2227,28 +1984,23 @@ buildDropdowns() {
             </select>
         </div>
     `);
-
-    // Host Dropdown
     const hosts = [{
-        value: APP_DOMAIN,
-        label: 'Default Host (' + APP_DOMAIN + ')'
+      value: APP_DOMAIN,
+      label: "Default Host (" + APP_DOMAIN + ")"
     }];
-
     if (this.wildcardDomains.length > 0) {
-        this.wildcardDomains.forEach(domain => {
-            const subDomain = domain.hostname.replace(`.${APP_DOMAIN}`, '').replace(`.${this.rootDomain}`, '');
-            hosts.push({
-                value: subDomain,
-                label: subDomain,
-            });
+      this.wildcardDomains.forEach((domain) => {
+        const subDomain = domain.hostname.replace(`.${APP_DOMAIN}`, "").replace(`.${this.rootDomain}`, "");
+        hosts.push({
+          value: subDomain,
+          label: subDomain
         });
+      });
     }
-
-    let hostOptions = hosts.map(host =>
-        `<option value="${host.value}" ${selectedHost === host.value ? 'selected' : ''}>${host.label}</option>`
-    ).join('');
-
-    this.html = this.html.replace('PLACEHOLDER_HOST_DROPDOWN', `
+    let hostOptions = hosts.map(
+      (host) => `<option value="${host.value}" ${selectedHost === host.value ? "selected" : ""}>${host.label}</option>`
+    ).join("");
+    this.html = this.html.replace("PLACEHOLDER_HOST_DROPDOWN", `
         <div class="relative max-w-xs mx-auto">
             <label for="host-select" class="block font-medium mb-2 text-gray-300 text-sm text-center">Wildcard/Host</label>
             <select onchange="applyFilters()" id="host-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
@@ -2256,24 +2008,20 @@ buildDropdowns() {
             </select>
         </div>
     `);
-
-    // Port Dropdown
     const ports = [{
-        value: 'all',
-        label: 'All Ports'
+      value: "all",
+      label: "All Ports"
     }, {
-        value: '443',
-        label: 'TLS (443)'
+      value: "443",
+      label: "TLS (443)"
     }, {
-        value: '80',
-        label: 'NTLS (80)'
+      value: "80",
+      label: "NTLS (80)"
     }];
-
-    let portOptions = ports.map(port =>
-        `<option value="${port.value}" ${selectedPort === port.value ? 'selected' : ''}>${port.label}</option>`
-    ).join('');
-
-    this.html = this.html.replace('PLACEHOLDER_PORT_DROPDOWN', `
+    let portOptions = ports.map(
+      (port) => `<option value="${port.value}" ${selectedPort === port.value ? "selected" : ""}>${port.label}</option>`
+    ).join("");
+    this.html = this.html.replace("PLACEHOLDER_PORT_DROPDOWN", `
         <div class="relative max-w-xs mx-auto">
             <label for="port-select" class="block font-medium mb-2 text-gray-300 text-sm text-center">Security/Port</label>
             <select onchange="applyFilters()" id="port-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
@@ -2281,5 +2029,180 @@ buildDropdowns() {
             </select>
         </div>
     `);
+  }
+};
+
+// ../home/jules/.nvm/versions/node/v22.17.1/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default = drainBody;
+
+// ../home/jules/.nvm/versions/node/v22.17.1/lib/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError(e.cause)
+  };
 }
+__name(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default = jsonError;
+
+// .wrangler/tmp/bundle-BCbhIY/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
+  middleware_ensure_req_body_drained_default,
+  middleware_miniflare3_json_error_default
+];
+var middleware_insertion_facade_default = jambol_default;
+
+// ../home/jules/.nvm/versions/node/v22.17.1/lib/node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__ = [];
+function __facade_register__(...args) {
+  __facade_middleware__.push(...args.flat());
 }
+__name(__facade_register__, "__facade_register__");
+function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__, "__facade_invokeChain__");
+function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__(request, env, ctx, dispatch, [
+    ...__facade_middleware__,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-BCbhIY/middleware-loader.entry.ts
+var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  static {
+    __name(this, "__Facade_ScheduledController__");
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof ___Facade_ScheduledController__)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
+};
+function wrapExportedHandler(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler, "wrapExportedHandler");
+function wrapWorkerEntrypoint(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    }, "#fetchDispatcher");
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    }, "#dispatcher");
+    fetch(request) {
+      return __facade_invoke__(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY;
+if (typeof middleware_insertion_facade_default === "object") {
+  WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
+} else if (typeof middleware_insertion_facade_default === "function") {
+  WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
+}
+var middleware_loader_entry_default = WRAPPED_ENTRY;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default as default
+};
+//# sourceMappingURL=jambol.js.map
