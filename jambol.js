@@ -2847,6 +2847,20 @@ let baseHTML = `
                     </ul>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-4">PLACEHOLDER_PAGINATION_INFO</p>
                 </nav>
+
+                <div class="w-full max-w-7xl mt-8">
+                    <div class="glass-3d-blur p-4 sm:p-6">
+                        <h2 class="text-2xl font-bold text-center text-white mb-4">Daftar Akun</h2>
+                        <div id="created-accounts-list" class="overflow-x-auto">
+                            <!-- Account list will be populated here by JavaScript -->
+                        </div>
+                        <div class="text-center mt-4">
+                            <button onclick="clearCreatedAccounts()" class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
+                                Clear List
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -3217,7 +3231,7 @@ let baseHTML = `
         });
       }
 
-      function copyToClipboard(text) {
+      function showOutputWindowAndCopy(text) {
         toggleOutputWindow();
         rawConfig = text;
         const previewElement = document.getElementById('config-preview');
@@ -3225,6 +3239,121 @@ let baseHTML = `
             previewElement.value = rawConfig;
         }
       }
+
+      function promptForRemarkAndCopy(proxyConfigs) {
+        Swal.fire({
+            title: 'Masukkan Nama Remarks',
+            input: 'text',
+            inputPlaceholder: 'Contoh: AkunSatu',
+            showCancelButton: true,
+            confirmButtonText: 'Lanjutkan',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Nama remarks tidak boleh kosong!'
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const remark = result.value;
+                const configs = proxyConfigs.split('\\n');
+                const updatedConfigs = configs.map(config => {
+                    if (config.trim() === '') return '';
+                    try {
+                        let url = new URL(config);
+                        let protocol = url.protocol.replace(':', '');
+                        // The original remark is the last part of the hash
+                        let hashParts = url.hash.split(' ');
+                        hashParts.pop(); // Remove the old remark like '[tos]'
+                        hashParts.push('[' + remark + ']');
+                        url.hash = hashParts.join(' ');
+                        
+                        // Save account
+                        saveCreatedAccount(remark, protocol);
+
+                        return url.toString();
+                    } catch (e) {
+                        // For SS, it might not be a valid URL, handle as string replace
+                        if (config.includes('#')) {
+                           const parts = config.split('#');
+                           let hashParts = parts[1].split(' ');
+                           hashParts.pop();
+                           hashParts.push('[' + remark + ']');
+                           const newConfig = parts[0] + '#' + hashParts.join(' ');
+
+                           // Save account
+                           saveCreatedAccount(remark, 'ss');
+                           return newConfig;
+                        }
+                        return config; // return original if parsing fails
+                    }
+                }).join('\\n');
+
+                showOutputWindowAndCopy(updatedConfigs);
+                displayCreatedAccounts(); // Refresh the list
+            }
+        });
+      }
+
+    function saveCreatedAccount(name, protocol) {
+        let accounts = JSON.parse(localStorage.getItem('createdAccounts')) || [];
+        // Avoid duplicate entries
+        if (!accounts.some(acc => acc.name === name && acc.protocol === protocol)) {
+            accounts.push({ name, protocol });
+            localStorage.setItem('createdAccounts', JSON.stringify(accounts));
+        }
+    }
+
+    function displayCreatedAccounts() {
+        const container = document.getElementById('created-accounts-list');
+        const accounts = JSON.parse(localStorage.getItem('createdAccounts')) || [];
+
+        if (accounts.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-400">Belum ada akun yang dibuat.</p>';
+            return;
+        }
+
+        let tableHTML = '<table class="min-w-full bg-gray-800/50 rounded-lg">';
+        tableHTML += '<thead><tr>';
+        tableHTML += '<th class="px-4 py-2 text-left text-sm font-semibold text-gray-300">No.</th>';
+        tableHTML += '<th class="px-4 py-2 text-left text-sm font-semibold text-gray-300">Nama Remarks</th>';
+        tableHTML += '<th class="px-4 py-2 text-left text-sm font-semibold text-gray-300">Protocol</th>';
+        tableHTML += '</tr></thead><tbody>';
+
+        accounts.forEach((account, index) => {
+            tableHTML += '<tr class="border-t border-gray-700">';
+            tableHTML += '<td class="px-4 py-2 text-gray-400">' + (index + 1) + '</td>';
+            tableHTML += '<td class="px-4 py-2 text-white">' + account.name + '</td>';
+            tableHTML += '<td class="px-4 py-2 text-white">' + account.protocol.toUpperCase() + '</td>';
+            tableHTML += '</tr>';
+        });
+
+        tableHTML += '</tbody></table>';
+        container.innerHTML = tableHTML;
+    }
+
+    function clearCreatedAccounts() {
+        Swal.fire({
+            title: 'Anda yakin?',
+            text: "Tindakan ini akan menghapus semua daftar akun yang tersimpan.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('createdAccounts');
+                displayCreatedAccounts();
+                Swal.fire(
+                    'Dihapus!',
+                    'Daftar akun telah dihapus.',
+                    'success'
+                )
+            }
+        })
+    }
 
       function copyToClipboardAsRaw() {
         const previewElement = document.getElementById('config-preview');
@@ -3487,6 +3616,7 @@ setInterval(updateTime, 1000);
         checkProxy();
         updateTime();
         checkStats();
+        displayCreatedAccounts();
         // checkRegion();
         const observer = lozad(".lozad", {
           load: function (el) {
@@ -3572,7 +3702,7 @@ setTitle(title) {
     <td class="px-3 py-3 text-base font-mono">
     <div class="max-w-[150px] overflow-x-auto whitespace-nowrap">${prx.org}</div></td>
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-        <button onclick="copyToClipboard(\`${proxyConfigs}\`)" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Config</button>
+        <button onclick="promptForRemarkAndCopy(\`${proxyConfigs}\`)" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Config</button>
     </td>
 </tr>
             `;
