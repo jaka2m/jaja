@@ -27,7 +27,7 @@ const PRX_BANK_URL = "https://raw.githubusercontent.com/jaka2m/botak/refs/heads/
 // const DOH_URL = "https://1.1.1.1/dns-query";
 // const DOH_URL = "https://8.8.8.8/dns-query";
 const DOH_URL = "https://1.1.1.1/dns-query";
-const PRX_HEALTH_CHECK_API = "https://geovpn1.vercel.app/check";
+const PRX_HEALTH_CHECK_API = "https://geovpn.vercel.app/check";
 const CONVERTER_URL = "https://api.foolvpn.me/convert";
 const DONATE_LINK = "https://github.com/jaka1m/project/raw/main/BAYAR.jpg";
 const BAD_WORDS_LIST =
@@ -538,7 +538,856 @@ export default {
                 headers: { ...CORS_HEADER_OPTIONS, 'Content-Type': 'application/json' },
             });
         }
-      } 
+      } else if (url.pathname === "/kuota") {
+        const html = `
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cek Kuota XL/AXIS</title>
+
+    <link rel="icon" href="https://raw.githubusercontent.com/jaka9m/vless/refs/heads/main/sidompul.jpg" type="image/jpeg">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <script>
+    tailwind.config = {
+        darkMode: 'selector',
+        theme: {
+            extend: {
+                colors: {
+                    'accent-blue': '#66b5e8',
+                    'accent-purple': '#a466e8',
+                }
+            }
+        }
+    };
+    
+    // Fungsi navigasiPlaceholder harus didefinisikan untuk menghindari error
+    function navigateTo(url) {
+        // Logika navigasi placeholder
+        console.log('Navigating to:', url);
+        // window.location.href = url; // Uncomment ini jika Anda ingin navigasi sesungguhnya
+    }
+    </script>
+<style>
+    /* Custom Styles for Modern/Elegant Look - Merged and Optimized */
+
+    /* BASE & CONTAINER GLASSMORPHISM (Mengambil dari blok CSS kedua) */
+    body {
+        background-image: url('https://picsum.photos/1920/1080?random=1');
+        background-size: cover;
+        background-attachment: fixed;
+        perspective: 1500px; /* Nilai yang lebih besar dari blok kedua */
+    }
+
+    .main-container {
+        background: rgba(30, 41, 59, 0.4); /* Mengambil dari blok kedua (lebih transparan) */
+        backdrop-filter: blur(18px); /* Mengambil dari blok kedua (blur lebih tinggi) */
+        border-radius: 1.5rem;
+        border: 1px solid rgba(102, 181, 232, 0.4); /* Border dari blok kedua (accent-blue) */
+        box-shadow:
+            0 40px 80px rgba(0, 0, 0, 0.8),
+            0 0 30px rgba(102, 181, 232, 0.4) inset; /* Shadow dari blok kedua (lebih detail) */
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transform: translateZ(50px) rotateX(0deg) rotateY(0deg); /* Transform 3D dari blok kedua */
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .main-container:hover {
+        transform: translateZ(80px) rotateX(1deg) rotateY(-1deg);
+        box-shadow:
+            0 60px 100px rgba(0, 0, 0, 0.9),
+            0 0 40px rgba(102, 181, 232, 0.6) inset;
+    }
+
+    /* FORM CONTAINER (Mengambil dari blok CSS kedua) */
+    #formnya {
+        background-color: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(100, 116, 139, 0.5);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.7), inset 0 0 10px rgba(0,0,0,0.3);
+        transform: translateZ(10px);
+        transition: all 0.3s ease;
+    }
+    #formnya:hover {
+        transform: translateZ(15px);
+    }
+
+    /* INPUT GROUP (Mengambil dari blok CSS pertama, karena lebih umum) */
+    .input-group {
+        background-color: rgba(30, 41, 59, 0.6);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(100, 116, 139, 0.3);
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    /* INPUT FIELD STYLES (Mengambil dari blok CSS kedua, lebih detail) */
+    .input-dark, .input-group textarea, .input-group select {
+        background-color: rgba(17, 24, 39, 0.7); /* Background lebih transparan */
+        color: #ffffff;
+        border: 1px solid rgba(102, 181, 232, 0.5); /* Border accent-blue */
+        border-radius: 0.5rem;
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 5px rgba(0, 0, 0, 0.5); /* Shadow lebih gelap */
+        transform: translateZ(2px);
+        transition: all 0.2s;
+    }
+    .input-dark:focus, .input-group textarea:focus, .input-group select:focus {
+        border-color: var(--tw-color-accent-blue);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 10px var(--tw-color-accent-blue); /* Glow yang lebih kuat */
+        transform: translateZ(5px);
+    }
+
+    /* BUTTON GRADIENT (Mengambil dari blok CSS kedua, lebih fokus 3D kecil) */
+    .btn-gradient {
+        background: linear-gradient(45deg, var(--tw-color-accent-blue), var(--tw-color-accent-purple));
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        transform: translateZ(10px);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .btn-gradient:hover:not(:disabled) {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), inset 0 1px 4px rgba(0, 0, 0, 0.8), 0 0 15px var(--tw-color-accent-blue);
+        transform: translateZ(15px) translateY(-1px);
+    }
+
+    /* ACTION BUTTON (Mempertahankan style dari blok pertama yang unik) */
+    .action-btn {
+        background-color: #1e293b;
+        color: #94a3b8;
+        border: 1px solid #475569;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.2s;
+    }
+    .action-btn:hover {
+        background-color: #334155;
+        color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+        transform: translateY(1px);
+    }
+
+    /* Style untuk tombol Home (Dari blok CSS kedua) */
+    .btn-home {
+        background: linear-gradient(45deg, #4c566a, #2e3440);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        transform: translateZ(10px);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .btn-home:hover:not(:disabled) {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), inset 0 1px 4px rgba(0, 0, 0, 0.8), 0 0 15px #88c0d0;
+        transform: translateZ(15px) translateY(-1px);
+    }
+
+    /* JUDUL PUTIH SOLID (Properti yang sama, cukup satu) */
+    .text-solid-white {
+        color: #ffffff;
+        text-shadow: none;
+    }
+
+    /* HEADINGS & LAYOUT */
+    .centered-heading {
+        text-align: center;
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        padding-bottom: 0.5rem;
+        /* Tambahan dari blok kedua */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    /* LOGO BULAT DAN BESAR (Dari blok CSS kedua) */
+    .heading-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .nav-btn-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 50px;
+        padding: 0.75rem 1.5rem;
+        line-height: 1.2;
+        border-radius: 0.75rem;
+    }
+    .info-box {
+        background-color: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(100, 116, 139, 0.5);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+    }
+    footer {
+        background-color: rgba(17, 24, 39, 0.8);
+        backdrop-filter: blur(3px);
+        border-top: 1px solid rgba(100, 116, 139, 0.3);
+        transform: translateZ(0);
+    }
+
+
+    /* TABLE STYLES (Dari blok CSS pertama) */
+    .table-dark th {
+        background-color: #1e293b;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+    .table-dark td {
+        border-color: #334155;
+    }
+    .table-dark tr:nth-child(even) {
+        background-color: #111827;
+    }
+    .table-dark tr:hover {
+        background-color: #334155 !important;
+    }
+
+    /* RESULT STYLES */
+    /* RESULT CARD BARU (Dari blok CSS kedua, lebih lengkap) */
+    .result-card {
+        background: rgba(45, 62, 80, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(102, 181, 232, 0.5);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(102, 181, 232, 0.2);
+        transform: translateZ(10px);
+        text-align: left;
+        margin-top: 1.5rem;
+        color: white;
+    }
+    .result-card h4 {
+        color: var(--tw-color-accent-blue);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(100, 116, 139, 0.5);
+        padding-bottom: 0.5rem;
+    }
+    .result-item {
+        padding: 0.4rem 0;
+        border-bottom: 1px dashed rgba(100, 116, 139, 0.3);
+        overflow: hidden;
+    }
+    .result-item:last-child {
+        border-bottom: none;
+    }
+
+    /* RESULT SUCCESS/ERROR (Dari blok CSS pertama, tetap berguna) */
+    .result-success {
+        background-color: #1f2937;
+        border: 1px solid #66b5e8;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(102, 181, 232, 0.4);
+        transition: all 0.3s ease;
+    }
+    .result-error {
+        background-color: #1f2937;
+        border: 1px solid #a466e8;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(164, 102, 232, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    /* LOADING SPINNER (Properti yang sama, cukup satu) */
+    #cover-spin {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+        z-index: 9999;
+        display: none;
+    }
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--tw-color-accent-blue);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+    </head>
+<body class="text-white min-h-screen flex flex-col items-center">
+    <div id="cover-spin"><div class="loader"></div></div>
+    <div id="custom-notification"></div> 
+    
+    <div id="main-content-container" class="flex flex-col items-center p-3 sm:p-8 flex-grow w-full max-w-7xl">
+    <div id="slide-2" class="slide w-full max-w-4xl main-container p-4 sm:p-6">
+    
+    <div class="flex justify-center mb-6">
+        <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg w-full">
+            <a href="/sub"
+                    class="flex flex-col items-center justify-center p-2 rounded-lg text-xs sm:text-sm text-white font-semibold action-btn hover:opacity-90 transition-opacity duration-300 shadow-sm">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <span>Home</span>
+            </a>
+    
+            <a href="/convert"
+                    class="flex flex-col items-center justify-center p-2 rounded-lg text-xs sm:text-sm text-white font-semibold action-btn hover:opacity-90 transition-opacity duration-300 shadow-sm">
+                <i class="fas fa-exchange-alt text-lg mb-1"></i>
+                <span>Converter</span>
+            </a>
+    
+            <a href="/kuota"
+                    class="flex flex-col items-center justify-center p-2 rounded-lg text-xs sm:text-sm text-white font-bold btn-gradient transition-all duration-300 shadow-xl opacity-100 scale-105">
+                <i class="fas fa-signal text-lg mb-1"></i>
+                <span>Cek Kuota</span>
+            </a>
+        </div>
+    </div>
+    <div class="w-full max-w-lg mx-auto main-container">
+            <div class="text-center mb-6">
+                <h2 class="text-solid-white centered-heading">
+                    <img src="https://raw.githubusercontent.com/jaka9m/vless/refs/heads/main/sidompul.jpg" alt="Logo Sidompul" class="heading-icon">
+                    Sidompul Cek Kuota XL/AXIS
+                </h2>
+            </div>
+            
+            <div class="p-4 rounded-lg mb-6 text-center text-gray-400 border info-box" style="box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);">
+                <i class="fa fa-info-circle text-accent-blue mr-1"></i> Gunakan layanan ini secara bijak dan hindari spam.
+            </div>
+            
+            <form id="formnya" class="p-6 rounded-xl shadow-xl border">
+                <div class="mb-6">
+                    <label for="msisdn" class="block font-medium mb-2 text-gray-300 text-sm">Nomor HP XL/AXIS:</label>
+                    <input type="number" class="w-full px-4 py-3 rounded-lg input-dark text-base focus:ring-2 focus:ring-accent-blue" id="msisdn" placeholder="08xxx / 628xxx" maxlength="16" required>
+                </div>
+                
+                <div class="flex gap-4">
+                    
+                    <a href="/sub" class="flex-1 text-center py-2 rounded-lg text-white font-bold text-base btn-home hover:opacity-90 transition-opacity">
+                        <i class="fa fa-home mr-2"></i>Home
+                    </a>
+
+                    <button type="button" id="submitCekKuota" class="flex-1 py-2 rounded-lg text-white font-bold text-base btn-gradient hover:opacity-90 transition-opacity">
+                        <i class="fa fa-search mr-2"></i>Cek
+                    </button>
+                </div>
+            </form>
+
+            <div id="hasilnya" class="mt-6"></div>
+        </div>
+    
+  </div>
+
+    <footer class="w-full p-4 text-center mt-auto border-t">
+        <div class="flex items-center justify-center gap-2 text-sm font-medium text-gray-500">
+            <span>Sumbawa Support</span>
+            <a href="https://t.me/sampiiiiu" target="_blank" class="flex items-center gap-1 text-accent-blue hover:text-accent-purple transition-colors duration-200">
+                <i class="fab fa-telegram"></i>
+                <span>GEO PROJECT</span>
+            </a>
+        </div>
+    </footer>
+
+      <script>
+        
+        function cekKuota() {
+            const msisdn = document.getElementById('msisdn').value;
+            if (!msisdn) {
+                console.error('Nomor tidak boleh kosong.');
+                return;
+            }
+            
+            $('#cover-spin').show();
+            $.ajax({
+                type: 'GET',
+                url: 'https://apigw.kmsp-store.com/sidompul/v4/cek_kuota?msisdn=' + msisdn + '&isJSON=true',
+                dataType: 'JSON',
+                contentType: 'application/x-www-form-urlencoded',
+                beforeSend: function (req) {
+                    req.setRequestHeader('Authorization', 'Basic c2lkb21wdWxhcGk6YXBpZ3drbXNw');
+                    req.setRequestHeader('X-API-Key', '60ef29aa-a648-4668-90ae-20951ef90c55');
+                    req.setRequestHeader('X-App-Version', '4.0.0');
+                },
+                success: function (res) {
+                    $('#cover-spin').hide();
+                    $('#hasilnya').html('');
+                    if (res.status) {
+                        $('#hasilnya').html('<div class="result-success p-4 rounded-lg mt-4 text-center font-semibold">' + res.data.hasil + '</div>');
+                    } else {
+                        console.error('Gagal Cek Kuota: ' + res.message);
+                        $('#hasilnya').html('<div class="result-error p-4 rounded-lg mt-4 text-center font-semibold">' + res.data.keteranganError + '</div>');
+                    }
+                },
+                error: function () {
+                    $('#cover-spin').hide();
+                    console.error('Terjadi kesalahan koneksi.');
+                    $('#hasilnya').html(\`<div class="result-error p-4 rounded-lg mt-4 text-center font-semibold">Terjadi kesalahan koneksi atau server tidak merespons.</div>\`);
+                }
+            });
+        }
+        
+        // Pemasangan event listener setelah konten dimuat
+        $(document).ready(function() {
+            $('#submitCekKuota').off('click').on('click', cekKuota); 
+            $('#msisdn').off('keypress').on('keypress', function (e) {
+                if (e.which === 13) cekKuota();
+            });
+        });
+        
+      </script>
+    </body>
+    </html>
+        `;
+        return new Response(html, {
+            status: 200,
+            headers: { 'Content-Type': 'text/html;charset=utf-8' },
+        });
+      } else if (url.pathname.startsWith("/linksub")) {
+        const linksubHTML = `
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Link Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        root {
+            --color-primary: #00d4ff;
+            --color-secondary: #00bfff;
+            --color-background: #020d1a;
+            --color-card: rgba(0, 212, 255, 0.1);
+            --color-text: #e0f4f4;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            display: flex;
+            background: url('https://raw.githubusercontent.com/bitzblack/ip/refs/heads/main/shubham-dhage-5LQ_h5cXB6U-unsplash.jpg') no-repeat center center fixed;
+            background-size: cover;
+            justify-content: center;
+            align-items: flex-start;
+            color: var(--color-text);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow-y: auto;
+        }
+
+        .blur-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            perspective: 1000px;
+        }
+
+        .blur-background::before {
+            content: '';
+            position: absolute;
+            top: 5%;
+            left: 10%;
+            width: 450px;
+            height: 450px;
+            background: rgba(168, 85, 247, 0.5);
+            border-radius: 50%;
+            filter: blur(200px);
+            opacity: 0.8;
+            transform: translateZ(-300px);
+        }
+
+        .blur-background::after {
+            content: '';
+            position: absolute;
+            bottom: 10%;
+            right: 15%;
+            width: 550px;
+            height: 550px;
+            background: rgba(59, 130, 246, 0.45);
+            border-radius: 50%;
+            filter: blur(220px);
+            opacity: 0.7;
+            transform: translateZ(-400px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .main-title {
+            color: #ffffff;
+            text-shadow: 0 0 5px #a855f7, 0 0 10px rgba(168, 85, 247, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .form-input, .form-select {
+            background-color: #1a2035;
+            border: 1px solid #374151;
+            color: #f8fafc;
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.5), 0 1px 1px rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-generate {
+            background-image: linear-gradient(90deg, #a855f7, #3b82f6);
+            background-size: 200% 100%;
+            transition: all 0.4s ease-in-out;
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
+            transform: translateY(0);
+        }
+        .btn-generate:hover {
+            background-position: right center;
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.6);
+            transform: translateY(-5px);
+        }
+        .btn-generate:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        .result-box {
+            background-color: #1e293b;
+            border: 1px solid #374151;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+            color: #c0c0c0;
+        }
+
+        .card {
+            background: var(--color-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: var(--transition);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05);
+            transform: perspective(1500px) rotateX(3deg) rotateY(-1deg) translateZ(10px);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+        }
+    </style>
+    <style>
+.navbarconten {
+    width: 100%;
+    overflow-x: auto; /* Mengaktifkan scroll horizontal */
+    margin-bottom: 0px;
+    border: 1px solid #000; /* Border dengan warna abu-abu */
+    border-radius: 10px; /* Membuat sudut melengkung */
+    padding: 0px; /* Memberi jarak antara border dan konten */
+    background-color: rgba(0, 0, 0, 0.82); /* Warna latar belakang */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), /* Glow putih */
+              0 0 30px rgba(0, 150, 255, 0.5);   /* Glow biru */
+
+    }
+      .navbar {
+            position: fixed;
+            top: 60%;
+            left: -80px; /* Awalnya disembunyikan */
+            transform: translateY(-50%);
+            width: 80px;
+            background: ;
+            color: white;
+            padding: 10px 0;
+            transition: left 0.3s ease-in-out;
+            z-index: 1000;
+            border-radius: 0 10px 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Saat navbar terbuka */
+        .navbar.show {
+            left: 0;
+        }
+
+        .navbar a img {
+            width: 40px;
+        }
+        
+        .navbar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+        }
+        .navbar a:hover {
+            background: ;
+        }
+        
+        /* Tombol Toggle */
+        .toggle-btn {
+            position: absolute;
+            top: 60%;
+            right: -30px; /* Posisi tombol di tengah kanan navbar */
+            transform: translateY(-50%);
+            background: ;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 10px;
+            border-radius: 0 10px 10px 0;
+            transition: right 0.3s ease-in-out;
+        }
+
+        .toggle-btn img {
+            width: 20px; /* Ukuran gambar lebih kecil */
+            height: 150px; /* Ukuran gambar lebih kecil */
+        }
+
+        /* Saat navbar terbuka, tombol ikut bergeser */
+        .navbar.show .toggle-btn {
+            right: -29px;
+        }
+        
+</style>
+</head>
+<body>
+    <div class="blur-background"></div>
+    <div class="container">
+    	<div class="card">
+            <h1 class="text-4xl font-extrabold text-center mb-10 main-title">
+                <i class="fas fa-satellite-dish mr-3 text-indigo-400"></i>Subs Link
+            </h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label for="format" class="block mb-2 text-sm font-semibold text-gray-400">Format</label>
+                    <select id="format" class="form-select p-3 rounded-lg w-full">
+                        <option value="v2ray">V2RAY</option>
+                        <option value="sfa">SFA</option>
+                        <option value="bfr">BFR</option>
+                        <option value="raw">RAW</option>
+                        <option value="clash">CLASH</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="vpn" class="block mb-2 text-sm font-semibold text-gray-400">VPN Protocol</label>
+                    <select id="vpn" class="form-select p-3 rounded-lg w-full">
+                        <option value="vless">VLESS</option>
+                        <option value="trojan">TROJAN</option>
+                        <option value="ss">SHADOWSOCKS</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="tls" class="block mb-2 text-sm font-semibold text-gray-400">TLS/Port</label>
+                    <select id="tls" class="form-select p-3 rounded-lg w-full">
+                        <option value="true">True (443) - Secure</option>
+                        <option value="false">False (80) - Regular</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="wildcard" class="block mb-2 text-sm font-semibold text-gray-400">Wildcard/WC</label>
+                    <select id="wildcard" class="form-select p-3 rounded-lg w-full">
+                        <option value="false">False</option>
+                        <option value="true">True</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="bug" class="block mb-2 text-sm font-semibold text-gray-400">Bug Host <span class="text-xs italic text-gray-500">(e.g., ava.game.naver.com)</span></label>
+                    <input type="text" id="bug" class="form-input p-3 rounded-lg" placeholder="Masukkan Bug Host Anda...">
+                </div>
+                <div>
+                    <label for="country" class="block mb-2 text-sm font-semibold text-gray-400">Country (CC)</label>
+                    <select id="country" class="form-select p-3 rounded-lg w-full">
+                        <option value="">All Countries</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="limit" class="block mb-2 text-sm font-semibold text-gray-400">Limit</label>
+                    <input type="number" id="limit" class="form-input p-3 rounded-lg" value="10" min="1">
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <button id="generate-btn" class="btn-generate w-full md:w-auto px-10 py-3 rounded-xl uppercase tracking-wider">
+                    <i class="fas fa-rocket mr-2"></i> GENERATE
+                </button>
+            </div>
+
+            <div class="mt-10">
+                <label class="block mb-3 text-sm font-semibold text-gray-400">Generated Link:</label>
+                <div id="result" class="result-box p-4 text-sm break-all">Your link will appear here...</div>
+                <div class="text-right mt-3">
+                    <button id="copy-btn" class="text-sm text-indigo-300 hover:text-indigo-200 font-semibold transition duration-200" style="display: none;">
+                        <i class="fas fa-copy mr-1"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+    	</div>
+    </div>
+    
+<div class="navbar" id="navbar">
+    <div class="toggle-btn" id="menu-btn" onclick="toggleNavbar()">
+        <img src="https://geoproject.biz.id/social/buka.png" alt="Toggle Menu">
+    </div>
+    <div class="navbarconten text-center">
+        <span>
+            <a href="/linksub" target="_self" rel="noopener noreferrer">
+                <img src="https://geoproject.biz.id/social/linksub.png" alt="menu" width="40" class="mt-1">
+            </a>
+        </span>
+        <!-- <span>-->
+        <span>
+            <a href="/checker" target="_self" rel="noopener noreferrer">
+                <img src="https://geoproject.biz.id/social/vpn.png" alt="menu" width="40" class="mt-1">
+            </a>
+        </span> 
+        <span>
+            <a href="https://t.me/VLTRSSbot" target="_blank" rel="noopener noreferrer">
+                <img src="https://geoproject.biz.id/social/bot.png" alt="menu" width="40" class="mt-1">
+            </a>
+        </span>
+        <span>
+            <a href="/sub" target="_self" rel="noopener noreferrer">
+                <img src="https://geoproject.biz.id/social/home.png" alt="menu" width="40" class="mt-1">
+            </a>
+        </span>
+    </div>
+</div>
+<script>
+    function toggleNavbar() {
+        const navbar = document.getElementById("navbar");
+        const menuBtn = document.getElementById("menu-btn").querySelector('img');
+
+        if (navbar.classList.contains("show")) {
+            navbar.classList.remove("show");
+            menuBtn.src = "https://geoproject.biz.id/social/buka.png";
+        } else {
+            navbar.classList.add("show");
+            menuBtn.src = "https://geoproject.biz.id/social/tutup.png";
+        }
+    }
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const countrySelect = document.getElementById('country');
+            
+            // Fetch proxy list to populate country dropdown
+            try {
+                const response = await fetch('/api/v1/countries'); 
+                if (!response.ok) throw new Error('Failed to fetch country list');
+                
+                const countries = await response.json();
+                
+                countries.forEach(cc => {
+                    const option = document.createElement('option');
+                    option.value = cc;
+                    option.textContent = cc;
+                    countrySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Could not populate countries:", error);
+                countrySelect.innerHTML = '<option value="">Could not load countries</option>';
+            }
+
+            document.getElementById('generate-btn').addEventListener('click', () => {
+                const format = document.getElementById('format').value;
+                const vpn = document.getElementById('vpn').value;
+                const port = document.getElementById('tls').value === 'true' ? '443' : '80';
+                const bug = document.getElementById('bug').value;
+                const wc = document.getElementById('wildcard').value;
+                const cc = document.getElementById('country').value;
+                const limit = document.getElementById('limit').value;
+
+                const params = new URLSearchParams();
+                params.set('format', format);
+                params.set('limit', limit);
+                if (vpn) params.set('vpn', vpn);
+                if (port) params.set('port', port);
+                if (bug) params.set('bug', bug);
+                if (wc) params.set('wc', wc);
+                if (cc) params.set('cc', cc);
+
+                const link = window.location.protocol + '//' + window.location.host + '/api/v1/sub?' + params.toString();
+                
+                document.getElementById('result').textContent = link;
+            });
+        });
+    </script>
+</body>
+</html>`;
+        return new Response(linksubHTML, { headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+      } else if (url.pathname.startsWith("/convert")) {
+        const targetUrl = "https://jaka9m.github.io/web";
+		const requestUrl = new URL(request.url);
+		let path = requestUrl.pathname.replace("/convert", "");
+		if (path === "" || path === "/") {
+			path = "/index.html";
+		}
+
+        const newUrl = `${targetUrl}${path}`;
+        const newRequest = new Request(newUrl, {
+            method: request.method,
+            headers: request.headers,
+            body: request.body,
+            redirect: 'follow'
+        });
+
+        const response = await fetch(newRequest);
+        const contentType = response.headers.get('content-type') || '';
+
+        if (contentType.includes('text/html')) {
+            let body = await response.text();
+            
+            // Rewrite absolute URLs
+            body = body.replace(/https:\/\/jaka9m\.github\.io\/web/g, `https://${APP_DOMAIN}/convert`);
+            
+            // Rewrite root-relative URLs
+            body = body.replace(/(src|href)="\//g, `$1="/convert/`);
+
+            return new Response(body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+            });
+        }
+        
+        return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+        });
+      }
+
+      const targetReversePrx = env.REVERSE_PRX_TARGET || "example.com";
+      return await reverseWeb(request, targetReversePrx);
+    } catch (err) {
+      return new Response(`An error occurred: ${err.toString()}`, {
+        status: 500,
+        headers: {
+          ...CORS_HEADER_OPTIONS,
+        },
+      });
+    }
+  },
+};
+
 async function websocketHandler(request) {
 	const webSocketPair = new WebSocketPair();
 	const [client, webSocket] = Object.values(webSocketPair);
@@ -1231,6 +2080,396 @@ let baseHTML = `
 <!DOCTYPE html>
 <html lang="en" id="html" class="scroll-auto scrollbar-hide dark">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Geo-VPN | VPN Tunnel | CloudFlare</title>
+
+    <meta name="description" content="Akun Vless Gratis. Geo-VPN offers free Vless accounts with Cloudflare and Trojan support. Secure and fast VPN tunnel services.">
+    <meta name="keywords" content="Geo-VPN, Free Vless, Vless CF, Trojan CF, Cloudflare, VPN Tunnel, Akun Vless Gratis">
+    <meta name="author" content="Geo-VPN">
+    <meta name="robots" content="index, follow, noarchive, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+    <link rel="icon" href="https://geoproject.biz.id/circle-flags/bote.png">
+    <link rel="apple-touch-icon" href="https://geoproject.biz.id/circle-flags/bote.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+    /* 1. SCROLLBAR HIDE */
+    /* For Webkit-based browsers (Chrome, Safari and Opera) */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    /* For IE, Edge and Firefox */
+    .scrollbar-hide {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+
+    /* 2. FONT IMPORT */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    /* 3. GLASSMORPHISM EFFECT */
+    .glass-effect {
+        background-color: rgba(42, 42, 47, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 224, 183, 0.3);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .glass-effect-light {
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 224, 183, 0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* MODIFIKASI: GLASSMORPHISM 3D BLUR BARU */
+    .glass-3d-blur {
+        /* Latar Belakang Lebih Transparan (Glassmorphism) */
+        background: rgba(30, 41, 59, 0.4); /* Lebih transparan */
+        backdrop-filter: blur(15px);       /* Blur lebih kuat */
+        -webkit-backdrop-filter: blur(15px);
+
+        /* Efek 3D */
+        border-radius: 1.5rem;
+        box-shadow: 
+            0 15px 30px rgba(0, 0, 0, 0.6),    /* Bayangan kuat di luar */
+            0 0 20px rgba(102, 181, 232, 0.4) inset, /* Glow biru di dalam */
+            0 0 5px rgba(255, 255, 255, 0.2);       /* Kilauan di tepi */
+        border: 1px solid rgba(100, 116, 139, 0.6); /* Border lebih tegas */
+        padding: 2rem;
+        margin-bottom: 2rem;
+        
+        /* Transform 3D */
+        transform: perspective(1000px) translateZ(30px); /* Meningkatkan kedalaman */
+        transition: all 0.3s ease-out;
+    }
+
+    .glass-3d-blur:hover {
+        transform: perspective(1000px) translateZ(40px); /* Efek 'angkat' saat hover */
+    }
+    
+    /* 4. FLAG SPIN ANIMATION */
+    .flag-spin {
+        animation: spin-around 4s linear infinite alternate;
+        transform-origin: center center;
+    }
+    @keyframes spin-around {
+        0% {
+            transform: rotateY(0deg);
+        }
+        50% {
+            transform: rotateY(180deg);
+        }
+        100% {
+            transform: rotateY(0deg);
+        }
+    }
+
+    /* 5. MAIN CONTAINER & BOX STYLES (Dihapus karena diganti .glass-3d-blur) */
+    /* 6. BUTTON STYLES */
+    .btn-gradient {
+        background: linear-gradient(to right, var(--tw-color-accent-blue), var(--tw-color-accent-purple));
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -3px 5px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+    .btn-gradient:hover:not(:disabled) {
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(102, 181, 232, 0.8);
+        transform: translateY(1px);
+    }
+    .action-btn {
+        background-color: #1e293b;
+        color: #94a3b8;
+        border: 1px solid #475569;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.2s;
+    }
+    .action-btn:hover {
+        background-color: #334155;
+        color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+        transform: translateY(1px);
+    }
+    
+    /* 7. INPUT FIELD STYLES */
+    .input-group {
+        background-color: rgba(30, 41, 59, 0.6);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(100, 116, 139, 0.3);
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+    .input-dark, .input-group textarea, .input-group select {
+        background-color: #1f2937;
+        color: #ffffff;
+        border: 1px solid #475569;
+        border-radius: 0.5rem;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-dark:focus, .input-group textarea:focus, .input-group select:focus {
+        border-color: var(--tw-color-accent-blue);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 5px var(--tw-color-accent-blue);
+    }
+
+    /* 8. TABLE STYLES (Dark Theme) */
+    .table-dark th {
+        background-color: #1e293b;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+    .table-dark td {
+        border-color: #334155;
+    }
+    .table-dark tr:nth-child(even) {
+        background-color: #111827;
+    }
+    .table-dark tr:hover {
+        background-color: #334155 !important;
+    }
+
+    /* 9. UTILITY CLASSES */
+    .centered-heading {
+        text-align: center;
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        padding-bottom: 0.5rem;
+    }
+    .nav-btn-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 50px;
+        padding: 0.75rem 1.5rem;
+        line-height: 1.2;
+        border-radius: 0.75rem;
+    }
+    .text-solid-white {
+        color: #ffffff;
+        text-shadow: none;
+    }
+
+    /* 10. RESULT BOXES */
+    .result-success {
+        background-color: #1f2937;
+        border: 1px solid #66b5e8;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(102, 181, 232, 0.4);
+        transition: all 0.3s ease;
+    }
+    .result-error {
+        background-color: #1f2937;
+        border: 1px solid #a466e8;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(164, 102, 232, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    /* 11. LOADING SPINNER */
+    #cover-spin {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+        z-index: 9999;
+        display: none;
+    }
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--tw-color-accent-blue);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* CSS untuk efek berkedip (blink) */
+    @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0.2; }
+        100% { opacity: 1; }
+    }
+    .blink-text {
+        animation: blink 1s linear infinite;
+    }
+    /* Definisi warna dasar */
+    .text-green-600 { color: #16a34a; }
+    .text-red-600 { color: #dc2626; }
+    .text-yellow-400 { color: #facc15; } /* WARNA KUNING BARU */
+    .text-xs { font-size: 0.75rem; }
+    .font-normal { font-weight: 400; }
+    
+    /* Gaya Teks Judul 3D Terang */
+    #runningTitle {
+        /* Gaya Teks Gradien dan Animasi sudah ada (JANGAN DIUBAH): */
+        /* text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse */
+        
+        /* === EFEK TEKS 3D LEBIH TERANG === */
+        text-shadow: 
+            1px 1px 1px rgba(255, 255, 255, 0.5), /* Lapisan paling atas, memberi kilau */
+            2px 2px 2px rgba(255, 255, 255, 0.3), /* Lapisan tengah, meningkatkan 'lift' */
+            4px 4px 6px rgba(0, 0, 0, 0.9),       /* Bayangan gelap untuk kedalaman */
+            0 0 15px #ffffff,                     /* Glow putih lembut */
+            0 0 25px #a466e8;                     /* Glow ungu/biru */
+    }
+    
+    /* Custom style untuk gambar ikon di footer */
+    .footer-icon-img {
+        width: 1.5rem; /* size-6 equivalent (24px) */
+        height: 1.5rem; /* size-6 equivalent (24px) */
+        border-radius: 50%; /* Membuat gambar berbentuk lingkaran */
+        object-fit: cover;
+    }
+    
+    /* Responsive Media Queries */
+    @media (max-width: 768px) {
+        .glass-3d-blur {
+            padding: 1.5rem; /* Kurangi padding di mobile */
+            margin-bottom: 1.5rem;
+        }
+        #container-title h1 {
+            font-size: 1.75rem; /* Kecilkan judul di mobile */
+        }
+        .info-container {
+            gap: 0.5rem; /* Kurangi jarak antar item info */
+        }
+        .filter-container {
+            grid-template-columns: 1fr 1fr; /* 2 kolom di mobile */
+            gap: 0.75rem;
+        }
+        #container-pagination {
+            transform: none; /* Hapus translate-y di mobile */
+            position: static; /* Kembalikan ke posisi normal */
+            margin-top: 1.5rem;
+        }
+        .container {
+            padding: 1rem; /* Kurangi padding container utama */
+        }
+    }
+    @media (max-width: 480px) {
+        .filter-container {
+            grid-template-columns: 1fr; /* 1 kolom di layar sangat kecil */
+        }
+        #container-info-ip, #container-info-country, #container-info-isp,
+        #container-info-requests, #container-info-bandwidth {
+            font-size: 0.8rem; /* Kecilkan font info di mobile */
+        }
+    }
+    </style>
+    <style>
+.navbarconten {
+    width: 100%;
+    overflow-x: auto; /* Mengaktifkan scroll horizontal */
+    margin-bottom: 0px;
+    border: 1px solid #000; /* Border dengan warna abu-abu */
+    border-radius: 10px; /* Membuat sudut melengkung */
+    padding: 0px; /* Memberi jarak antara border dan konten */
+    background-color: rgba(0, 0, 0, 0.82); /* Warna latar belakang */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), /* Glow putih */
+              0 0 30px rgba(0, 150, 255, 0.5);   /* Glow biru */
+
+    }
+      .navbar {
+            position: fixed;
+            top: 60%;
+            left: -80px; /* Awalnya disembunyikan */
+            transform: translateY(-50%);
+            width: 80px;
+            background: ;
+            color: white;
+            padding: 10px 0;
+            transition: left 0.3s ease-in-out;
+            z-index: 1000;
+            border-radius: 0 10px 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Saat navbar terbuka */
+        .navbar.show {
+            left: 0;
+        }
+
+        .navbar a img {
+            width: 40px;
+        }
+        
+        .navbar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+        }
+        .navbar a:hover {
+            background: ;
+        }
+        
+        /* Tombol Toggle */
+        .toggle-btn {
+            position: absolute;
+            top: 60%;
+            right: -30px; /* Posisi tombol di tengah kanan navbar */
+            transform: translateY(-50%);
+            background: ;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 10px;
+            border-radius: 0 10px 10px 0;
+            transition: right 0.3s ease-in-out;
+        }
+
+        .toggle-btn img {
+            width: 20px; /* Ukuran gambar lebih kecil */
+            height: 150px; /* Ukuran gambar lebih kecil */
+        }
+
+        /* Saat navbar terbuka, tombol ikut bergeser */
+        .navbar.show .toggle-btn {
+            right: -29px;
+        }
+        
+</style>
+    <script>
+        tailwind.config = {
+            darkMode: 'selector',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-dark': '#1c1c20',
+                        'secondary-dark': '#2a2a2f',
+                        'text-light': '#f0f0f5',
+                        'accent-cyan': '#00e0b7',
+                        'accent-blue': '#4a90e2',
+                        'accent-purple': '#a466e8', // Tambahkan jika belum ada
+                    },
+                },
+            },
+        };
+    </script>
+</head>
 <body
     class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
 >
@@ -1508,14 +2747,69 @@ let baseHTML = `
     </div>
 </div>
 <script>
+    function toggleNavbar() {
+        const navbar = document.getElementById("navbar");
+        const menuBtn = document.getElementById("menu-btn").querySelector('img');
+
+        if (navbar.classList.contains("show")) {
+            navbar.classList.remove("show");
+            menuBtn.src = "https://geoproject.biz.id/social/buka.png";
+        } else {
+            navbar.classList.add("show");
+            menuBtn.src = "https://geoproject.biz.id/social/tutup.png";
+        }
+    }
+</script>
+<script>
     function toggleDropdown() {
         const dropdownMenu = document.getElementById('dropdown-menu');
         dropdownMenu.classList.toggle('hidden');
     }
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const runningTitle = document.getElementById('runningTitle');
+    const container = runningTitle.parentElement;
+    let position = -runningTitle.offsetWidth; // Mulai dari luar kiri
+    const speed = 1.5; // Kecepatan pergerakan
+
+    function animateTitle() {
+        position += speed;
+
+        // Jika teks sudah melewati container, kembalikan ke posisi awal
+        if (position > container.offsetWidth) {
+            position = -runningTitle.offsetWidth;
+        }
+
+        // PERBAIKAN: Menggabungkan string dan variabel dengan tanda '+'
+        runningTitle.style.transform = 'translateX(' + position + 'px)';
+
+        requestAnimationFrame(animateTitle);
+    }
+
+    animateTitle();
+});
+</script>
+
+
      <script>
-  
+  document.addEventListener('DOMContentLoaded', function() {
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      // Tunggu 5 detik sebelum memulai transisi
+      setTimeout(() => {
+        // Atur opacity menjadi 0 untuk memulai efek fade out
+        loadingScreen.style.opacity = '0';
+        
+        // Setelah efek fade out selesai (500ms), sembunyikan elemen
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+        }, 500); // Durasi ini harus sama dengan durasi transisi di CSS (duration-500)
+      }, 1000); // <-- Ini adalah jeda 5 detik
+    }
+  });
+    
       // Shared
       const rootDomain = "PLACEHOLDER_ROOT_DOMAIN";
       const notification = document.getElementById("notification-badge");
