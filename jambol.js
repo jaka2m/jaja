@@ -3334,23 +3334,48 @@ let baseHTML = `
 
     function clearCreatedAccounts() {
         Swal.fire({
-            title: 'Anda yakin?',
-            text: "Tindakan ini akan menghapus semua daftar akun yang tersimpan.",
-            icon: 'warning',
+            title: 'Masukkan Password',
+            input: 'password',
+            inputPlaceholder: 'Masukkan password untuk clear list',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
+            confirmButtonText: 'Submit',
+            showLoaderOnConfirm: true,
+            preConfirm: (password) => {
+                if (password === 'xxx') {
+                    return true;
+                } else {
+                    Swal.showValidationMessage(
+                      `Password salah!`
+                    );
+                    return false;
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
         }).then((result) => {
             if (result.isConfirmed) {
-                localStorage.removeItem('createdAccounts');
-                displayCreatedAccounts();
-                Swal.fire(
-                    'Dihapus!',
-                    'Daftar akun telah dihapus.',
-                    'success'
-                )
+                Swal.fire({
+                    title: 'Anda yakin?',
+                    text: "Tindakan ini akan menghapus semua daftar akun yang tersimpan.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.removeItem('createdAccounts');
+                        displayCreatedAccounts();
+                        Swal.fire(
+                            'Dihapus!',
+                            'Daftar akun telah dihapus.',
+                            'success'
+                        )
+                    }
+                })
             }
         })
     }
