@@ -2,7 +2,7 @@ import { connect } from "cloudflare:sockets";
 
 // Variables
 const rootDomain = "gpj1.dpdns.org"; // Ganti dengan domain utama kalian
-const serviceName = "tos"; // Ganti dengan nama workers kalian
+const serviceName = "gamang"; // Ganti dengan nama workers kalian
 const apiKey = "e1d2b64d4da5e42f24c88535f12f21bc84d06"; // Ganti dengan Global API key kalian (https://dash.cloudflare.com/profile/api-tokens)
 const apiEmail = "paoandest@gmail.com"; // Ganti dengan email yang kalian gunakan
 const accountID = "723b4d7d922c6af940791b5624a7cb05"; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
@@ -1447,15 +1447,15 @@ async function websocketHandler(request) {
 			}
 
 			if (protocolHeader.isUDP) {
-				if (protocolHeader.portRemote === 53) {
-					isDNS = true;
-					const udpOutbound = await handleUDPOutbound(webSocket, protocolHeader.version, log);
-					udpOutboundWriter = udpOutbound.write;
-					udpOutboundWriter(protocolHeader.rawClientData);
-					return;
-				} else {
-					throw new Error('UDP only support for DNS port 53');
-				}
+				// By default, Cloudflare Workers cannot send raw UDP packets.
+				// This implementation relays UDP packets over HTTPS to a DNS-over-HTTPS (DoH) resolver.
+				// While this enables UDP for any port, it will only work correctly for DNS queries,
+				// as all traffic is sent to the configured DoH server.
+				isDNS = true; // Flag to indicate UDP traffic
+				const udpOutbound = await handleUDPOutbound(webSocket, protocolHeader.version, log);
+				udpOutboundWriter = udpOutbound.write;
+				udpOutboundWriter(protocolHeader.rawClientData);
+				return;
 			}
 			handleTCPOutBound(remoteSocketWrapper, protocolHeader.addressRemote, protocolHeader.portRemote, protocolHeader.rawClientData, webSocket, protocolHeader.version, log);
 		},
