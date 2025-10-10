@@ -2099,6 +2099,356 @@ let baseHTML = `
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
+    :root {
+        --cyber-bg: #0a0a0a;
+        --cyber-primary: #00f2ff;
+        --cyber-secondary: #ff00ff;
+        --cyber-accent: #ff0066;
+        --cyber-white: #ffffff;
+        --cyber-dark-text: #e5e7eb;
+        --cyber-glow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+        --cyber-glow-secondary: 0 0 10px var(--cyber-secondary), 0 0 20px var(--cyber-secondary);
+    }
+
+.cyber-glass::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent), var(--cyber-primary));
+        z-index: -1;
+        border-radius: 18px;
+        opacity: 0.3;
+        animation: borderGlow 3s linear infinite;
+    }
+
+    .cyber-glass:hover {
+        transform: perspective(1200px) translateZ(20px) scale(1.02);
+        box-shadow: 
+            0 0 35px rgba(0, 242, 255, 0.5),
+            0 0 70px rgba(255, 0, 255, 0.3),
+            inset 0 0 20px rgba(0, 242, 255, 0.2),
+            inset 0 0 40px rgba(255, 0, 255, 0.1);
+    }
+
+    @keyframes borderGlow {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+    }
+
+    /* CYBER TITLE EFFECT */
+    .cyber-title {
+        font-family: 'Orbitron', sans-serif;
+        color: transparent;
+        background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        text-shadow: 
+            0 0 10px var(--cyber-primary),
+            0 0 20px var(--cyber-primary),
+            0 0 40px var(--cyber-secondary),
+            0 0 80px var(--cyber-secondary);
+        position: relative;
+        letter-spacing: 2px;
+    }
+
+    .cyber-title::after {
+        content: '⚡';
+        position: absolute;
+        right: -40px;
+        top: 50%;
+        transform: translateY(-50%);
+        animation: lightning 2s infinite;
+    }
+
+    @keyframes lightning {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
+    }
+
+    /* ENHANCED BUTTON STYLES */
+    .cyber-btn {
+        background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+        border: 1px solid var(--cyber-primary);
+        color: var(--cyber-white);
+        text-shadow: 0 0 5px var(--cyber-white);
+        box-shadow: var(--cyber-glow), inset 0 0 10px rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .cyber-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+
+    .cyber-btn:hover::before {
+        left: 100%;
+    }
+
+    .cyber-btn:hover:not(:disabled) {
+        box-shadow: 
+            0 0 20px var(--cyber-primary),
+            0 0 40px var(--cyber-primary),
+            0 0 60px var(--cyber-secondary),
+            inset 0 0 15px rgba(255, 255, 255, 0.3);
+        transform: translateY(-3px) scale(1.05);
+    }
+
+    .cyber-action-btn {
+        background: rgba(10, 25, 47, 0.8);
+        color: var(--cyber-dark-text);
+        border: 1px solid var(--cyber-primary);
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        transition: all 0.3s;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 500;
+    }
+
+    .cyber-action-btn:hover {
+        background: rgba(0, 242, 255, 0.15);
+        color: var(--cyber-primary);
+        box-shadow: 0 0 15px var(--cyber-primary);
+        transform: translateY(-2px);
+    }
+
+    /* ENHANCED INPUT FIELDS */
+    .cyber-input {
+        background: rgba(10, 25, 47, 0.8);
+        color: var(--cyber-dark-text);
+        border: 1px solid var(--cyber-primary);
+        border-radius: 8px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 242, 255, 0.1);
+        transition: all 0.3s;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    .cyber-input:focus {
+        border-color: var(--cyber-secondary);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 15px var(--cyber-secondary);
+        outline: none;
+    }
+
+    /* ENHANCED TABLE STYLES */
+    .cyber-table {
+        background: rgba(10, 25, 47, 0.6);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 242, 255, 0.2);
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+    }
+
+    .cyber-table th {
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(255, 0, 255, 0.1));
+        color: var(--cyber-primary);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 2px solid var(--cyber-primary);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.9rem;
+        padding: 1rem;
+    }
+
+    .cyber-table td {
+        border-color: rgba(0, 242, 255, 0.15);
+        padding: 1rem;
+        transition: all 0.3s;
+    }
+
+    .cyber-table tr:nth-child(even) {
+        background: rgba(10, 25, 47, 0.4);
+    }
+
+    .cyber-table tr:hover {
+        background: rgba(0, 242, 255, 0.1) !important;
+        color: var(--cyber-white);
+        transform: translateX(5px);
+    }
+
+    /* SCAN LINES EFFECT */
+    .scanlines {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .scanlines::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to bottom,
+            transparent 50%,
+            rgba(0, 0, 0, 0.1) 51%
+        );
+        background-size: 100% 4px;
+        z-index: 10;
+        pointer-events: none;
+        animation: scanline 2s linear infinite;
+    }
+
+    @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+    }
+
+    /* PULSING GLOW EFFECT */
+    .pulse-glow {
+        animation: pulseGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+        from { box-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary); }
+        to { box-shadow: 0 0 20px var(--cyber-primary), 0 0 40px var(--cyber-primary), 0 0 60px var(--cyber-secondary); }
+    }
+
+    /* ENHANCED LOADING SPINNER */
+    .cyber-loader {
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+
+    .cyber-loader::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 4px solid transparent;
+        border-top: 4px solid var(--cyber-primary);
+        border-right: 4px solid var(--cyber-secondary);
+        border-radius: 50%;
+        animation: cyberSpin 1.5s linear infinite;
+    }
+
+    .cyber-loader::after {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 60px;
+        height: 60px;
+        border: 4px solid transparent;
+        border-bottom: 4px solid var(--cyber-accent);
+        border-left: 4px solid var(--cyber-primary);
+        border-radius: 50%;
+        animation: cyberSpinReverse 1s linear infinite;
+    }
+
+    @keyframes cyberSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes cyberSpinReverse {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(-360deg); }
+    }
+
+    /* GRID BACKGROUND */
+    .cyber-grid {
+        background-image: 
+            linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+
+    /* STATUS INDICATORS */
+    .status-active {
+        color: #00ff88;
+        text-shadow: 0 0 10px #00ff88;
+        animation: blink 1.5s infinite;
+    }
+
+    .status-inactive {
+        color: #ff0066;
+        text-shadow: 0 0 10px #ff0066;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 768px) {
+        .cyber-glass { padding: 1.5rem; margin-bottom: 1.5rem; }
+        .cyber-title { font-size: 1.75rem; }
+        .cyber-table th, .cyber-table td { padding: 0.75rem; font-size: 0.8rem; }
+    }
+
+    @media (max-width: 480px) {
+        .cyber-title { font-size: 1.5rem; }
+        .cyber-glass { padding: 1rem; }
+    }
+    </style>
+
+    <!-- Existing navbar styles remain the same -->
+    <style>
+    .navbarconten {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 0px;
+        border: 1px solid var(--cyber-primary);
+        border-radius: 10px;
+        padding: 0px;
+        background-color: rgba(10, 25, 47, 0.8);
+        box-shadow: 0 0 15px var(--cyber-primary);
+    }
+    .navbar {
+        position: fixed;
+        top: 60%;
+        left: -80px;
+        transform: translateY(-50%);
+        width: 80px;
+        background: transparent;
+        color: white;
+        padding: 10px 0;
+        transition: left 0.3s ease-in-out;
+        z-index: 1000;
+        border-radius: 0 10px 10px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .navbar.show { left: 0; }
+    .navbar a img { width: 40px; }
+    .navbar a { display: block; color: white; text-decoration: none; padding: 10px 20px; }
+    .navbar a:hover { background: transparent; }
+    .toggle-btn {
+        position: absolute;
+        top: 60%;
+        right: -30px;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 1001;
+        padding: 10px;
+        border-radius: 0 10px 10px 0;
+        transition: right 0.3s ease-in-out;
+    }
+    .toggle-btn img { width: 20px; height: 150px; }
+    .navbar.show .toggle-btn { right: -29px; }
+    
     /* 1. SCROLLBAR HIDE */
     /* For Webkit-based browsers (Chrome, Safari and Opera) */
     .scrollbar-hide::-webkit-scrollbar {
@@ -2455,24 +2805,27 @@ let baseHTML = `
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
+                        sans: ['Rajdhani', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
                     },
                     colors: {
-                        'primary-dark': '#1c1c20',
-                        'secondary-dark': '#2a2a2f',
-                        'text-light': '#f0f0f5',
-                        'accent-cyan': '#00e0b7',
-                        'accent-blue': '#4a90e2',
-                        'accent-purple': '#a466e8', // Tambahkan jika belum ada
+                        'cyber-bg': '#0a0a0a',
+                        'cyber-primary': '#00f2ff',
+                        'cyber-secondary': '#ff00ff',
+                        'cyber-accent': '#ff0066',
                     },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite alternate',
+                        'scanline': 'scanline 2s linear infinite',
+                    }
                 },
             },
         };
     </script>
 </head>
-<body
-    class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
->
+<body class="bg-cyber-bg text-cyber-dark-text bg-fixed transition-colors duration-300 cyber-grid scanlines"
+    style="background-image: url('https://raw.githubusercontent.com/jaka1m/project/main/31725.jpg'); background-size: cover; background-attachment: fixed;">
+
     <script>
       (function() {
         const theme = localStorage.getItem('theme');
@@ -2482,33 +2835,39 @@ let baseHTML = `
         }
       })();
     </script>
-    <div
-      id="loading-screen"
-      class="fixed inset-0 z-50 flex justify-center items-center bg-gray-900 bg-opacity-80 transition-opacity duration-500"
-    >
-      <div
-        class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-400"
-      ></div>
+    <div id="loading-screen" class="fixed inset-0 z-50 flex justify-center items-center bg-cyber-bg bg-opacity-95 transition-opacity duration-500">
+      <div class="cyber-loader"></div>
+      <div class="absolute bottom-20">
+        <p class="text-cyber-primary font-display text-xl animate-pulse">INITIALIZING CYBER SYSTEMS...</p>
+      </div>
     </div>
 
-    <div id="notification-badge" class="fixed z-50 opacity-0 transition-opacity ease-in-out duration-300 mt-9 mr-6 right-0 p-4 max-w-sm rounded-xl flex items-center gap-x-4 shadow-lg glass-effect dark:glass-effect-light">
-        <div class="shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-accent-cyan">
+    <div id="notification-badge" class="fixed z-50 opacity-0 transition-all ease-in-out duration-300 mt-9 mr-6 right-0 p-4 max-w-sm rounded-xl flex items-center gap-x-4 cyber-glass">
+        <div class="shrink-0 pulse-glow">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-cyber-primary">
                 <path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 1.987 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" />
                 <path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" />
             </svg>
         </div>
         <div>
-            <div class="text-md font-bold text-accent-cyan">Berhasil!</div>
-            <p class="text-sm text-gray-300">Akun berhasil disalin</p>
+            <div class="text-md font-bold text-cyber-primary">Succes</div>
+            <p class="text-sm text-gray-300">Configuration copied</p>
         </div>
     </div>
 
-<div id="container-title" class="title-3d-glass sticky top-0 z-10 w-full max-w-7xl rounded-xl py-3 text-center transition-all duration-300 ease-in-out text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse">
-    <h1 id="" class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse">
-        FREE VPN CLOUDFLARE
-    </h1>
-</div>
+<!-- Enhanced Title -->
+    <div id="container-title" class="sticky top-0 z-10 w-full max-w-7xl py-6 text-center transition-all duration-300 ease-in-out">
+        <h1 class="cyber-title text-5xl font-display uppercase tracking-wider">
+            CYBER-VPN CLOUDFLARE
+        </h1>
+        <div class="mt-2">
+            <div class="inline-flex items-center gap-2 text-cyber-secondary text-sm font-mono">
+                <span class="status-active">●</span>
+                <span>SYSTEM ONLINE</span>
+                <span class="status-active">●</span>
+            </div>
+        </div>
+    </div>
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <div class="glass-3d-blur p-4 sm:p-6">
