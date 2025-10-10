@@ -871,10 +871,6 @@ export default {
                 
                 <div class="flex gap-4">
                     
-                    <a href="/sub" class="flex-1 text-center py-2 rounded-lg text-white font-bold text-base btn-home hover:opacity-90 transition-opacity">
-                        <i class="fa fa-home mr-2"></i>Home
-                    </a>
-
                     <button type="button" id="submitCekKuota" class="flex-1 py-2 rounded-lg text-white font-bold text-base btn-gradient hover:opacity-90 transition-opacity">
                         <i class="fa fa-search mr-2"></i>Cek
                     </button>
@@ -2099,706 +2095,435 @@ let baseHTML = `
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-    :root {
-        --cyber-bg: #0a0a0a;
-        --cyber-primary: #00f2ff;
-        --cyber-secondary: #ff00ff;
-        --cyber-accent: #ff0066;
-        --cyber-white: #ffffff;
-        --cyber-dark-text: #e5e7eb;
-        --cyber-glow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
-        --cyber-glow-secondary: 0 0 10px var(--cyber-secondary), 0 0 20px var(--cyber-secondary);
-    }
-
-.cyber-glass::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent), var(--cyber-primary));
-        z-index: -1;
-        border-radius: 18px;
-        opacity: 0.3;
-        animation: borderGlow 3s linear infinite;
-    }
-
-    .cyber-glass:hover {
-        transform: perspective(1200px) translateZ(20px) scale(1.02);
-        box-shadow: 
-            0 0 35px rgba(0, 242, 255, 0.5),
-            0 0 70px rgba(255, 0, 255, 0.3),
-            inset 0 0 20px rgba(0, 242, 255, 0.2),
-            inset 0 0 40px rgba(255, 0, 255, 0.1);
-    }
-
-    @keyframes borderGlow {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 0.6; }
-    }
-
-    /* CYBER TITLE EFFECT */
-    .cyber-title {
-        font-family: 'Orbitron', sans-serif;
-        color: transparent;
-        background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent));
-        -webkit-background-clip: text;
-        background-clip: text;
-        text-shadow: 
-            0 0 10px var(--cyber-primary),
-            0 0 20px var(--cyber-primary),
-            0 0 40px var(--cyber-secondary),
-            0 0 80px var(--cyber-secondary);
-        position: relative;
-        letter-spacing: 2px;
-    }
-
-    .cyber-title::after {
-        content: '⚡';
-        position: absolute;
-        right: -40px;
-        top: 50%;
-        transform: translateY(-50%);
-        animation: lightning 2s infinite;
-    }
-
-    @keyframes lightning {
-        0%, 100% { opacity: 0; }
-        50% { opacity: 1; }
-    }
-
-    /* ENHANCED BUTTON STYLES */
-    .cyber-btn {
-        background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
-        border: 1px solid var(--cyber-primary);
-        color: var(--cyber-white);
-        text-shadow: 0 0 5px var(--cyber-white);
-        box-shadow: var(--cyber-glow), inset 0 0 10px rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 600;
-        letter-spacing: 1px;
-    }
-
-    .cyber-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        transition: left 0.5s;
-    }
-
-    .cyber-btn:hover::before {
-        left: 100%;
-    }
-
-    .cyber-btn:hover:not(:disabled) {
-        box-shadow: 
-            0 0 20px var(--cyber-primary),
-            0 0 40px var(--cyber-primary),
-            0 0 60px var(--cyber-secondary),
-            inset 0 0 15px rgba(255, 255, 255, 0.3);
-        transform: translateY(-3px) scale(1.05);
-    }
-
-    .cyber-action-btn {
-        background: rgba(10, 25, 47, 0.8);
-        color: var(--cyber-dark-text);
-        border: 1px solid var(--cyber-primary);
-        box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
-        transition: all 0.3s;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 500;
-    }
-
-    .cyber-action-btn:hover {
-        background: rgba(0, 242, 255, 0.15);
-        color: var(--cyber-primary);
-        box-shadow: 0 0 15px var(--cyber-primary);
-        transform: translateY(-2px);
-    }
-
-    /* ENHANCED INPUT FIELDS */
-    .cyber-input {
-        background: rgba(10, 25, 47, 0.8);
-        color: var(--cyber-dark-text);
-        border: 1px solid var(--cyber-primary);
-        border-radius: 8px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 242, 255, 0.1);
-        transition: all 0.3s;
-        font-family: 'Rajdhani', sans-serif;
-    }
-
-    .cyber-input:focus {
-        border-color: var(--cyber-secondary);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 15px var(--cyber-secondary);
-        outline: none;
-    }
-
-    /* ENHANCED TABLE STYLES */
-    .cyber-table {
-        background: rgba(10, 25, 47, 0.6);
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid rgba(0, 242, 255, 0.2);
-        box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
-    }
-
-    .cyber-table th {
-        background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(255, 0, 255, 0.1));
-        color: var(--cyber-primary);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        border-bottom: 2px solid var(--cyber-primary);
-        font-family: 'Orbitron', sans-serif;
-        font-size: 0.9rem;
-        padding: 1rem;
-    }
-
-    .cyber-table td {
-        border-color: rgba(0, 242, 255, 0.15);
-        padding: 1rem;
-        transition: all 0.3s;
-    }
-
-    .cyber-table tr:nth-child(even) {
-        background: rgba(10, 25, 47, 0.4);
-    }
-
-    .cyber-table tr:hover {
-        background: rgba(0, 242, 255, 0.1) !important;
-        color: var(--cyber-white);
-        transform: translateX(5px);
-    }
-
-    /* SCAN LINES EFFECT */
-    .scanlines {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .scanlines::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            to bottom,
-            transparent 50%,
-            rgba(0, 0, 0, 0.1) 51%
-        );
-        background-size: 100% 4px;
-        z-index: 10;
-        pointer-events: none;
-        animation: scanline 2s linear infinite;
-    }
-
-    @keyframes scanline {
-        0% { transform: translateY(-100%); }
-        100% { transform: translateY(100%); }
-    }
-
-    /* PULSING GLOW EFFECT */
-    .pulse-glow {
-        animation: pulseGlow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes pulseGlow {
-        from { box-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary); }
-        to { box-shadow: 0 0 20px var(--cyber-primary), 0 0 40px var(--cyber-primary), 0 0 60px var(--cyber-secondary); }
-    }
-
-    /* ENHANCED LOADING SPINNER */
-    .cyber-loader {
-        position: relative;
-        width: 80px;
-        height: 80px;
-    }
-
-    .cyber-loader::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: 4px solid transparent;
-        border-top: 4px solid var(--cyber-primary);
-        border-right: 4px solid var(--cyber-secondary);
-        border-radius: 50%;
-        animation: cyberSpin 1.5s linear infinite;
-    }
-
-    .cyber-loader::after {
-        content: '';
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        width: 60px;
-        height: 60px;
-        border: 4px solid transparent;
-        border-bottom: 4px solid var(--cyber-accent);
-        border-left: 4px solid var(--cyber-primary);
-        border-radius: 50%;
-        animation: cyberSpinReverse 1s linear infinite;
-    }
-
-    @keyframes cyberSpin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    @keyframes cyberSpinReverse {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(-360deg); }
-    }
-
-    /* GRID BACKGROUND */
-    .cyber-grid {
-        background-image: 
-            linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
-        background-size: 50px 50px;
-    }
-
-    /* STATUS INDICATORS */
-    .status-active {
-        color: #00ff88;
-        text-shadow: 0 0 10px #00ff88;
-        animation: blink 1.5s infinite;
-    }
-
-    .status-inactive {
-        color: #ff0066;
-        text-shadow: 0 0 10px #ff0066;
-    }
-
-    @keyframes blink {
-        0%, 50% { opacity: 1; }
-        51%, 100% { opacity: 0.3; }
-    }
-
-    /* RESPONSIVE DESIGN */
-    @media (max-width: 768px) {
-        .cyber-glass { padding: 1.5rem; margin-bottom: 1.5rem; }
-        .cyber-title { font-size: 1.75rem; }
-        .cyber-table th, .cyber-table td { padding: 0.75rem; font-size: 0.8rem; }
-    }
-
-    @media (max-width: 480px) {
-        .cyber-title { font-size: 1.5rem; }
-        .cyber-glass { padding: 1rem; }
-    }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
     </style>
 
-    <!-- Existing navbar styles remain the same -->
     <style>
-    .navbarconten {
-        width: 100%;
-        overflow-x: auto;
-        margin-bottom: 0px;
-        border: 1px solid var(--cyber-primary);
-        border-radius: 10px;
-        padding: 0px;
-        background-color: rgba(10, 25, 47, 0.8);
-        box-shadow: 0 0 15px var(--cyber-primary);
-    }
-    .navbar {
-        position: fixed;
-        top: 60%;
-        left: -80px;
-        transform: translateY(-50%);
-        width: 80px;
-        background: transparent;
-        color: white;
-        padding: 10px 0;
-        transition: left 0.3s ease-in-out;
-        z-index: 1000;
-        border-radius: 0 10px 10px 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-    .navbar.show { left: 0; }
-    .navbar a img { width: 40px; }
-    .navbar a { display: block; color: white; text-decoration: none; padding: 10px 20px; }
-    .navbar a:hover { background: transparent; }
-    .toggle-btn {
-        position: absolute;
-        top: 60%;
-        right: -30px;
-        transform: translateY(-50%);
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        z-index: 1001;
-        padding: 10px;
-        border-radius: 0 10px 10px 0;
-        transition: right 0.3s ease-in-out;
-    }
-    .toggle-btn img { width: 20px; height: 150px; }
-    .navbar.show .toggle-btn { right: -29px; }
-    
-    /* 1. SCROLLBAR HIDE */
-    /* For Webkit-based browsers (Chrome, Safari and Opera) */
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    /* For IE, Edge and Firefox */
-    .scrollbar-hide {
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
-    }
+        :root {
+            --cyber-bg: #0a0a0a;
+            --cyber-primary: #00f2ff;
+            --cyber-secondary: #ff00ff;
+            --cyber-accent: #ff0066;
+            --cyber-glow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 30px var(--cyber-primary);
+            --cyber-glow-secondary: 0 0 10px var(--cyber-secondary), 0 0 20px var(--cyber-secondary);
+        }
 
-    /* 2. FONT IMPORT */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        /* 1. SCROLLBAR HIDE */
+        /* For Webkit-based browsers (Chrome, Safari and Opera) */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        /* For IE, Edge and Firefox */
+        .scrollbar-hide {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
 
-    /* 3. GLASSMORPHISM EFFECT */
-    .glass-effect {
-        background-color: rgba(42, 42, 47, 0.6);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(0, 224, 183, 0.3);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .glass-effect-light {
-        background-color: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 224, 183, 0.2);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* MODIFIKASI: GLASSMORPHISM 3D BLUR BARU */
-    .glass-3d-blur {
-        /* Latar Belakang Lebih Transparan (Glassmorphism) */
-        background: rgba(30, 41, 59, 0.4); /* Lebih transparan */
-        backdrop-filter: blur(15px);       /* Blur lebih kuat */
-        -webkit-backdrop-filter: blur(15px);
+        /* 2. CYBER TITLE EFFECT */
+        .cyber-title {
+            font-family: 'Orbitron', sans-serif;
+            color: transparent;
+            background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 
+                0 0 10px var(--cyber-primary),
+                0 0 20px var(--cyber-primary),
+                0 0 40px var(--cyber-secondary),
+                0 0 80px var(--cyber-secondary);
+            position: relative;
+            letter-spacing: 2px;
+        }
 
-        /* Efek 3D */
-        border-radius: 1.5rem;
-        box-shadow: 
-            0 15px 30px rgba(0, 0, 0, 0.6),    /* Bayangan kuat di luar */
-            0 0 20px rgba(102, 181, 232, 0.4) inset, /* Glow biru di dalam */
-            0 0 5px rgba(255, 255, 255, 0.2);       /* Kilauan di tepi */
-        border: 1px solid rgba(100, 116, 139, 0.6); /* Border lebih tegas */
-        padding: 2rem;
-        margin-bottom: 2rem;
-        
-        /* Transform 3D */
-        transform: perspective(1000px) translateZ(30px); /* Meningkatkan kedalaman */
-        transition: all 0.3s ease-out;
-    }
+        /* 3. PULSING GLOW EFFECT */
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
 
-    .glass-3d-blur:hover {
-        transform: perspective(1000px) translateZ(40px); /* Efek 'angkat' saat hover */
-    }
-    
-    /* 4. FLAG SPIN ANIMATION */
-    .flag-spin {
-        animation: spin-around 4s linear infinite alternate;
-        transform-origin: center center;
-    }
-    @keyframes spin-around {
-        0% {
-            transform: rotateY(0deg);
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary); }
+            to { box-shadow: 0 0 20px var(--cyber-primary), 0 0 40px var(--cyber-primary), 0 0 60px var(--cyber-secondary); }
         }
-        50% {
-            transform: rotateY(180deg);
-        }
-        100% {
-            transform: rotateY(0deg);
-        }
-    }
 
-    /* 5. MAIN CONTAINER & BOX STYLES (Dihapus karena diganti .glass-3d-blur) */
-    /* 6. BUTTON STYLES */
-    .btn-gradient {
-        background: linear-gradient(to right, var(--tw-color-accent-blue), var(--tw-color-accent-purple));
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -3px 5px rgba(0, 0, 0, 0.3);
-        transition: all 0.3s ease;
-    }
-    .btn-gradient:hover:not(:disabled) {
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(102, 181, 232, 0.8);
-        transform: translateY(1px);
-    }
-    .action-btn {
-        background-color: #1e293b;
-        color: #94a3b8;
-        border: 1px solid #475569;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        transition: all 0.2s;
-    }
-    .action-btn:hover {
-        background-color: #334155;
-        color: white;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 5px rgba(0, 0, 0, 0.6);
-        transform: translateY(1px);
-    }
-    
-    /* 7. INPUT FIELD STYLES */
-    .input-group {
-        background-color: rgba(30, 41, 59, 0.6);
-        border-radius: 0.75rem;
-        padding: 1rem;
-        border: 1px solid rgba(100, 116, 139, 0.3);
-        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-    }
-    .input-dark, .input-group textarea, .input-group select {
-        background-color: #1f2937;
-        color: #ffffff;
-        border: 1px solid #475569;
-        border-radius: 0.5rem;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .input-dark:focus, .input-group textarea:focus, .input-group select:focus {
-        border-color: var(--tw-color-accent-blue);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 5px var(--tw-color-accent-blue);
-    }
-
-    /* 8. TABLE STYLES (Dark Theme) */
-    .table-dark th {
-        background-color: #1e293b;
-        color: #94a3b8;
-        font-weight: 600;
-    }
-    .table-dark td {
-        border-color: #334155;
-    }
-    .table-dark tr:nth-child(even) {
-        background-color: #111827;
-    }
-    .table-dark tr:hover {
-        background-color: #334155 !important;
-    }
-
-    /* 9. UTILITY CLASSES */
-    .centered-heading {
-        text-align: center;
-        width: 100%;
-        font-size: 1.5rem;
-        font-weight: 800;
-        line-height: 1.2;
-        padding-bottom: 0.5rem;
-    }
-    .nav-btn-center {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        min-height: 50px;
-        padding: 0.75rem 1.5rem;
-        line-height: 1.2;
-        border-radius: 0.75rem;
-    }
-    .text-solid-white {
-        color: #ffffff;
-        text-shadow: none;
-    }
-
-    /* 10. RESULT BOXES */
-    .result-success {
-        background-color: #1f2937;
-        border: 1px solid #66b5e8;
-        color: #ffffff;
-        box-shadow: 0 0 15px rgba(102, 181, 232, 0.4);
-        transition: all 0.3s ease;
-    }
-    .result-error {
-        background-color: #1f2937;
-        border: 1px solid #a466e8;
-        color: #ffffff;
-        box-shadow: 0 0 15px rgba(164, 102, 232, 0.4);
-        transition: all 0.3s ease;
-    }
-    
-    /* 11. LOADING SPINNER */
-    #cover-spin {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.8);
-        z-index: 9999;
-        display: none;
-    }
-    .loader {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid var(--tw-color-accent-blue);
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 2s linear infinite;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* CSS untuk efek berkedip (blink) */
-    @keyframes blink {
-        0% { opacity: 1; }
-        50% { opacity: 0.2; }
-        100% { opacity: 1; }
-    }
-    .blink-text {
-        animation: blink 1s linear infinite;
-    }
-    /* Definisi warna dasar */
-    .text-green-600 { color: #16a34a; }
-    .text-red-600 { color: #dc2626; }
-    .text-yellow-400 { color: #facc15; } /* WARNA KUNING BARU */
-    .text-xs { font-size: 0.75rem; }
-    .font-normal { font-weight: 400; }
-    
-    /* Gaya Teks Judul 3D Terang */
-    #runningTitle {
-        /* Gaya Teks Gradien dan Animasi sudah ada (JANGAN DIUBAH): */
-        /* text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse */
-        
-        /* === EFEK TEKS 3D LEBIH TERANG === */
-        text-shadow: 
-            1px 1px 1px rgba(255, 255, 255, 0.5), /* Lapisan paling atas, memberi kilau */
-            2px 2px 2px rgba(255, 255, 255, 0.3), /* Lapisan tengah, meningkatkan 'lift' */
-            4px 4px 6px rgba(0, 0, 0, 0.9),       /* Bayangan gelap untuk kedalaman */
-            0 0 15px #ffffff,                     /* Glow putih lembut */
-            0 0 25px #a466e8;                     /* Glow ungu/biru */
-    }
-    
-    /* Custom style untuk gambar ikon di footer */
-    .footer-icon-img {
-        width: 1.5rem; /* size-6 equivalent (24px) */
-        height: 1.5rem; /* size-6 equivalent (24px) */
-        border-radius: 50%; /* Membuat gambar berbentuk lingkaran */
-        object-fit: cover;
-    }
-    
-    /* Responsive Media Queries */
-    @media (max-width: 768px) {
-        .glass-3d-blur {
-            padding: 1.5rem; /* Kurangi padding di mobile */
-            margin-bottom: 1.5rem;
-        }
-        #container-title h1 {
-            font-size: 1.75rem; /* Kecilkan judul di mobile */
-        }
-        .info-container {
-            gap: 0.5rem; /* Kurangi jarak antar item info */
-        }
-        .filter-container {
-            grid-template-columns: 1fr 1fr; /* 2 kolom di mobile */
-            gap: 0.75rem;
-        }
-        #container-pagination {
-            transform: none; /* Hapus translate-y di mobile */
-            position: static; /* Kembalikan ke posisi normal */
-            margin-top: 1.5rem;
-        }
-        .container {
-            padding: 1rem; /* Kurangi padding container utama */
-        }
-    }
-    @media (max-width: 480px) {
-        .filter-container {
-            grid-template-columns: 1fr; /* 1 kolom di layar sangat kecil */
-        }
-        #container-info-ip, #container-info-country, #container-info-isp,
-        #container-info-requests, #container-info-bandwidth {
-            font-size: 0.8rem; /* Kecilkan font info di mobile */
-        }
-    }
-    </style>
-    <style>
-.navbarconten {
-    width: 100%;
-    overflow-x: auto; /* Mengaktifkan scroll horizontal */
-    margin-bottom: 0px;
-    border: 1px solid #000; /* Border dengan warna abu-abu */
-    border-radius: 10px; /* Membuat sudut melengkung */
-    padding: 0px; /* Memberi jarak antara border dan konten */
-    background-color: rgba(0, 0, 0, 0.82); /* Warna latar belakang */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), /* Glow putih */
-              0 0 30px rgba(0, 150, 255, 0.5);   /* Glow biru */
-
-    }
-      .navbar {
-            position: fixed;
-            top: 60%;
-            left: -80px; /* Awalnya disembunyikan */
-            transform: translateY(-50%);
+        /* 4. ENHANCED LOADING SPINNER */
+        .cyber-loader {
+            position: relative;
             width: 80px;
-            background: ;
-            color: white;
-            padding: 10px 0;
-            transition: left 0.3s ease-in-out;
-            z-index: 1000;
-            border-radius: 0 10px 10px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            height: 80px;
         }
 
-        /* Saat navbar terbuka */
-        .navbar.show {
-            left: 0;
-        }
-
-        .navbar a img {
-            width: 40px;
-        }
-        
-        .navbar a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-        }
-        .navbar a:hover {
-            background: ;
-        }
-        
-        /* Tombol Toggle */
-        .toggle-btn {
+        .cyber-loader::before {
+            content: '';
             position: absolute;
-            top: 60%;
-            right: -30px; /* Posisi tombol di tengah kanan navbar */
-            transform: translateY(-50%);
-            background: ;
-            border: none;
-            cursor: pointer;
-            z-index: 1001;
-            padding: 10px;
-            border-radius: 0 10px 10px 0;
-            transition: right 0.3s ease-in-out;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top: 4px solid var(--cyber-primary);
+            border-right: 4px solid var(--cyber-secondary);
+            border-radius: 50%;
+            animation: cyberSpin 1.5s linear infinite;
         }
 
-        .toggle-btn img {
-            width: 20px; /* Ukuran gambar lebih kecil */
-            height: 150px; /* Ukuran gambar lebih kecil */
+        .cyber-loader::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 60px;
+            height: 60px;
+            border: 4px solid transparent;
+            border-bottom: 4px solid var(--cyber-accent);
+            border-left: 4px solid var(--cyber-primary);
+            border-radius: 50%;
+            animation: cyberSpinReverse 1s linear infinite;
         }
 
-        /* Saat navbar terbuka, tombol ikut bergeser */
-        .navbar.show .toggle-btn {
-            right: -29px;
+        @keyframes cyberSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes cyberSpinReverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        /* 5. GRID BACKGROUND */
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* 6. STATUS INDICATORS */
+        .status-active {
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+            animation: blink 1.5s infinite;
+        }
+
+        .status-inactive {
+            color: #ff0066;
+            text-shadow: 0 0 10px #ff0066;
+        }
+
+        /* Berkedip (blink) */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; } /* Menggunakan 0.2 agar lebih halus daripada 0.3 */
+        }
+        .blink-text {
+            animation: blink 1s linear infinite;
+        }
+
+        /* 7. GLASSMORPHISM EFFECT */
+        .glass-effect {
+            background-color: rgba(42, 42, 47, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 224, 183, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .glass-effect-light {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 224, 183, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
-</style>
+        /* MODIFIKASI: GLASSMORPHISM 3D BLUR BARU */
+        .glass-3d-blur {
+            /* Latar Belakang Lebih Transparan (Glassmorphism) */
+            background: rgba(30, 41, 59, 0.4); /* Lebih transparan */
+            backdrop-filter: blur(15px);       /* Blur lebih kuat */
+            -webkit-backdrop-filter: blur(15px);
+
+            /* Efek 3D */
+            border-radius: 1.5rem;
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.6),    /* Bayangan kuat di luar */
+                0 0 20px rgba(102, 181, 232, 0.4) inset, /* Glow biru di dalam */
+                0 0 5px rgba(255, 255, 255, 0.2);       /* Kilauan di tepi */
+            border: 1px solid rgba(100, 116, 139, 0.6); /* Border lebih tegas */
+            padding: 2rem;
+            margin-bottom: 2rem;
+            
+            /* Transform 3D */
+            transform: perspective(1000px) translateZ(30px); /* Meningkatkan kedalaman */
+            transition: all 0.3s ease-out;
+        }
+
+        .glass-3d-blur:hover {
+            transform: perspective(1000px) translateZ(40px); /* Efek 'angkat' saat hover */
+        }
+        
+        /* 8. FLAG SPIN ANIMATION */
+        .flag-spin {
+            animation: spin-around 4s linear infinite alternate;
+            transform-origin: center center;
+        }
+        @keyframes spin-around {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(0deg); }
+        }
+
+        /* 9. BUTTON STYLES */
+        .btn-gradient {
+            background: linear-gradient(to right, var(--tw-color-accent-blue), var(--tw-color-accent-purple));
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -3px 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover:not(:disabled) {
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(102, 181, 232, 0.8);
+            transform: translateY(1px);
+        }
+        .action-btn {
+            background-color: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background-color: #334155;
+            color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+            transform: translateY(1px);
+        }
+        
+        /* 10. INPUT FIELD STYLES */
+        .input-group {
+            background-color: rgba(30, 41, 59, 0.6);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        .input-dark, .input-group textarea, .input-group select {
+            background-color: #1f2937;
+            color: #ffffff;
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-dark:focus, .input-group textarea:focus, .input-group select:focus {
+            border-color: var(--tw-color-accent-blue);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 5px var(--tw-color-accent-blue);
+        }
+
+        /* 11. TABLE STYLES (Dark Theme) */
+        .table-dark th {
+            background-color: #1e293b;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .table-dark td {
+            border-color: #334155;
+        }
+        .table-dark tr:nth-child(even) {
+            background-color: #111827;
+        }
+        .table-dark tr:hover {
+            background-color: #334155 !important;
+        }
+
+        /* 12. UTILITY CLASSES */
+        .centered-heading {
+            text-align: center;
+            width: 100%;
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            padding-bottom: 0.5rem;
+        }
+        .nav-btn-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 50px;
+            padding: 0.75rem 1.5rem;
+            line-height: 1.2;
+            border-radius: 0.75rem;
+        }
+        .text-solid-white {
+            color: #ffffff;
+            text-shadow: none;
+        }
+
+        /* 13. RESULT BOXES */
+        .result-success {
+            background-color: #1f2937;
+            border: 1px solid #66b5e8;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(102, 181, 232, 0.4);
+            transition: all 0.3s ease;
+        }
+        .result-error {
+            background-color: #1f2937;
+            border: 1px solid #a466e8;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(164, 102, 232, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        /* 14. PAGE LOADING SPINNER */
+        #cover-spin {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 9999;
+            display: none;
+        }
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--tw-color-accent-blue);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Definisi warna dasar (untuk menghindari konflik dengan Tailwind) */
+        .text-green-600 { color: #16a34a; }
+        .text-red-600 { color: #dc2626; }
+        .text-yellow-400 { color: #facc15; } /* WARNA KUNING BARU */
+        .text-xs { font-size: 0.75rem; }
+        .font-normal { font-weight: 400; }
+        
+        /* 15. Gaya Teks Judul 3D Terang */
+        #runningTitle {
+            /* === EFEK TEKS 3D LEBIH TERANG === */
+            text-shadow: 
+                1px 1px 1px rgba(255, 255, 255, 0.5), /* Lapisan paling atas, memberi kilau */
+                2px 2px 2px rgba(255, 255, 255, 0.3), /* Lapisan tengah, meningkatkan 'lift' */
+                4px 4px 6px rgba(0, 0, 0, 0.9),       /* Bayangan gelap untuk kedalaman */
+                0 0 15px #ffffff,                     /* Glow putih lembut */
+                0 0 25px #a466e8;                     /* Glow ungu/biru */
+        }
+        
+        /* 16. Custom style untuk gambar ikon di footer */
+        .footer-icon-img {
+            width: 1.5rem; /* size-6 equivalent (24px) */
+            height: 1.5rem; /* size-6 equivalent (24px) */
+            border-radius: 50%; /* Membuat gambar berbentuk lingkaran */
+            object-fit: cover;
+        }
+
+        /* 17. NAVIGATION BAR */
+        .navbarconten {
+            width: 100%;
+            overflow-x: auto; /* Mengaktifkan scroll horizontal */
+            margin-bottom: 0px;
+            border: 1px solid #000; /* Border dengan warna abu-abu */
+            border-radius: 10px; /* Membuat sudut melengkung */
+            padding: 0px; /* Memberi jarak antara border dan konten */
+            background-color: rgba(0, 0, 0, 0.82); /* Warna latar belakang */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), /* Glow putih */
+                      0 0 30px rgba(0, 150, 255, 0.5);   /* Glow biru */
+
+        }
+        .navbar {
+                position: fixed;
+                top: 60%;
+                left: -80px; /* Awalnya disembunyikan */
+                transform: translateY(-50%);
+                width: 80px;
+                /* background: ; -> Dihapus karena kosong */
+                color: white;
+                padding: 10px 0;
+                transition: left 0.3s ease-in-out;
+                z-index: 1000;
+                border-radius: 0 10px 10px 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            /* Saat navbar terbuka */
+            .navbar.show {
+                left: 0;
+            }
+
+            .navbar a img {
+                width: 40px;
+            }
+            
+            .navbar a {
+                display: block;
+                color: white;
+                text-decoration: none;
+                padding: 10px 20px;
+            }
+            .navbar a:hover {
+                /* background: ; -> Dihapus karena kosong */
+            }
+            
+            /* Tombol Toggle */
+            .toggle-btn {
+                position: absolute;
+                top: 60%;
+                right: -30px; /* Posisi tombol di tengah kanan navbar */
+                transform: translateY(-50%);
+                /* background: ; -> Dihapus karena kosong */
+                border: none;
+                cursor: pointer;
+                z-index: 1001;
+                padding: 10px;
+                border-radius: 0 10px 10px 0;
+                transition: right 0.3s ease-in-out;
+            }
+
+            .toggle-btn img {
+                width: 20px; /* Ukuran gambar lebih kecil */
+                height: 150px; /* Ukuran gambar lebih kecil */
+            }
+
+            /* Saat navbar terbuka, tombol ikut bergeser */
+            .navbar.show .toggle-btn {
+                right: -29px;
+            }
+
+        /* 18. RESPONSIVE MEDIA QUERIES (Gabungan dan Dirapikan) */
+        @media (max-width: 768px) {
+            .cyber-glass { padding: 1.5rem; margin-bottom: 1.5rem; }
+            .cyber-title { font-size: 1.75rem; }
+            .cyber-table th, .cyber-table td { padding: 0.75rem; font-size: 0.8rem; }
+            /* Tambahan dari responsive bagian bawah: */
+            .glass-3d-blur { padding: 1.5rem; margin-bottom: 1.5rem; } /* Kurangi padding di mobile */
+            #container-title h1 { font-size: 1.75rem; } /* Kecilkan judul di mobile */
+            .info-container { gap: 0.5rem; } /* Kurangi jarak antar item info */
+            .filter-container { grid-template-columns: 1fr 1fr; gap: 0.75rem; } /* 2 kolom di mobile */
+            #container-pagination { transform: none; position: static; margin-top: 1.5rem; } /* Hapus translate-y di mobile */
+            .container { padding: 1rem; } /* Kurangi padding container utama */
+        }
+
+        @media (max-width: 480px) {
+            .cyber-title { font-size: 1.5rem; }
+            .cyber-glass { padding: 1rem; }
+            /* Tambahan dari responsive bagian bawah: */
+            .filter-container { grid-template-columns: 1fr; } /* 1 kolom di layar sangat kecil */
+            #container-info-ip, #container-info-country, #container-info-isp,
+            #container-info-requests, #container-info-bandwidth { font-size: 0.8rem; } /* Kecilkan font info di mobile */
+        }
+    </style>
+
     <script>
         tailwind.config = {
             darkMode: 'selector',
@@ -2823,25 +2548,198 @@ let baseHTML = `
         };
     </script>
 </head>
-<body class="bg-cyber-bg text-cyber-dark-text bg-fixed transition-colors duration-300 cyber-grid scanlines"
-    style="background-image: url('https://raw.githubusercontent.com/jaka1m/project/main/31725.jpg'); background-size: cover; background-attachment: fixed;">
 
+<body
+    class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
+>
     <script>
       (function() {
         const theme = localStorage.getItem('theme');
-        // Setel ke mode gelap jika tema adalah 'gelap' atau jika tidak ada tema yang disetel (bawaan)
         if (theme === 'dark' || !theme) {
           document.getElementById('html').classList.add('dark');
         }
       })();
     </script>
-    <div id="loading-screen" class="fixed inset-0 z-50 flex justify-center items-center bg-cyber-bg bg-opacity-95 transition-opacity duration-500">
-      <div class="cyber-loader"></div>
-      <div class="absolute bottom-20">
-        <p class="text-cyber-primary font-display text-xl animate-pulse">INITIALIZING CYBER SYSTEMS...</p>
-      </div>
-    </div>
 
+    <!-- Enhanced Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex justify-center items-center bg-cyber-bg bg-opacity-95 transition-opacity duration-500">
+  <div class="cyber-loader"></div>
+  <div class="absolute bottom-20">
+    
+    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="DPR BABI">
+      DPR BABI 
+      <span class="moving-icon">🐷</span>
+    </p>
+    
+    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="DPR ANJING">
+      DPR ANJING 
+      <span class="moving-icon">🐕</span>
+    </p>
+    
+    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="BANGSAT..">
+      BANGSAT.. 
+      <span class="moving-icon">💩</span>
+    </p>
+    
+  </div>
+</div>
+
+<style>
+/* --- Variabel Warna --- */
+:root {
+  --cyber-primary: #00ffc8;   /* Cyan Neon */
+  --cyber-secondary: #ff00ff; /* Magenta Neon */
+  --cyber-flicker-color: #ffcc00; /* Kuning/Oranye Neon untuk flicker */
+}
+
+/* -------------------------------------- */
+/* --- STYLE UTAMA CYBERPUNK TEXT --- */
+/* -------------------------------------- */
+
+.cyber-text-glitch {
+  /* Posisi Relatif untuk Glitch Effect */
+  position: relative;
+  
+  /* Animasi Teks */
+  animation: 
+    neon-flicker 1.5s infinite alternate-reverse, /* Flicker & Ganti Warna */
+    glitch-anim-1 2s infinite linear alternate-reverse, /* Glitch Layer 1 */
+    glitch-anim-2 3s infinite linear alternate-reverse; /* Glitch Layer 2 */
+}
+
+/* Layer Glitch 1: Magenta Shadow */
+.cyber-text-glitch::before {
+  content: attr(data-text); 
+  position: absolute;
+  top: 0;
+  left: 2px; 
+  width: 100%;
+  height: 100%;
+  color: var(--cyber-primary); 
+  text-shadow: -1px 0 var(--cyber-secondary); 
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim-1 2s infinite linear alternate-reverse; 
+}
+
+/* Layer Glitch 2: Cyan Shadow */
+.cyber-text-glitch::after {
+  content: attr(data-text); 
+  position: absolute;
+  top: 0;
+  left: -2px; 
+  width: 100%;
+  height: 100%;
+  color: var(--cyber-primary); 
+  text-shadow: 1px 0 var(--cyber-secondary); 
+  clip: rect(60px, 450px, 70px, 0);
+  animation: glitch-anim-2 3s infinite linear alternate-reverse; 
+}
+
+/* -------------------------------------- */
+/* --- STYLE ICON BERGERAK (MOVING ICON) --- */
+/* -------------------------------------- */
+
+.moving-icon {
+    display: inline-block;
+    /* Panggil animasi Ikon */
+    animation: 
+        icon-spin 2s infinite linear,
+        icon-scale-pulse 1.5s infinite alternate-reverse; 
+    
+    /* Ukuran dan Glow */
+    font-size: 1.2em; 
+    filter: drop-shadow(0 0 5px var(--cyber-flicker-color));
+}
+
+
+/* -------------------------------------- */
+/* --- KEYFRAMES (ANIMASI) --- */
+/* -------------------------------------- */
+
+/* Animasi Neon Flicker & Ganti Warna */
+@keyframes neon-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    /* Keadaan normal / glow dasar (Cyan & Magenta) */
+    text-shadow: 
+      0 0 7px var(--cyber-primary),
+      0 0 10px var(--cyber-primary),
+      0 0 21px var(--cyber-primary),
+      0 0 42px var(--cyber-secondary),
+      0 0 82px var(--cyber-secondary),
+      0 0 92px var(--cyber-secondary);
+    color: var(--cyber-primary);
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    /* Flicker singkat (Kuning/Oranye) */
+    text-shadow: 
+      0 0 5px var(--cyber-flicker-color),
+      0 0 10px var(--cyber-flicker-color),
+      0 0 15px var(--cyber-flicker-color),
+      0 0 30px var(--cyber-primary);
+    color: var(--cyber-flicker-color);
+    opacity: 0.8;
+  }
+  22% {
+    /* Flicker lebih redup / hampir mati */
+    text-shadow: none;
+    color: transparent;
+    opacity: 0.2;
+  }
+}
+
+/* Keyframes Ikon: Memutar (Spin) */
+@keyframes icon-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Keyframes Ikon: Memperbesar dan Mengecil (Scale Pulse) */
+@keyframes icon-scale-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Keyframes Glitch 1 */
+@keyframes glitch-anim-1 {
+  0% { clip: rect(24px, 9999px, 32px, 0) }
+  10% { clip: rect(72px, 9999px, 86px, 0) }
+  20% { clip: rect(100px, 9999px, 120px, 0) }
+  30% { clip: rect(40px, 9999px, 55px, 0) }
+  40% { clip: rect(120px, 9999px, 130px, 0) }
+  50% { clip: rect(10px, 9999px, 20px, 0) }
+  60% { clip: rect(140px, 9999px, 150px, 0) }
+  70% { clip: rect(90px, 9999px, 100px, 0) }
+  80% { clip: rect(60px, 9999px, 75px, 0) }
+  90% { clip: rect(155px, 9999px, 165px, 0) }
+  100% { clip: rect(5px, 9999px, 15px, 0) }
+}
+
+/* Keyframes Glitch 2 */
+@keyframes glitch-anim-2 {
+  0% { clip: rect(10px, 9999px, 20px, 0) }
+  15% { clip: rect(130px, 9999px, 140px, 0) }
+  30% { clip: rect(50px, 9999px, 60px, 0) }
+  45% { clip: rect(80px, 9999px, 90px, 0) }
+  60% { clip: rect(30px, 9999px, 40px, 0) }
+  75% { clip: rect(110px, 9999px, 120px, 0) }
+  90% { clip: rect(70px, 9999px, 80px, 0) }
+  100% { clip: rect(160px, 9999px, 170px, 0) }
+}
+</style>
+
+    <!-- Enhanced Notification -->
     <div id="notification-badge" class="fixed z-50 opacity-0 transition-all ease-in-out duration-300 mt-9 mr-6 right-0 p-4 max-w-sm rounded-xl flex items-center gap-x-4 cyber-glass">
         <div class="shrink-0 pulse-glow">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-cyber-primary">
@@ -2855,10 +2753,10 @@ let baseHTML = `
         </div>
     </div>
 
-<!-- Enhanced Title -->
+    <!-- Enhanced Title -->
     <div id="container-title" class="sticky top-0 z-10 w-full max-w-7xl py-6 text-center transition-all duration-300 ease-in-out">
         <h1 class="cyber-title text-5xl font-display uppercase tracking-wider">
-            CYBER-VPN CLOUDFLARE
+            FREE VPN CLOUDFLARE
         </h1>
         <div class="mt-2">
             <div class="inline-flex items-center gap-2 text-cyber-secondary text-sm font-mono">
@@ -2867,7 +2765,7 @@ let baseHTML = `
                 <span class="status-active">●</span>
             </div>
         </div>
-    </div>
+    </div>    
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <div class="glass-3d-blur p-4 sm:p-6">
@@ -3033,11 +2931,14 @@ let baseHTML = `
     </div>
     <footer>
     <div class="fixed top-16 right-4 flex flex-col items-end gap-3 z-50">
-    <button onclick="toggleDropdown()" class="transition-colors rounded-full block text-white shadow-lg transform hover:scale-105 bg-accent-blue hover:bg-opacity-80 p-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8 text-white">
-            <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75h-6.75a.75.75 0 0 1 0-1.5h6.75V3a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
-        </svg>
-    </button>
+    <button onclick="toggleDropdown()" class="fixed bottom-12 right-6 z-50
+    transition-all rounded-full block text-white shadow-xl transform hover:scale-110 p-1
+    bg-gradient-to-br from-blue-500 to-blue-800
+    hover:from-blue-600 hover:to-blue-900">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8 text-white">
+        <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75h-6.75a.75.75 0 0 1 0-1.5h6.75V3a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+    </svg>
+</button>
 
         <div id="dropdown-menu" class="hidden flex flex-col gap-3">
             
@@ -3047,13 +2948,13 @@ let baseHTML = `
                 </button>
             </a>
             <a href="PLACEHOLDER_DONATE_LINK" target="_blank">
-                <button class="bg-accent-cyan hover:bg-teal-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                        <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 0 1-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004ZM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 0 1-.921.42Z" />
-                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v.816a3.836 3.836 0 0 0-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 0 1-.921-.421l-.879-.66a.75.75 0 0 0-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 0 0 1.5 0v-.81a4.124 4.124 0 0 0 1.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 0 0-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 0 0 .933-1.175l-.415-.33a3.836 3.836 0 0 0-1.719-.755V6Z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </a>
+    <button class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+            <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 0 1-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004ZM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 0 1-.921.42Z" />
+            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v.816a3.836 3.836 0 0 0-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 0 1-.921-.421l-.879-.66a.75.75 0 0 0-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 0 0 1.5 0v-.81a4.124 4.124 0 0 0 1.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 0 0-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 0 0 .933-1.175l-.415-.33a3.836 3.836 0 0 0-1.719-.755V6Z" clip-rule="evenodd" />
+        </svg>
+    </button>
+</a>
 
             PLACEHOLDER_WHATSAPP_BUTTON
 
