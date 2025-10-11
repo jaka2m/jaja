@@ -503,6 +503,32 @@ export default {
               headers: { ...CORS_HEADER_OPTIONS },
             });
           }
+        } else if (apiPath.startsWith("/accounts")) {
+            if (request.method === 'GET') {
+                const accounts = await env.ACCOUNTS_KV.get('accounts_list', { type: 'json' }) || [];
+                return new Response(JSON.stringify(accounts), {
+                    headers: { ...CORS_HEADER_OPTIONS, 'Content-Type': 'application/json' },
+                });
+            } else if (request.method === 'POST') {
+                const newAccount = await request.json();
+                if (!newAccount || !newAccount.name || !newAccount.protocol) {
+                    return new Response('Invalid account data', { status: 400 });
+                }
+                let accounts = await env.ACCOUNTS_KV.get('accounts_list', { type: 'json' }) || [];
+                if (!accounts.some(acc => acc.name === newAccount.name && acc.protocol === newAccount.protocol)) {
+                    accounts.push(newAccount);
+                    await env.ACCOUNTS_KV.put('accounts_list', JSON.stringify(accounts));
+                }
+                return new Response('Account added', { status: 201 });
+            } else if (request.method === 'DELETE') {
+                const password = url.searchParams.get("password");
+                if (password !== 'xxx') {
+                    return new Response("Unauthorized", { status: 401, headers: { ...CORS_HEADER_OPTIONS } });
+                }
+                await env.ACCOUNTS_KV.delete('accounts_list');
+                return new Response('Accounts cleared', { status: 200 });
+            }
+            return new Response('Method Not Allowed', { status: 405 });
         } else if (apiPath.startsWith("/myip")) {
           return new Response(
             JSON.stringify({
@@ -2522,68 +2548,119 @@ let baseHTML = `
             #container-info-ip, #container-info-country, #container-info-isp,
             #container-info-requests, #container-info-bandwidth { font-size: 0.8rem; } /* Kecilkan font info di mobile */
         }
+        
+        
+        
+        
+        
+        
+        .slide-up {
+      animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(99, 102, 241, 0.03) 100%);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Garis Api Merah - Kiri ke Kanan */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ff0000, #ff5500, #ff0000, transparent);
+      animation: fireLine 3s ease-in-out infinite;
+      filter: blur(1px);
+      z-index: 2;
+    }
+    
+    /* Garis Api Biru - Kanan ke Kiri */
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ffff, #00aaff, #00ffff, transparent);
+      animation: fireLine 4s ease-in-out infinite reverse;
+      filter: blur(1px);
+      z-index: 2;
+    }
+    
+    @keyframes fireLine {
+      0% { 
+        left: -100%;
+        opacity: 0;
+      }
+      50% { 
+        opacity: 1;
+      }
+      100% { 
+        left: 100%;
+        opacity: 0;
+      }
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 20px;
+      color: white;
+    }
+    
+    .card-header h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--light);
+    }
+    
     </style>
-
-    <script>
-        tailwind.config = {
-            darkMode: 'selector',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Rajdhani', 'sans-serif'],
-                        display: ['Orbitron', 'sans-serif'],
-                    },
-                    colors: {
-                        'cyber-bg': '#0a0a0a',
-                        'cyber-primary': '#00f2ff',
-                        'cyber-secondary': '#ff00ff',
-                        'cyber-accent': '#ff0066',
-                    },
-                    animation: {
-                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite alternate',
-                        'scanline': 'scanline 2s linear infinite',
-                    }
-                },
-            },
-        };
-    </script>
-</head>
-
-<body
-    class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
->
-    <script>
-      (function() {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark' || !theme) {
-          document.getElementById('html').classList.add('dark');
-        }
-      })();
-    </script>
-
-    <!-- Enhanced Loading Screen -->
-    <div id="loading-screen" class="fixed inset-0 z-50 flex justify-center items-center bg-cyber-bg bg-opacity-95 transition-opacity duration-500">
-  <div class="cyber-loader"></div>
-  <div class="absolute bottom-20">
-    
-    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="DPR BABI">
-      DPR BABI 
-      <span class="moving-icon">🐷</span>
-    </p>
-    
-    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="DPR ANJING">
-      DPR ANJING 
-      <span class="moving-icon">🐕</span>
-    </p>
-    
-    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="BANGSAT..">
-      BANGSAT.. 
-      <span class="moving-icon">💩</span>
-    </p>
-    
-  </div>
-</div>
-
 <style>
 /* --- Variabel Warna --- */
 :root {
@@ -2739,184 +2816,250 @@ let baseHTML = `
 }
 </style>
 
+    <script>
+        tailwind.config = {
+            darkMode: 'selector',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Rajdhani', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        'cyber-bg': '#0a0a0a',
+                        'cyber-primary': '#00f2ff',
+                        'cyber-secondary': '#ff00ff',
+                        'cyber-accent': '#ff0066',
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite alternate',
+                        'scanline': 'scanline 2s linear infinite',
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+
+<body
+    class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
+>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || !theme) {
+          document.getElementById('html').classList.add('dark');
+        }
+      })();
+    </script>
+
+    <!-- Enhanced Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex justify-center items-center bg-cyber-bg bg-opacity-95 transition-opacity duration-500">
+  <div class="cyber-loader"></div>
+  <div class="absolute bottom-20">
+    
+    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="DPR BABI">
+      DPR BABI 
+      <span class="moving-icon">🐷</span>
+    </p>
+    
+    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="DPR ANJING">
+      DPR ANJING 
+      <span class="moving-icon">🐕</span>
+    </p>
+    
+    <p class="text-cyber-primary font-display text-3xl font-bold animate-pulse cyber-text-glitch" data-text="BANGSAT..">
+      BANGSAT.. 
+      <span class="moving-icon">💩</span>
+    </p>
+    
+  </div>
+</div>
+
     <!-- Enhanced Notification -->
     <div id="notification-badge" class="fixed z-50 opacity-0 transition-all ease-in-out duration-300 mt-9 mr-6 right-0 p-4 max-w-sm rounded-xl flex items-center gap-x-4 cyber-glass">
-        <div class="shrink-0 pulse-glow">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-cyber-primary">
-                <path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 1.987 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" />
-                <path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" />
-            </svg>
-        </div>
-        <div>
-            <div class="text-md font-bold text-cyber-primary">Succes</div>
-            <p class="text-sm text-gray-300">Configuration copied</p>
-        </div>
+    <div class="shrink-0 pulse-glow">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-cyber-primary">
+            <path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 1.987 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" />
+            <path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" />
+        </svg>
     </div>
+    <div>
+        <div class="text-md font-bold text-cyber-primary">Succes</div>
+        <p class="text-sm text-gray-300">Configuration copied</p>
+    </div>
+</div>
 
-    <!-- Enhanced Title -->
-    <div id="container-title" class="sticky top-0 z-10 w-full max-w-7xl py-6 text-center transition-all duration-300 ease-in-out">
-        <h1 class="cyber-title text-5xl font-display uppercase tracking-wider">
-            FREE VPN CLOUDFLARE
-        </h1>
-        <div class="mt-2">
-            <div class="inline-flex items-center gap-2 text-cyber-secondary text-sm font-mono">
-                <span class="status-active">●</span>
-                <span>SYSTEM ONLINE</span>
-                <span class="status-active">●</span>
+<div id="container-title" class="sticky top-0 z-10 w-full max-w-7xl py-6 text-center transition-all duration-300 ease-in-out">
+    <h1 class="cyber-title text-5xl font-display uppercase tracking-wider">
+        FREE VPN CLOUDFLARE
+    </h1>
+</div>
+<div class="mt-10"></div>
+
+<div class="container mx-auto p-4 sm:p-6 lg:p-8">
+<div class="card slide-up">
+    <div class="glass-effect-light dark:glass-effect w-full mb-6 rounded-xl p-4 shadow-lg">
+            <div class="flex justify-center items-center w-full">
+                <div class="inline-flex items-center gap-2 text-cyber-secondary text-sm font-mono">
+                    <span class="status-active">●</span>
+                    <span>SYSTEM ONLINE</span>
+                    <span class="status-active">●</span>
+                </div>
             </div>
-        </div>
-    </div>    
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div class="glass-3d-blur p-4 sm:p-6">
-            <div class="flex flex-col items-center relative z-10">
-                <div class="glass-effect-light dark:glass-effect w-full mb-6 rounded-xl p-4 shadow-lg">
-                    <div class="info-container flex flex-wrap items-center justify-center gap-3 text-sm font-semibold">
-                        <p id="container-info-ip" class="flex items-center gap-1 text-blue-500 dark:text-blue-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M5.5 13a4.5 4.5 0 011.692-3.377l1.72-1.725A4.5 4.5 0 0113 5.5V6a.5.5 0 001 0V5.5A4.5 4.5 0 009.377 2.308L7.653 4.032A4.5 4.5 0 005 8.5v.5a.5.5 0 001 0V8.5A3.5 3.5 0 017.377 5.79l.995.996a.5.5 0 00.707-.707l-.996-.995A4.5 4.5 0 008.5 2.5a.5.5 0 000-1z" />
-                            </svg>
-                            IP: <span class="font-bold text-slate-800 dark:text-white">127.0.0.1</span>
-                        </p>
-                        <p id="container-info-country" class="flex items-center gap-1 text-green-500 dark:text-green-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 3.126A8.024 8.024 0 0110 3a8 8 0 01.445.126l.01.004.013.006.015.008A5.96 5.96 0 0014 9a6 6 0 01-5.995 5.986L9 15a6 6 0 01-5.986-5.995l-.004-.01-.006-.013A6.024 6.024 0 013 10a8.024 8.024 0 01.126-.445l.004-.01.006-.013.008-.015A5.96 5.96 0 009 6a6 6 0 015.995 5.986L15 12a6 6 0 01-5.986 5.995l-.01-.004-.013-.006-.015-.008A6.024 6.024 0 019 18z" clip-rule="evenodd" />
-                            </svg>
-                            Country: <span class="font-bold text-slate-800 dark:text-white">Singapore</span>
-                        </p>
-                        <p id="container-info-isp" class="flex items-center gap-1 text-indigo-500 dark:text-indigo-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10 3a7 7 0 00-7 7h1.5a5.5 5.5 0 1111 0h1.5a7 7 0 00-7-7z" />
-                            </svg>
-                            ISP: <span class="font-bold text-slate-800 dark:text-white">Localhost</span>
-                        </p>
+            <div class="mt-3"></div>
 
-                        <p class="flex items-center gap-1 text-purple-500 dark:text-purple-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h14a1 1 0 001-1V4a1 1 0 00-1-1H3zm13 2H4v10h12V5z" />
-                            </svg>
-                            <span class="text-gray-600 dark:text-gray-300">Total Proxy: <strong id="total-proxy-value" class="font-semibold">0</strong></span>
-                        </p>
-                        <p class="flex items-center gap-1 text-orange-500 dark:text-orange-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6zm2 2a1 1 0 00-1 1v4a1 1 0 001 1h10a1 1 0 001-1V9a1 1 0 00-1-1H5zm1 2h2v2H6v-2zm4 0h2v2h-2v-2z" clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-gray-600 dark:text-gray-300">Page: <strong id="page-info-value" class="font-semibold">0/0</strong></span>
-                        </p>
-                        <p class="flex items-center gap-1 text-teal-500 dark:text-teal-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                            </svg>
-                            Time: <strong id="time-info-value" class="font-semibold text-slate-800 dark:text-white">00:00:00</strong>
-                        </p>
-                        <p id="container-info-requests" class="flex items-center gap-1 text-cyan-500 dark:text-cyan-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 100 2h12a1 1 0 100-2H4z" />
-                            </svg>
-                            Daily Requests: <span class="font-bold text-slate-800 dark:text-white">...</span>
-                        </p>
-                        <p id="container-info-bandwidth" class="flex items-center gap-1 text-rose-500 dark:text-rose-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M3 10a7 7 0 019.307-6.611 1 1 0 00.658-1.888 9 9 0 10-2.583 13.562 1 1 0 10-1.414-1.414 7 7 0 013.032-10.26zM10 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                            </svg>
-                            Daily Bandwidth: <span class="font-bold text-slate-800 dark:text-white">...</span>
-                        </p>
-                    </div>
-                    <div class="mt-4 flex flex-col gap-2">
-                        <div class="flex gap-2">
-                            <input type="text" id="search-bar" placeholder="Search by IP, Port, ISP, or Country..." class="w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
-                            <button onclick="searchProxy()" class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">Search</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="info-container flex flex-wrap items-center justify-center gap-3 text-sm font-semibold">
+                <p id="container-info-ip" class="flex items-center gap-1 text-blue-500 dark:text-blue-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M5.5 13a4.5 4.5 0 011.692-3.377l1.72-1.725A4.5 4.5 0 0113 5.5V6a.5.5 0 001 0V5.5A4.5 4.5 0 009.377 2.308L7.653 4.032A4.5 4.5 0 005 8.5v.5a.5.5 0 001 0V8.5A3.5 3.5 0 017.377 5.79l.995.996a.5.5 0 00.707-.707l-.996-.995A4.5 4.5 0 008.5 2.5a.5.5 0 000-1z" />
+                    </svg>
+                    IP: <span class="font-bold text-slate-800 dark:text-white">127.0.0.1</span>
+                </p>
+                <p id="container-info-country" class="flex items-center gap-1 text-green-500 dark:text-green-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 3.126A8.024 8.024 0 0110 3a8 8 0 01.445.126l.01.004.013.006.015.008A5.96 5.96 0 0014 9a6 6 0 01-5.995 5.986L9 15a6 6 0 01-5.986-5.995l-.004-.01-.006-.013A6.024 6.024 0 013 10a8.024 8.024 0 01.126-.445l.004-.01.006-.013.008-.015A5.96 5.96 0 009 6a6 6 0 015.995 5.986L15 12a6 6 0 01-5.986 5.995l-.01-.004-.013-.006-.015-.008A6.024 6.024 0 019 18z" clip-rule="evenodd" />
+                    </svg>
+                    Country: <span class="font-bold text-slate-800 dark:text-white">Singapore</span>
+                </p>
+                <p id="container-info-isp" class="flex items-center gap-1 text-indigo-500 dark:text-indigo-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 3a7 7 0 00-7 7h1.5a5.5 5.5 0 1111 0h1.5a7 7 0 00-7-7z" />
+                    </svg>
+                    ISP: <span class="font-bold text-slate-800 dark:text-white">Localhost</span>
+                </p>
+                <p class="flex items-center gap-1 text-purple-500 dark:text-purple-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h14a1 1 0 001-1V4a1 1 0 00-1-1H3zm13 2H4v10h12V5z" />
+                    </svg>
+                    <span class="text-gray-600 dark:text-gray-300">Total Proxy: <strong id="total-proxy-value" class="font-semibold">0</strong></span>
+                </p>
+                <p class="flex items-center gap-1 text-orange-500 dark:text-orange-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6zm2 2a1 1 0 00-1 1v4a1 1 0 001 1h10a1 1 0 001-1V9a1 1 0 00-1-1H5zm1 2h2v2H6v-2zm4 0h2v2h-2v-2z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-gray-600 dark:text-gray-300">Page: <strong id="page-info-value" class="font-semibold">0/0</strong></span>
+                </p>
+                <p class="flex items-center gap-1 text-teal-500 dark:text-teal-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    Time: <strong id="time-info-value" class="font-semibold text-slate-800 dark:text-white">00:00:00</strong>
+                </p>
+                <p id="container-info-requests" class="flex items-center gap-1 text-cyan-500 dark:text-cyan-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 100 2h12a1 1 0 100-2H4z" />
+                    </svg>
+                    Daily Requests: <span class="font-bold text-slate-800 dark:text-white">...</span>
+                </p>
+                <p id="container-info-bandwidth" class="flex items-center gap-1 text-rose-500 dark:text-rose-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 10a7 7 0 019.307-6.611 1 1 0 00.658-1.888 9 9 0 10-2.583 13.562 1 1 0 10-1.414-1.414 7 7 0 013.032-10.26zM10 3a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    Daily Bandwidth: <span class="font-bold text-slate-800 dark:text-white">...</span>
+                </p>
+            </div>
 
-                <div class="filter-container w-full max-w-5xl mb-6 p-6 bg-gray-800 rounded-xl shadow-xl grid grid-cols-2 md:grid-cols-4 gap-4" style="box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);">
-                    PLACEHOLDER_PROTOCOL_DROPDOWN
-                    PLACEHOLDER_COUNTRY_DROPDOWN
-                    PLACEHOLDER_HOST_DROPDOWN
-                    PLACEHOLDER_PORT_DROPDOWN
-                </div>
-                <br>
-                <div class="flex flex-col md:flex-row gap-4 w-full max-w-7xl justify-center">
-                    PLACEHOLDER_PROXY_GROUP
-                </div>
-
-                <nav id="container-pagination" class="w-full max-w-7xl mt-8 sticky bottom-2 z-20 transition-transform -translate-y-6 flex flex-col items-center">
-                    <ul class="flex justify-center space-x-2">
-                        PLACEHOLDER_PAGE_BUTTON
-                    </ul>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-4">PLACEHOLDER_PAGINATION_INFO</p>
-                </nav>
-
-                <div class="w-full max-w-7xl mt-8">
-                    <div class="glass-3d-blur p-4 sm:p-6">
-                        <h2 class="text-2xl font-bold text-center text-white mb-4">Daftar Akun</h2>
-                        <div id="created-accounts-list" class="overflow-x-auto">
-                            <!-- Account list will be populated here by JavaScript -->
-                        </div>
-                        <div class="text-center mt-4">
-                            <button onclick="clearCreatedAccounts()" class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
-                                Clear List
-                            </button>
-                        </div>
-                    </div>
+            <div class="mt-4 flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <input type="text" id="search-bar" placeholder="Search by IP, Port, ISP, or Country..." class="w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 input-dark text-base">
+                    <button onclick="searchProxy()" class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">Search</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="container-window" class="hidden">
-        <div class="fixed z-20 top-0 inset-0 w-full h-full bg-gray-900/80 backdrop-blur-sm flex justify-center items-center animate-fade-in">
-            <p id="container-window-info" class="text-center w-full h-full top-1/4 absolute text-white animate-pulse"></p>
-        </div>
-
-        <div id="output-window" class="fixed z-30 inset-0 flex justify-center items-center p-2 hidden">
+     <div class="card slide-up">
+    <div class="filter-container w-full max-w-5xl mb-6 p-6 bg-gray-800 rounded-xl shadow-xl grid grid-cols-2 md:grid-cols-4 gap-4" style="box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);">
+        PLACEHOLDER_PROTOCOL_DROPDOWN
+        PLACEHOLDER_COUNTRY_DROPDOWN
+        PLACEHOLDER_HOST_DROPDOWN
+        PLACEHOLDER_PORT_DROPDOWN
+    </div>
+    </div>
     
-    <div class="w-full max-w-xs flex flex-col gap-2 p-4 text-center rounded-xl backdrop-blur-md bg-blue-900/40 border border-sky-700 shadow-lg animate-zoom-in">
+    <div class="card slide-up">
+    <div class="flex flex-col md:flex-row gap-4 w-full max-w-7xl justify-center">
+        PLACEHOLDER_PROXY_GROUP
+    </div>
 
-        <div class="flex flex-col items-center gap-1 mb-1">
-            <h4 class="text-xl font-bold text-white mt-1">Pilih Format</h4>
-        </div>
+    <nav id="container-pagination" class="w-full max-w-7xl mt-8 sticky bottom-2 z-20 transition-transform -translate-y-6 flex flex-col items-center">
+        <ul class="flex justify-center space-x-2">
+            PLACEHOLDER_PAGE_BUTTON
+        </ul>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-4">PLACEHOLDER_PAGINATION_INFO</p>
+    </nav>
+    </div>
 
-        <textarea id="config-preview" class="w-full h-32 p-2 rounded-md bg-gray-800 text-white text-xs" readonly></textarea>
-
-        <div class="grid grid-cols-2 gap-1">
-            <button onclick="copyToClipboardAsTarget('clash')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" class="size-5 mr-1"><path d="M479.9 32.1C479.9 14.46 465.4 0 448 0H192c-17.47 0-32.22 14.46-31.99 31.99L160 384c0 17.46 14.46 32 32 32h128l-32.99 95.82c-4.141 12.19 2.594 25.75 14.78 29.89C304.8 512.9 308.8 512 312.4 512c8.203 0 16.28-4.484 20.78-12.14l128-224C474.7 269.8 480 263.2 480 256v-224C480 29.8 479.9 32.1 479.9 32.1zM384 256L272 448l64.01-192.1c.1406-.4375 .2812-.875 .4375-1.312L384 256z"/></svg>
-                Clash
-            </button>
-            <button onclick="copyToClipboardAsTarget('sfa')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" class="size-5 mr-1"><path d="M576 128c0-35.3-28.7-64-64-64h-38.3c-1.6 4.6-3.7 9-6.4 13.1l-10.4 15.6c-20.7 31.1-55.1 52.4-94.8 55.9c-29.5 2.6-58.8-3.4-86.3-17.8c-23.7-12.2-46.3-25.9-63.5-39.7c-5.9-4.7-12.8-8-20.3-9.9L160.8 64H112C76.75 64 48 92.75 48 128c0 35.25 28.75 64 64 64H172.5c20.3-10.8 42.6-17.7 65.5-20.5c10.5-1.2 21.1-1.7 31.8-1.7c-11 5.9-21.4 13.5-30.8 22.8c-20.6 20.5-35.3 45.4-42.5 73.6c-1.3 5.3-2 10.9-2 16.6c0 10.6 2 20.9 6.2 30.6c3.2 7.6 7.6 15 13 22.1c25.4 33.3 59 55 96.6 63.8c-1.6 2.1-3.2 4.1-4.9 6.1c-14.7 17.5-30.7 33.2-47.5 46.9c-7.9 6.5-16.1 12.3-24.6 17.2c-29.1 16.9-59.5 28.7-90.9 35.3c-11.6 2.5-23.3 3.8-35 3.8h-48.4c-12.3 0-24.2-4.1-34.6-11.5L5.6 422.3c-13.8-10.1-2.9-31.2 14.8-28.7c18.5 2.6 37.1 3.9 55.7 3.9c25.3 0 50.8-3.4 75.8-10.3c15.2-4.3 30.1-9.9 44.5-16.9c13.7-6.7 26.9-14.7 39.5-24.1c11.9-8.9 23.3-18.7 34.3-29.5c14.7-14.6 27.6-30.6 38.3-48.4c7-11.8 12.8-24.5 17.1-37.6c1.6-4.9 2.8-10 3.8-15c1-5.1 1.5-10.3 1.5-15.6c0-14.7-2.9-29.3-8.6-43.2c-5.8-14.2-13.8-27.7-23.8-40.2c-1.4-1.7-2.9-3.4-4.5-5.1c4.5-3.3 9.4-5.6 14.6-6.8c12.2-2.9 24.6-4.3 37.1-4.3c27.5 0 54.9 5.8 80.8 17.1c26.1 11.4 49.6 27.9 69.8 49.3c15.9 17 28.3 36.3 37.4 57.6c9.1 21.2 14.2 44.1 15.1 67.2c1.7 44.5-13.1 87.8-42.5 122.9c-29.4 35.1-69.6 57.9-114.7 63.8c-1.7 .2-3.4 .3-5.1 .5c-1.3 .2-2.5 .5-3.8 .6l-149.3 46.6c-13.3 4.1-27.1 6.1-40.9 6.1c-17.7 0-35.3-2.5-52.5-7.5l-63.5-18.4c-12.7-3.7-25.5-5.5-38.3-5.5c-35.3 0-64 28.7-64 64s28.7 64 64 64H112c35.25 0 64-28.75 64-64V448h145c11.3 0 22.6-1.5 33.9-4.5c44.8-11.9 84.1-39.2 114.6-77.9c30.3-38.6 47.9-86.8 48.9-136.5c1.4-71.9-28.7-142.1-85-189.6c-1.1-1-2.2-2.1-3.4-3.1c-14.1-12.3-30.8-22.3-49.3-29.5c-1.6-.6-3.1-1.3-4.7-1.9c-1.7-.6-3.4-1.1-5.1-1.5z"/></svg>
-                        SFA
-                    </button>
-                    <button onclick="copyToClipboardAsTarget('bfr')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="size-5 mr-1"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm288 32c0-11.5 6.1-22 16-27.6l80-45.7c10.8-6.2 24.3-3.4 31.5 6.9s3.2 23.4-7.5 29.7l-80 45.7c-2.4 1.4-5 2.2-7.8 2.2s-5.4-.8-7.8-2.2l-128-73.1c-10.8-6.2-13.6-19.7-7.5-30.5s19.7-13.6 30.5-7.5L256 226.4V64c0-17.7 14.3-32 32-32s32 14.3 32 32v240c0 17.7-14.3 32-32 32s-32-14.3-32-32v-44.5l-80 45.7c-10.8 6.2-13.6-19.7-7.5 30.5s19.7 13.6 30.5 7.5L256 280.9V448c0 17.7-14.3 32-32 32s-32-14.3-32-32V208c0-11.5-6.1-22-16-27.6L96 134.7c-10.8-6.2-24.3-3.4-31.5 6.9s-3.2 23.4 7.5 29.7l80 45.7c2.4 1.4 5 2.2 7.8 2.2s5.4-.8 7.8-2.2l128-73.1c10.8-6.2 13.6-19.7 7.5-30.5s-19.7-13.6-30.5-7.5L256 167.1V288z"/></svg>
-                        BFR
-                    </button>
-                    <button onclick="copyToClipboardAsRaw()" class="p-1.5 rounded-md bg-gray-400 hover:bg-gray-500 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" class="size-5 mr-1"><path d="M471.6 31.84c-3.641-4.22-8.527-6.552-13.69-6.552h-384c-5.164 0-10.05 2.332-13.69 6.552c-3.641 4.22-5.11 9.771-4.264 15.22l23.11 150.9C69.45 204.4 74.52 208 80 208h416c5.473 0 10.55-3.606 11.85-8.001l23.11-150.9C524.8 41.61 523.3 36.06 519.6 31.84zM240 336c0-8.836 7.164-16 16-16h64c8.836 0 16 7.164 16 16v160c0 8.836-7.164 16-16 16h-64c-8.836 0-16-7.164-16-16V336zM320 224c-8.836 0-16-7.164-16-16s7.164-16 16-16h64c8.836 0 16 7.164 16 16s-7.164 16-16 16h-64zM224 224h-64c-8.836 0-16-7.164-16-16s7.164-16 16-16h64c8.836 0 16 7.164 16 16S232.8 224 224 224zM416 336c0-8.836 7.164-16 16-16h64c8.836 0 16 7.164 16 16v160c0 8.836-7.164 16-16 16h-64c-8.836 0-16-7.164-16-16V336zM160 336c0-8.836 7.164-16 16-16h64c8.836 0 16 7.164 16 16v160c0 8.836-7.164 16-16 16h-64c-8.836 0-16-7.164-16-16V336z"/></svg>
-                        Raw
-                    </button>
+    <div class="card slide-up">
+    <div class="w-full max-w-7xl mt-8">
+        <div class="glass-3d-blur p-4 sm:p-6">
+            <h2 class="text-2xl font-bold text-center text-white mb-4">Daftar Akun</h2>
+            <div id="created-accounts-list" class="overflow-x-auto">
                 </div>
-
-                <div class="flex justify-center">
-                    <button onclick="toggleOutputWindow()" class="mt-1 p-3 rounded-lg bg-red-500 hover:bg-red-600 text-xs text-white font-semibold transition-colors duration-300 flex items-center justify-center gap-1 px-6 py-2 rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" class="size-3">
-                            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
-                        </svg>
-                        Close
-                    </button>
+            <div id="created-accounts-pagination" class="flex justify-center space-x-2 mt-4">
                 </div>
+            <div class="text-center mt-4">
+                <button onclick="clearCreatedAccounts()" class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
+                    Clear List
+                </button>
             </div>
         </div>
     </div>
-    <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
-    <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg 
-                 bg-blue-500 bg-opacity-20 backdrop-blur-md 
-                 border border-blue-300"> 
-        
+</div>
+</div>
+
+<div id="container-window" class="hidden">
+    <div class="fixed z-20 top-0 inset-0 w-full h-full bg-gray-900/80 backdrop-blur-sm flex justify-center items-center animate-fade-in">
+        <p id="container-window-info" class="text-center w-full h-full top-1/4 absolute text-white animate-pulse"></p>
+    </div>
+
+    <div id="output-window" class="fixed z-30 inset-0 flex justify-center items-center p-2 hidden">
+        <div class="w-full max-w-xs flex flex-col gap-2 p-4 text-center rounded-xl backdrop-blur-md bg-blue-900/40 border border-sky-700 shadow-lg animate-zoom-in">
+
+            <div class="flex flex-col items-center gap-1 mb-1">
+                <h4 class="text-xl font-bold text-white mt-1">Pilih Format</h4>
+            </div>
+
+            <textarea id="config-preview" class="w-full h-32 p-2 rounded-md bg-gray-800 text-white text-xs" readonly></textarea>
+
+            <div class="grid grid-cols-2 gap-1">
+                <button onclick="copyToClipboardAsTarget('clash')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm btn-gradient hover:opacity-80 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" class="size-5 mr-1"><path d="M479.9 32.1C479.9 14.46 465.4 0 448 0H192c-17.47 0-32.22 14.46-31.99 31.99L160 384c0 17.46 14.46 32 32 32h128l-32.99 95.82c-4.141 12.19 2.594 25.75 14.78 29.89C304.8 512.9 308.8 512 312.4 512c8.203 0 16.28-4.484 20.78-12.14l128-224C474.7 269.8 480 263.2 480 256v-224C480 29.8 479.9 32.1 479.9 32.1zM384 256L272 448l64.01-192.1c.1406-.4375 .2812-.875 .4375-1.312L384 256z"/></svg>
+                    Clash
+                </button>
+                <button onclick="copyToClipboardAsTarget('sfa')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm btn-gradient hover:opacity-80 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" class="size-5 mr-1"><path d="M576 128c0-35.3-28.7-64-64-64h-38.3c-1.6 4.6-3.7 9-6.4 13.1l-10.4 15.6c-20.7 31.1-55.1 52.4-94.8 55.9c-29.5 2.6-58.8-3.4-86.3-17.8c-23.7-12.2-46.3-25.9-63.5-39.7c-5.9-4.7-12.8-8-20.3-9.9L160.8 64H112C76.75 64 48 92.75 48 128c0 35.25 28.75 64 64 64H172.5c20.3-10.8 42.6-17.7 65.5-20.5c10.5-1.2 21.1-1.7 31.8-1.7c-11 5.9-21.4 13.5-30.8 22.8c-20.6 20.5-35.3 45.4-42.5 73.6c-1.3 5.3-2 10.9-2 16.6c0 10.6 2 20.9 6.2 30.6c3.2 7.6 7.6 15 13 22.1c25.4 33.3 59 55 96.6 63.8c-1.6 2.1-3.2 4.1-4.9 6.1c-14.7 17.5-30.7 33.2-47.5 46.9c-7.9 6.5-16.1 12.3-24.6 17.2c-29.1 16.9-59.5 28.7-90.9 35.3c-11.6 2.5-23.3 3.8-35 3.8h-48.4c-12.3 0-24.2-4.1-34.6-11.5L5.6 422.3c-13.8-10.1-2.9-31.2 14.8-28.7c18.5 2.6 37.1 3.9 55.7 3.9c25.3 0 50.8-3.4 75.8-10.3c15.2-4.3 30.1-9.9 44.5-16.9c13.7-6.7 26.9-14.7 39.5-24.1c11.9-8.9 23.3-18.7 34.3-29.5c14.7-14.6 27.6-30.6 38.3-48.4c7-11.8 12.8-24.5 17.1-37.6c1.6-4.9 2.8-10 3.8-15c1-5.1 1.5-10.3 1.5-15.6c0-14.7-2.9-29.3-8.6-43.2c-5.8-14.2-13.8-27.7-23.8-40.2c-1.4-1.7-2.9-3.4-4.5-5.1c4.5-3.3 9.4-5.6 14.6-6.8c12.2-2.9 24.6-4.3 37.1-4.3c27.5 0 54.9 5.8 80.8 17.1c26.1 11.4 49.6 27.9 69.8 49.3c15.9 17 28.3 36.3 37.4 57.6c9.1 21.2 14.2 44.1 15.1 67.2c1.7 44.5-13.1 87.8-42.5 122.9c-29.4 35.1-69.6 57.9-114.7 63.8c-1.7 .2-3.4 .3-5.1 .5c-1.3 .2-2.5 .5-3.8 .6l-149.3 46.6c-13.3 4.1-27.1 6.1-40.9 6.1c-17.7 0-35.3-2.5-52.5-7.5l-63.5-18.4c-12.7-3.7-25.5-5.5-38.3-5.5c-35.3 0-64 28.7-64 64s28.7 64 64 64H112c35.25 0 64-28.75 64-64V448h145c11.3 0 22.6-1.5 33.9-4.5c44.8-11.9 84.1-39.2 114.6-77.9c30.3-38.6 47.9-86.8 48.9-136.5c1.4-71.9-28.7-142.1-85-189.6c-1.1-1-2.2-2.1-3.4-3.1c-14.1-12.3-30.8-22.3-49.3-29.5c-1.6-.6-3.1-1.3-4.7-1.9c-1.7-.6-3.4-1.1-5.1-1.5z"/></svg>
+                    SFA
+                </button>
+                <button onclick="copyToClipboardAsTarget('bfr')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm btn-gradient hover:opacity-80 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="size-5 mr-1"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm288 32c0-11.5 6.1-22 16-27.6l80-45.7c10.8-6.2 24.3-3.4 31.5 6.9s3.2 23.4-7.5 29.7l-80 45.7c-2.4 1.4-5 2.2-7.8 2.2s-5.4-.8-7.8-2.2l-128-73.1c-10.8-6.2-13.6-19.7-7.5-30.5s19.7-13.6 30.5-7.5L256 226.4V64c0-17.7 14.3-32 32-32s32 14.3 32 32v240c0 17.7-14.3 32-32 32s-32-14.3-32-32v-44.5l-80 45.7c-10.8 6.2-13.6-19.7-7.5 30.5s19.7 13.6 30.5 7.5L256 280.9V448c0 17.7-14.3 32-32 32s-32-14.3-32-32V208c0-11.5-6.1-22-16-27.6L96 134.7c-10.8-6.2-24.3-3.4-31.5 6.9s-3.2 23.4 7.5 29.7l80 45.7c2.4 1.4 5 2.2 7.8 2.2s5.4-.8 7.8-2.2l128-73.1c10.8-6.2 13.6-19.7 7.5-30.5s-19.7-13.6-30.5-7.5L256 167.1V288z"/></svg>
+                    BFR
+                </button>
+                <button onclick="copyToClipboardAsRaw()" class="p-1.5 rounded-md bg-gray-400 hover:bg-gray-500 text-xs font-semibold text-white flex flex-row justify-center items-center transition-transform transform hover:scale-105 shadow-sm btn-gradient hover:opacity-80 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" class="size-5 mr-1"><path d="M471.6 31.84c-3.641-4.22-8.527-6.552-13.69-6.552h-384c-5.164 0-10.05 2.332-13.69 6.552c-3.641 4.22-5.11 9.771-4.264 15.22l23.11 150.9C69.45 204.4 74.52 208 80 208h416c5.473 0 10.55-3.606 11.85-8.001l23.11-150.9C524.8 41.61 523.3 36.06 519.6 31.84zM240 336c0-8.836 7.164-16 16-16h64c8.836 0 16 7.164 16 16v160c0 8.836-7.164 16-16 16h-64c-8.836 0-16-7.164-16-16V336zM320 224c-8.836 0-16-7.164-16-16s7.164-16 16-16h64c8.836 0 16 7.164 16 16s-7.164 16-16 16h-64zM224 224h-64c-8.836 0-16-7.164-16-16s7.164-16 16-16h64c8.836 0 16 7.164 16 16S232.8 224 224 224zM416 336c0-8.836 7.164-16 16-16h64c8.836 0 16 7.164 16 16v160c0 8.836-7.164 16-16 16h-64c-8.836 0-16-7.164-16-16V336zM160 336c0-8.836 7.164-16 16-16h64c8.836 0 16 7.164 16 16v160c0 8.836-7.164 16-16 16h-64c-8.836 0-16-7.164-16-16V336z"/></svg>
+                    Raw
+                </button>
+            </div>
+
+            <div class="flex justify-center">
+                <button onclick="toggleOutputWindow()" class="mt-1 p-3 rounded-lg bg-red-500 hover:bg-red-600 text-xs text-white font-semibold transition-colors duration-300 flex items-center justify-center gap-1 btn-gradient hover:opacity-80 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" class="size-3">
+                        <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+                    </svg>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
+    <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg bg-blue-500 bg-opacity-20 backdrop-blur-md border border-blue-300">
+
         <div class="flex w-full h-full gap-2 justify-between">
-            <input id="new-domain-input" type="text" placeholder="Input wildcard" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2"/>
+            <input id="new-domain-input" type="text" placeholder="Input wildcard" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white input-dark text-base focus:ring-2"/>
             <button onclick="registerDomain()" class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                     <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
@@ -2924,18 +3067,18 @@ let baseHTML = `
             </button>
         </div>
 
-        <div id="container-domains" class="w-full h-32 rounded-md flex flex-col gap-1 overflow-y-scroll scrollbar-hide p-2 bg-gray-900 w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2"></div>
-    
-            <div class="flex w-full h-full gap-2 justify-between">
-                <input id="delete-domain-input" type="number" placeholder="Input Nomor" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2"/>
-                <button onclick="deleteDomainByNumber()" class="p-2 rounded-full bg-red-600 hover:bg-red-700 flex justify-center items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                        <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
+        <div id="container-domains" class="w-full h-32 rounded-md flex flex-col gap-1 overflow-y-scroll scrollbar-hide p-2 bg-gray-900 input-dark text-base focus:ring-2"></div>
+
+        <div class="flex w-full h-full gap-2 justify-between">
+            <input id="delete-domain-input" type="number" placeholder="Input Nomor" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white input-dark text-base focus:ring-2"/>
+            <button onclick="deleteDomainByNumber()" class="p-2 rounded-full bg-red-600 hover:bg-red-700 flex justify-center items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
                     </svg>
                 </button>
             </div>
 
-            <button onclick="toggleWildcardsWindow()" class="mt-1 p-3 rounded-lg bg-red-500 hover:bg-red-600 text-xs text-white font-semibold transition-colors duration-300 flex items-center justify-center gap-1 px-6 py-2 rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity">
+            <button onclick="toggleWildcardsWindow()" class="mt-1 p-3 rounded-lg bg-red-500 hover:bg-red-600 text-xs text-white font-semibold transition-colors duration-300 flex items-center justify-center gap-1 btn-gradient hover:opacity-80 transition-opacity">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/>
                 </svg>
@@ -2943,37 +3086,34 @@ let baseHTML = `
             </button>
         </div>
     </div>
-    <footer>
+</div>
+
+<footer>
     <div class="fixed top-16 right-4 flex flex-col items-end gap-3 z-50">
-    <button onclick="toggleDropdown()" class="fixed bottom-12 right-6 z-50
-    transition-all rounded-full block text-white shadow-xl transform hover:scale-110 p-1
-    bg-gradient-to-br from-blue-500 to-blue-800
-    hover:from-blue-600 hover:to-blue-900">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8 text-white">
-        <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75h-6.75a.75.75 0 0 1 0-1.5h6.75V3a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
-    </svg>
-</button>
+        <button onclick="toggleDropdown()" class="fixed bottom-12 right-6 z-50 transition-all rounded-full block text-white shadow-xl transform hover:scale-110 p-1 bg-gradient-to-br from-blue-500 to-blue-800 hover:from-blue-600 hover:to-blue-900">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-8 text-white">
+                <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75h-6.75a.75.75 0 0 1 0-1.5h6.75V3a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+            </svg>
+        </button>
 
         <div id="dropdown-menu" class="hidden flex flex-col gap-3">
-            
             <a href="/kuota">
                 <button class="bg-teal-500 hover:bg-teal-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200" title="Cek Kuota">
                     <img src="https://raw.githubusercontent.com/jaka9m/vless/refs/heads/main/sidompul.jpg" alt="Cek Kuota Icon" class="footer-icon-img">
                 </button>
             </a>
             <a href="PLACEHOLDER_DONATE_LINK" target="_blank">
-    <button class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-            <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 0 1-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004ZM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 0 1-.921.42Z" />
-            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v.816a3.836 3.836 0 0 0-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 0 1-.921-.421l-.879-.66a.75.75 0 0 0-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 0 0 1.5 0v-.81a4.124 4.124 0 0 0 1.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 0 0-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 0 0 .933-1.175l-.415-.33a3.836 3.836 0 0 0-1.719-.755V6Z" clip-rule="evenodd" />
-        </svg>
-    </button>
-</a>
+                <button class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                        <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 0 1-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004ZM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 0 1-.921.42Z" />
+                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v.816a3.836 3.836 0 0 0-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 0 1-.921-.421l-.879-.66a.75.75 0 0 0-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 0 0 1.5 0v-.81a4.124 4.124 0 0 0 1.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 0 0-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 0 0 .933-1.175l-.415-.33a3.836 3.836 0 0 0-1.719-.755V6Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </a>
 
             PLACEHOLDER_WHATSAPP_BUTTON
-
             PLACEHOLDER_TELEGRAM_BUTTON
-            
+
             <button onclick="toggleWildcardsWindow()" class="bg-indigo-500 hover:bg-indigo-600 rounded-full border-2 border-gray-900 p-2 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
@@ -2988,6 +3128,7 @@ let baseHTML = `
         </div>
     </div>
 </footer>
+
 <div class="navbar" id="navbar">
     <div class="toggle-btn" id="menu-btn" onclick="toggleNavbar()">
         <img src="https://geoproject.biz.id/social/buka.png" alt="Toggle Menu">
@@ -2998,7 +3139,7 @@ let baseHTML = `
                 <img src="https://geoproject.biz.id/social/linksub.png" alt="menu" width="40" class="mt-1">
             </a>
         </span>
-        
+
         <span>
             <a href="/kuota">
                 <button class="bg-teal-500 hover:bg-teal-600 rounded-full border-1 border-gray-900 p-2 block transition-colors duration-200" title="Cek Kuota">
@@ -3006,13 +3147,13 @@ let baseHTML = `
                 </button>
             </a>
         </span>
-        
+
         <span>
             <a href="https://t.me/VLTRSSbot" target="_blank" rel="noopener noreferrer">
                 <img src="https://geoproject.biz.id/social/bot.png" alt="menu" width="40" class="mt-1">
             </a>
         </span>
-        
+
         <span>
             <a href="/sub" target="_self" rel="noopener noreferrer">
                 <img src="https://geoproject.biz.id/social/home.png" alt="menu" width="40" class="mt-1">
@@ -3244,7 +3385,7 @@ let baseHTML = `
         Swal.fire({
             title: 'Masukkan Nama Remarks',
             input: 'text',
-            inputPlaceholder: 'Contoh: AkunSatu',
+            inputPlaceholder: 'Contoh: DPR_BABI',
             showCancelButton: true,
             confirmButtonText: 'Lanjutkan',
             cancelButtonText: 'Batal',
@@ -3253,66 +3394,80 @@ let baseHTML = `
                     return 'Nama remarks tidak boleh kosong!'
                 }
             }
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
                 const remark = result.value;
                 const configs = proxyConfigs.split('\\n');
+                const savePromises = [];
+
                 const updatedConfigs = configs.map(config => {
                     if (config.trim() === '') return '';
+                    let protocol = '';
+                    let newConfig = config;
                     try {
                         let url = new URL(config);
-                        let protocol = url.protocol.replace(':', '');
-                        // The original remark is the last part of the hash
+                        protocol = url.protocol.replace(':', '');
                         let hashParts = url.hash.split(' ');
-                        hashParts.pop(); // Remove the old remark like '[tos]'
+                        hashParts.pop();
                         hashParts.push('[' + remark + ']');
                         url.hash = hashParts.join(' ');
-                        
-                        // Save account
-                        saveCreatedAccount(remark, protocol);
-
-                        return url.toString();
+                        newConfig = url.toString();
                     } catch (e) {
-                        // For SS, it might not be a valid URL, handle as string replace
                         if (config.includes('#')) {
+                           protocol = 'ss';
                            const parts = config.split('#');
                            let hashParts = parts[1].split(' ');
                            hashParts.pop();
                            hashParts.push('[' + remark + ']');
-                           const newConfig = parts[0] + '#' + hashParts.join(' ');
-
-                           // Save account
-                           saveCreatedAccount(remark, 'ss');
-                           return newConfig;
+                           newConfig = parts[0] + '#' + hashParts.join(' ');
                         }
-                        return config; // return original if parsing fails
                     }
+                     if (protocol) {
+                        savePromises.push(saveCreatedAccount(remark, protocol));
+                    }
+                    return newConfig;
                 }).join('\\n');
 
                 showOutputWindowAndCopy(updatedConfigs);
-                displayCreatedAccounts(); // Refresh the list
+                
+                await Promise.all(savePromises);
+                
+                displayCreatedAccounts(1);
             }
         });
       }
 
-    function saveCreatedAccount(name, protocol) {
-        let accounts = JSON.parse(localStorage.getItem('createdAccounts')) || [];
-        // Avoid duplicate entries
-        if (!accounts.some(acc => acc.name === name && acc.protocol === protocol)) {
-            accounts.push({ name, protocol });
-            localStorage.setItem('createdAccounts', JSON.stringify(accounts));
-        }
+    async function saveCreatedAccount(name, protocol) {
+        await fetch('/api/v1/accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, protocol }),
+        });
     }
 
-    function displayCreatedAccounts() {
-        const container = document.getElementById('created-accounts-list');
-        const accounts = JSON.parse(localStorage.getItem('createdAccounts')) || [];
+    async function displayCreatedAccounts(page = 1) {
+        const ACCOUNTS_PER_PAGE = 10;
+        const listContainer = document.getElementById('created-accounts-list');
+        const paginationContainer = document.getElementById('created-accounts-pagination');
+        
+        listContainer.innerHTML = '<p class="text-center text-gray-400">Loading...</p>';
+        if (paginationContainer) paginationContainer.innerHTML = '';
+
+        const response = await fetch('/api/v1/accounts');
+        const accounts = await response.json();
 
         if (accounts.length === 0) {
-            container.innerHTML = '<p class="text-center text-gray-400">Belum ada akun yang dibuat.</p>';
+            listContainer.innerHTML = '<p class="text-center text-gray-400">Belum ada akun yang dibuat.</p>';
             return;
         }
 
+        // Pagination logic
+        const totalAccounts = accounts.length;
+        const totalPages = Math.ceil(totalAccounts / ACCOUNTS_PER_PAGE);
+        const startIndex = (page - 1) * ACCOUNTS_PER_PAGE;
+        const paginatedAccounts = accounts.slice(startIndex, startIndex + ACCOUNTS_PER_PAGE);
+
+        // Build table
         let tableHTML = '<table class="min-w-full bg-gray-800/50 rounded-lg">';
         tableHTML += '<thead><tr>';
         tableHTML += '<th class="px-4 py-2 text-left text-sm font-semibold text-gray-300">No.</th>';
@@ -3320,39 +3475,81 @@ let baseHTML = `
         tableHTML += '<th class="px-4 py-2 text-left text-sm font-semibold text-gray-300">Protocol</th>';
         tableHTML += '</tr></thead><tbody>';
 
-        accounts.forEach((account, index) => {
+        paginatedAccounts.forEach((account, index) => {
             tableHTML += '<tr class="border-t border-gray-700">';
-            tableHTML += '<td class="px-4 py-2 text-gray-400">' + (index + 1) + '</td>';
+            tableHTML += '<td class="px-4 py-2 text-gray-400">' + (startIndex + index + 1) + '</td>';
             tableHTML += '<td class="px-4 py-2 text-white">' + account.name + '</td>';
             tableHTML += '<td class="px-4 py-2 text-white">' + account.protocol.toUpperCase() + '</td>';
             tableHTML += '</tr>';
         });
 
         tableHTML += '</tbody></table>';
-        container.innerHTML = tableHTML;
+        listContainer.innerHTML = tableHTML;
+
+        // Build pagination controls
+        if (totalPages > 1 && paginationContainer) {
+            let paginationHTML = '';
+
+            // Previous button
+            if (page > 1) {
+                paginationHTML += '<li><button onclick="navigateToAccountPage(' + (page - 1) + ')" class="px-4 py-2 text-white rounded-lg btn-gradient hover:opacity-80">Prev</button></li>';
+            }
+
+            // Page number buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === page ? 'bg-blue-700' : '';
+                paginationHTML += '<li><button onclick="navigateToAccountPage(' + i + ')" class="px-4 py-2 text-white rounded-lg btn-gradient hover:opacity-80 ' + activeClass + '">' + i + '</button></li>';
+            }
+
+            // Next button
+            if (page < totalPages) {
+                paginationHTML += '<li><button onclick="navigateToAccountPage(' + (page + 1) + ')" class="px-4 py-2 text-white rounded-lg btn-gradient hover:opacity-80">Next</button></li>';
+            }
+            
+            paginationContainer.innerHTML = '<ul class="flex justify-center space-x-2">' + paginationHTML + '</ul>';
+        }
+    }
+
+    function navigateToAccountPage(page) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('acc_page', page);
+        history.pushState({page: page}, '', url.toString());
+        displayCreatedAccounts(page);
     }
 
     function clearCreatedAccounts() {
         Swal.fire({
-            title: 'Anda yakin?',
-            text: "Tindakan ini akan menghapus semua daftar akun yang tersimpan.",
-            icon: 'warning',
+            title: 'Masukkan Password untuk Menghapus',
+            input: 'password',
+            inputPlaceholder: 'Masukkan password...',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
+            confirmButtonText: 'Hapus',
+            showLoaderOnConfirm: true,
+            preConfirm: (password) => {
+                return fetch('/api/v1/accounts?password=' + encodeURIComponent(password), {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(response.status === 401 ? 'Password salah!' : 'Gagal menghapus daftar.');
+                    }
+                    return response;
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(error.message);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
         }).then((result) => {
             if (result.isConfirmed) {
-                localStorage.removeItem('createdAccounts');
-                displayCreatedAccounts();
+                displayCreatedAccounts(1); // Refresh list to page 1
                 Swal.fire(
                     'Dihapus!',
                     'Daftar akun telah dihapus.',
                     'success'
-                )
+                );
             }
-        })
+        });
     }
 
       function copyToClipboardAsRaw() {
@@ -3616,7 +3813,9 @@ setInterval(updateTime, 1000);
         checkProxy();
         updateTime();
         checkStats();
-        displayCreatedAccounts();
+        const urlParams = new URLSearchParams(window.location.search);
+        const accountPage = parseInt(urlParams.get('acc_page')) || 1;
+        displayCreatedAccounts(accountPage);
         // checkRegion();
         const observer = lozad(".lozad", {
           load: function (el) {
@@ -3686,51 +3885,41 @@ setTitle(title) {
     }
 
     buildProxyGroup() {
-        let tableRows = "";
-        for (let i = 0; i < this.proxies.length; i++) {
-            const prx = this.proxies[i];
-            const proxyConfigs = prx.list.join('\\n');
-            tableRows += `
-                <tr>
-     <td class="px-3 py-3 text-base text-center">${this.startIndex + i + 1}.</td>
-     <td class="px-3 py-3 text-base font-mono text-center">${prx.prxIP}:${prx.prxPort}</td>
-     <td id="ping-${i}" class="px-6 py-4 whitespace-nowrap text-sm text-center">${prx.prxIP}:${prx.prxPort}</td>
-     <td class="px-6 py-4 whitespace-nowrap text-sm flex items-center justify-center">
-        <img src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" width="20" class="inline mr-2 rounded-full"/>
-        ${prx.country}
-    </td>
-    <td class="px-3 py-3 text-base font-mono">
-    <div class="max-w-[150px] overflow-x-auto whitespace-nowrap">${prx.org}</div></td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-        <button onclick="promptForRemarkAndCopy(\`${proxyConfigs}\`)" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Config</button>
-    </td>
-</tr>
-            `;
-        }
-
-        const table = `
-            <div class="overflow-x-auto w-full max-w-full" style="max-height: 500px; overflow-y: auto;">    
-    <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-base" style="box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-        
-        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10" style="box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);">
-            <tr>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 50px;">No.</th>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 120px;">IP</th>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 100px;">Status</th>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 150px;">Country</th>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 80px;">ISP</th>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" style="min-width: 100px;">Action</th>
+    let tableRows = "";
+    for (let i = 0; i < this.proxies.length; i++) {
+        const prx = this.proxies[i];
+        const proxyConfigs = prx.list.join('\\n');
+        tableRows += `
+            <tr class="border-t border-gray-700">
+                <td class="px-4 py-2 text-white font-bold text-center">${this.startIndex + i + 1}.</td> <td class="px-4 py-2 text-white font-bold text-center">${prx.prxIP}:${prx.prxPort}</td> <td id="ping-${i}" class="px-4 py-2 text-white font-bold text-center">${prx.prxIP}:${prx.prxPort}</td> <td class="px-6 py-4 whitespace-nowrap text-sm flex items-center justify-center text-white font-bold"> <img src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" width="20" class="inline mr-2 rounded-full"/>
+                    ${prx.country}
+                </td>
+                
+                <td class="px-4 py-2 text-white font-bold text-center">${prx.org}</td> <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                    <button onclick="promptForRemarkAndCopy(\`${proxyConfigs}\`)" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Config</button>
+                </td>
             </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            ${tableRows}
-        </tbody>
-    </table>
-</div>
         `;
-
-        this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", table);
     }
+
+    const table = `
+        <div class="bg-gray-800/50 rounded-lg shadow-xl p-4"> 
+            <div class="overflow-x-auto"> 
+                <table class="min-w-full bg-gray-800/50 rounded-lg"> 
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-center text-sm font-bold text-white">No.</th> <th class="px-4 py-2 text-center text-sm font-bold text-white">IP</th> <th class="px-4 py-2 text-center text-sm font-bold text-white">Status</th> <th class="px-4 py-2 text-center text-sm font-bold text-white">Country</th> <th class="px-4 py-2 text-center text-sm font-bold text-white">ISP</th> <th class="px-4 py-2 text-center text-sm font-bold text-white">Action</th> </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", table);
+}
 
     buildCountryFlag() {
         const prxBankUrl = this.url.searchParams.get("prx-list");
@@ -3910,3 +4099,4 @@ buildDropdowns() {
     `);
 }
 }
+ 
